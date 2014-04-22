@@ -57,4 +57,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
+    @Override
+    public boolean isConnected() {
+        String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
+        String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
+        return accessToken != null && accessTokenSecret != null;
+    }
 }

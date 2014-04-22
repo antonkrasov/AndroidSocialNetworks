@@ -1,8 +1,10 @@
-package com.androidsocialnetworks.app;
+package com.androidsocialnetworks.app.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 
+import com.androidsocialnetworks.app.R;
+import com.androidsocialnetworks.app.fragment.SocialNetworksListFragment;
 import com.androidsocialnetworks.lib.SocialNetworkManager;
 
 public class MainActivity extends ActionBarActivity {
@@ -35,5 +37,19 @@ public class MainActivity extends ActionBarActivity {
         getSupportFragmentManager().putFragment(outState, SocialNetworkManager.SAVE_KEY, mSocialNetworkManager);
 
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            return;
+        }
+
+        super.onBackPressed();
+    }
+
+    public SocialNetworkManager getSocialNetworkManager() {
+        return mSocialNetworkManager;
     }
 }

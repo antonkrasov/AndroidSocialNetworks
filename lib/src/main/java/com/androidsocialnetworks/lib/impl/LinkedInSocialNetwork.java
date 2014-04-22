@@ -25,4 +25,9 @@ public class LinkedInSocialNetwork extends SocialNetwork {
             throw new IllegalArgumentException("TextUtils.isEmpty(fConsumerKey) || TextUtils.isEmpty(fConsumerSecret) || TextUtils.isEmpty(fPermissions)");
         }
     }
+
+    @Override
+    public boolean isConnected() {
+        throw new RuntimeException("Not implemented");
+    }
 }

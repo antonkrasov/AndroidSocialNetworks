@@ -118,6 +118,22 @@ public class SocialNetworkManager extends Fragment {
         }
     }
 
+    public TwitterSocialNetwork getTwitterSocialNetwork() {
+        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_TWITTER)) {
+            throw new IllegalStateException("Twitter wasn't initialized...");
+        }
+
+        return (TwitterSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_TWITTER);
+    }
+
+    public LinkedInSocialNetwork getLinkedInSocialNetwork() {
+        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_LINKED_IN)) {
+            throw new IllegalStateException("LinkedIn wasn't initialized...");
+        }
+
+        return (LinkedInSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_LINKED_IN);
+    }
+
     public static class Builder {
         private String twitterConsumerKey, twitterConsumerSecret;
         private String linkedInConsumerKey, linkedInConsumerSecret, linkedInPermissions;

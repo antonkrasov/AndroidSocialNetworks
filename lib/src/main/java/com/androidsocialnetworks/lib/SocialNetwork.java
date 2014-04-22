@@ -53,4 +53,8 @@ public abstract class SocialNetwork {
         Log.d(TAG, "onRestoreInstanceState: " + requestCode + " : " + resultCode + " : " + data);
     }
 
+
+    public abstract boolean isConnected();
+
+
 }
