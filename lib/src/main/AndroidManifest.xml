@@ -1,6 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.androidsocialnetworks.lib">
+<manifest
+    package="com.androidsocialnetworks.lib"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application />
+    <application>
+
+        <activity
+            android:name=".OAuthActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
+            />
+
+    </application>
 
 </manifest>
