@@ -1,0 +1,42 @@
+apply plugin: 'android-library'
+apply plugin: 'maven'
+
+def coreAarFile = file('build/core.aar')
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.3"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 16
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile 'org.twitter4j:twitter4j:4.0.1'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+artifacts {
+    archives coreAarFile
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file:///$projectDir/../repo")
+            pom.groupId = 'com.androidsocialnetworks.lib'
+            pom.artifactId = 'library'
+            pom.version = '0.0.1'
+        }
+    }
+}
