@@ -15,14 +15,15 @@ android {
     }
     buildTypes {
         release {
-            runProguard true
+            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
 }
 
 dependencies {
-    compile 'org.twitter4j:twitter4j:4.0.1'
+    compile 'com.android.support:support-v4:19.+@jar'
+    compile 'org.twitter4j:twitter4j-core:4.0.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 

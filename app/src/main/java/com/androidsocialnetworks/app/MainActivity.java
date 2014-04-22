@@ -1,41 +1,39 @@
 package com.androidsocialnetworks.app;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
 
-import com.androidsocialnetworks.lib.SocialNetwork;
-import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
+import com.androidsocialnetworks.lib.SocialNetworkManager;
 
 public class MainActivity extends ActionBarActivity {
+
+    private SocialNetworkManager mSocialNetworkManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SocialNetwork socialNetwork = new TwitterSocialNetwork();
-    }
+        if (savedInstanceState == null) {
+            mSocialNetworkManager = SocialNetworkManager.Builder.create()
+                    .twitter("KXJXZZItkNGiV3m2b5Q4GkGlM", "ggBxzt3Q7CcOM29tveliMJuBrCb8Y3AhXEi2K5M9m2IoGQYktk")
+                    .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
+                    .build();
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+            getSupportFragmentManager().beginTransaction().add(mSocialNetworkManager, SocialNetworkManager.SAVE_KEY).commit();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.root_container, SocialNetworksListFragment.newInstance())
+                    .commit();
+        } else {
+            mSocialNetworkManager = (SocialNetworkManager) getSupportFragmentManager().getFragment(savedInstanceState, SocialNetworkManager.SAVE_KEY);
         }
-        return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        getSupportFragmentManager().putFragment(outState, SocialNetworkManager.SAVE_KEY, mSocialNetworkManager);
+
+        super.onSaveInstanceState(outState);
+    }
 }
