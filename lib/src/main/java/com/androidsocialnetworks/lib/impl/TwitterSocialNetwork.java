@@ -1,10 +1,11 @@
 package com.androidsocialnetworks.lib.impl;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,7 +33,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
     private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
 
-    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode();
+    // max 16 bit to use in startActivityForResult
+    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
 
     private final String TWITTER_CALLBACK_URL = "oauth://AndroidSocialNetworks";
     private final String fConsumerKey;
@@ -44,8 +46,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private LoginAsyncTask mLoginAsyncTask;
     private Login2AsyncTask mLogin2AsyncTask;
 
-    public TwitterSocialNetwork(Activity activity, String consumerKey, String consumerSecret) {
-        super(activity);
+    public TwitterSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret) {
+        super(fragment);
         Log.d(TAG, "new TwitterSocialNetwork: " + consumerKey + " : " + consumerSecret);
 
         fConsumerKey = consumerKey;
@@ -144,7 +146,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode + " : " + data);
 
-        Uri uri = data.getData();
+        Uri uri = data != null ? data.getData() : null;
 
         if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
             String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
@@ -159,14 +161,19 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-    private class LoginAsyncTask extends AsyncTask<String, String, String> {
+    private class LoginAsyncTask extends AsyncTask<String, String, Bundle> {
+        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
+        private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
+
         @Override
         protected void onPreExecute() {
             Log.d(TAG, "LoginAsyncTask.onPreExecute()");
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected Bundle doInBackground(String... params) {
+            Bundle result = new Bundle();
+
             Log.d(TAG, "LoginAsyncTask.doInBackground()");
 
             try {
@@ -175,24 +182,32 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
                 Log.d(TAG, "oauthLoginURL: " + oauthLoginURL);
 
-                Intent intent = new Intent(mActivity, OAuthActivity.class)
-                        .putExtra(OAuthActivity.PARAM_CALLBACK, TWITTER_CALLBACK_URL)
-                        .putExtra(OAuthActivity.PARAM_URL_TO_LOAD, oauthLoginURL.toString());
-
-                mActivity.startActivityForResult(intent, REQUEST_AUTH);
+                result.putString(RESULT_OAUTH_LOGIN, oauthLoginURL.toString());
             } catch (TwitterException e) {
                 Log.e(TAG, "ERROR", e);
-                return e.getMessage();
+                result.putString(RESULT_ERROR, e.getMessage());
             }
 
-            return null;
+            return result;
         }
 
         @Override
-        protected void onPostExecute(String error) {
+        protected void onPostExecute(Bundle result) {
             Log.d(TAG, "LoginAsyncTask.onPostExecute()");
 
             mLoginAsyncTask = null;
+
+            if (result.containsKey(RESULT_ERROR) && mOnLoginCompleteListener != null) {
+                mOnLoginCompleteListener.onLoginFailed(getID(), result.getString(RESULT_ERROR));
+            }
+
+            if (result.containsKey(RESULT_OAUTH_LOGIN)) {
+                Intent intent = new Intent(mSocialNetworkManager.getActivity(), OAuthActivity.class)
+                        .putExtra(OAuthActivity.PARAM_CALLBACK, TWITTER_CALLBACK_URL)
+                        .putExtra(OAuthActivity.PARAM_URL_TO_LOAD, result.getString(RESULT_OAUTH_LOGIN));
+
+                mSocialNetworkManager.startActivityForResult(intent, REQUEST_AUTH);
+            }
         }
     }
 

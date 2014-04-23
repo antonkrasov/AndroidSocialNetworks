@@ -1,10 +1,10 @@
 package com.androidsocialnetworks.lib;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 public abstract class SocialNetwork {
@@ -12,15 +12,21 @@ public abstract class SocialNetwork {
 
     private static final String SHARED_PREFERENCES_NAME = "social_networks";
 
-    protected Activity mActivity;
+    protected Fragment mSocialNetworkManager;
     protected SharedPreferences mSharedPreferences;
 
     protected OnLoginCompleteListener mOnLoginCompleteListener;
 
-    protected SocialNetwork(Activity activity) {
-        mActivity = activity;
+    /**
+     * @param fragment ant not activity or context, as we will need to call startActivityForResult,
+     *                 we will want to receice on onActivityResult in out SocialNetworkManager
+     *                 fragment
+     */
+    protected SocialNetwork(Fragment fragment) {
+        mSocialNetworkManager = fragment;
 
-        mSharedPreferences = mActivity.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        mSharedPreferences = mSocialNetworkManager
+                .getActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
     public void onCreate(Bundle savedInstanceState) {

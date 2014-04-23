@@ -1,6 +1,6 @@
 package com.androidsocialnetworks.lib.impl;
 
-import android.app.Activity;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -15,8 +15,8 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     private final String fConsumerSecret;
     private final String fPermissions;
 
-    public LinkedInSocialNetwork(Activity activity, String consumerKey, String consumerSecret, String permissions) {
-        super(activity);
+    public LinkedInSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret, String permissions) {
+        super(fragment);
         Log.d(TAG, "new LinkedInSocialNetwork: " + consumerKey + " : " + consumerSecret + " : " + permissions);
 
         fConsumerKey = consumerKey;

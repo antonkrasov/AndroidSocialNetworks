@@ -45,12 +45,12 @@ public class SocialNetworkManager extends Fragment {
 
         if (!TextUtils.isEmpty(paramTwitterKey) || !TextUtils.isEmpty(paramTwitterKey)) {
             mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_TWITTER,
-                    new TwitterSocialNetwork(getActivity(), paramTwitterKey, paramTwitterSecret));
+                    new TwitterSocialNetwork(this, paramTwitterKey, paramTwitterSecret));
         }
 
         if (!TextUtils.isEmpty(paramLinkedInKey) || !TextUtils.isEmpty(paramLinkedInSecret)) {
             mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_LINKED_IN,
-                    new LinkedInSocialNetwork(getActivity(), paramLinkedInKey, paramLinkedInSecret, paramLinkedInPermissions));
+                    new LinkedInSocialNetwork(this, paramLinkedInKey, paramLinkedInSecret, paramLinkedInPermissions));
         }
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
