@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -60,6 +62,21 @@ public class OAuthActivity extends Activity {
                 }
 
                 return super.shouldOverrideUrlLoading(view, url);
+            }
+
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                handler.proceed();
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                super.onReceivedError(view, errorCode, description, failingUrl);
+
+                Intent intent = new Intent();
+                intent.setAction(description);
+                setResult(RESULT_CANCELED, intent);
+                finish();
             }
         });
         webView.loadUrl(paramUrlToLoad);

@@ -15,6 +15,8 @@ public abstract class SocialNetwork {
     protected Activity mActivity;
     protected SharedPreferences mSharedPreferences;
 
+    protected OnLoginCompleteListener mOnLoginCompleteListener;
+
     protected SocialNetwork(Activity activity) {
         mActivity = activity;
 
@@ -22,39 +24,51 @@ public abstract class SocialNetwork {
     }
 
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: " + savedInstanceState);
+
     }
 
     public void onStart() {
-        Log.d(TAG, "onStart");
+
     }
 
     public void onResume() {
-        Log.d(TAG, "onResume");
+
     }
 
     public void onPause() {
-        Log.d(TAG, "onPause");
+
     }
 
     public void onStop() {
-        Log.d(TAG, "onStop");
+
     }
 
     public void onDestroy() {
-        Log.d(TAG, "onDestroy");
+
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG, "onSaveInstanceState: " + outState);
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onRestoreInstanceState: " + requestCode + " : " + resultCode + " : " + data);
     }
 
+    public void setOnLoginCompleteListener(OnLoginCompleteListener onLoginCompleteListener) {
+        mOnLoginCompleteListener = onLoginCompleteListener;
+    }
 
     public abstract boolean isConnected();
 
+    public abstract void login();
+
+    public abstract int getID();
+
+    public static interface OnLoginCompleteListener {
+        public void onLoginSuccess(int socialNetworkID);
+
+        public void onLoginFailed(int socialNetworkID, String reason);
+    }
 
 }

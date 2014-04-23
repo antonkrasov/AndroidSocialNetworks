@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 public class SocialNetworkManager extends Fragment {
     public static final String SAVE_KEY = SocialNetworkManager.class.getSimpleName();
-
+    private static final String TAG = SocialNetworkManager.class.getSimpleName();
     private static final String PARAM_TWITTER_KEY = "SocialNetworkManager.PARAM_TWITTER_KEY";
     private static final String PARAM_TWITTER_SECRET = "SocialNetworkManager.PARAM_TWITTER_SECRET";
 
@@ -29,6 +30,8 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "SocialNetworkManager.onCreate");
+
         setRetainInstance(true);
 
         Bundle args = getArguments();
@@ -58,6 +61,7 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        Log.d(TAG, "SocialNetworkManager.onStart");
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onStart();
@@ -67,6 +71,7 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "SocialNetworkManager.onResume");
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onResume();
@@ -76,6 +81,7 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        Log.d(TAG, "SocialNetworkManager.onPause");
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onPause();
@@ -85,6 +91,7 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        Log.d(TAG, "SocialNetworkManager.onStop");
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onStop();
@@ -94,6 +101,7 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "SocialNetworkManager.onDestroy");
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onDestroy();
@@ -103,6 +111,7 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        Log.d(TAG, "SocialNetworkManager.onSaveInstanceState");
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onSaveInstanceState(outState);
@@ -112,6 +121,7 @@ public class SocialNetworkManager extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "SocialNetworkManager.onActivityResult: " + requestCode + " : " + resultCode);
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onActivityResult(requestCode, resultCode, data);
