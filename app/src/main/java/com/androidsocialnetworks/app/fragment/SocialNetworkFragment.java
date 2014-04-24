@@ -13,6 +13,8 @@ import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialPerson;
 import com.squareup.picasso.Picasso;
 
+import java.util.UUID;
+
 public class SocialNetworkFragment extends BaseFragment implements
         SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener, SocialNetwork.OnPostingListener {
 
@@ -97,7 +99,7 @@ public class SocialNetworkFragment extends BaseFragment implements
             return;
         }
 
-        mSocialNetwork.postMessage("Test");
+        mSocialNetwork.postMessage(UUID.randomUUID().toString());
 
         switchUIState(UIState.PROGRESS);
     }

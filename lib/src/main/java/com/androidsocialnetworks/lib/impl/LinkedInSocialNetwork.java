@@ -41,6 +41,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     private static final String SAVE_STATE_RUNNING_REQUESTS = "LinkedInSocialNetwork.SAVE_STATE_RUNNING_REQUESTS";
     private static final String SAVE_STATE_AUTH_REQUEST_URL = "LinkedInSocialNetwork.SAVE_STATE_AUTH_URL";
     private static final String SAVE_STATE_AUTH_REQUEST_TOKEN = "LinkedInSocialNetwork.SAVE_STATE_AUTH_REQUEST_TOKEN";
+    private static final String SAVE_STATE_REQUEST_UPDATE_MESSAGE = "LinkedInSocialNetwork.SAVE_STATE_REQUEST_UPDATE_MESSAGE";
     private static final String SAVE_STATE_LOGIN2_URI = "LinkedInSocialNetwork.SAVE_STATE_LOGIN2_URI";
     private static final EnumSet<ProfileField> PROFILE_PARAMETERS = EnumSet.allOf(ProfileField.class);
 
@@ -57,6 +58,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     private LoginAsyncTask mLoginAsyncTask;
     private Login2AsyncTask mLogin2AsyncTask;
     private RequestPersonAsyncTask mRequestPersonAsyncTask;
+    private RequestPostMessageAsyncTask mRequestPostMessageAsyncTask;
 
     public LinkedInSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret, String permissions) {
         super(fragment);
@@ -110,11 +112,14 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     }
 
     public void postMessage(String message) {
-        throw new IllegalStateException("Now implemented");
+        mSharedPreferences.edit().putString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, message).apply();
+
+        mRequestPostMessageAsyncTask = new RequestPostMessageAsyncTask();
+        mRequestPostMessageAsyncTask.execute(message);
     }
 
     public void postPhoto(File photo, String message) {
-        throw new IllegalStateException("Now implemented");
+        throw new IllegalStateException("posting photo isn't allowed for LinkedIn");
     }
 
     @Override
@@ -137,6 +142,11 @@ public class LinkedInSocialNetwork extends SocialNetwork {
                     mLogin2AsyncTask.execute(authRequestToken, login2Uri);
                 } else if (request.equals(RequestPersonAsyncTask.class.getSimpleName())) {
                     requestPerson();
+                } else if (request.equals(RequestPostMessageAsyncTask.class.getSimpleName())) {
+                    mRequestPostMessageAsyncTask = new RequestPostMessageAsyncTask();
+                    mRequestPostMessageAsyncTask.execute(
+                            mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, null)
+                    );
                 }
             }
 
@@ -169,6 +179,13 @@ public class LinkedInSocialNetwork extends SocialNetwork {
             mRequestPersonAsyncTask = null;
 
             runningRequests.add(RequestPersonAsyncTask.class.getSimpleName());
+        }
+
+        if (mRequestPostMessageAsyncTask != null) {
+            mRequestPostMessageAsyncTask.cancel(true);
+            mRequestPostMessageAsyncTask = null;
+
+            runningRequests.add(RequestPostMessageAsyncTask.class.getSimpleName());
         }
 
         String finalValue = "";
@@ -376,6 +393,50 @@ public class LinkedInSocialNetwork extends SocialNetwork {
             }
 
         }
+    }
+
+    private class RequestPostMessageAsyncTask extends AsyncTask<String, Void, Bundle> {
+        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
+
+        @Override
+        protected Bundle doInBackground(String... params) {
+            Bundle result = new Bundle();
+
+            try {
+                String message = params[0];
+
+                LinkedInApiClient apiClient = mLinkedInApiClientFactory.createLinkedInApiClient(
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, ""),
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, "")
+                );
+
+                apiClient.updateCurrentStatus(message);
+            } catch (Exception e) {
+                Log.e(TAG, "ERROR", e);
+
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            mRequestPostMessageAsyncTask = null;
+
+            mSharedPreferences.edit().remove(SAVE_STATE_REQUEST_UPDATE_MESSAGE).apply();
+
+            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
+
+            if (mOnPostingListener == null) return;
+
+            if (error == null) {
+                mOnPostingListener.onPostSuccessfully(getID());
+            } else {
+                mOnPostingListener.onPostFailed(getID(), error);
+            }
+        }
+
     }
 
 }
