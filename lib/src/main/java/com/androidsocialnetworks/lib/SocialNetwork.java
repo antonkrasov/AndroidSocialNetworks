@@ -69,6 +69,8 @@ public abstract class SocialNetwork {
 
     public abstract void login();
 
+    public abstract void logout();
+
     public abstract int getID();
 
     public static interface OnLoginCompleteListener {

@@ -39,6 +39,11 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     }
 
     @Override
+    public void logout() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public int getID() {
         return ID;
     }

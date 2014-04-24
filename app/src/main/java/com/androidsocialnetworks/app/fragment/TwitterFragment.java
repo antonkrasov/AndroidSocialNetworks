@@ -3,8 +3,10 @@ package com.androidsocialnetworks.app.fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.androidsocialnetworks.app.R;
 import com.androidsocialnetworks.app.activity.MainActivity;
 import com.androidsocialnetworks.app.fragment.base.BaseFragment;
 import com.androidsocialnetworks.lib.SocialNetwork;
@@ -14,6 +16,7 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
     private static final String TAG = TwitterFragment.class.getSimpleName();
 
     private TwitterSocialNetwork mTwitterSocialNetwork;
+    private Button mConnectDisconnectButton;
 
     public static TwitterFragment newInstance() {
         return new TwitterFragment();
@@ -25,6 +28,13 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
 
         mTwitterSocialNetwork = getMainActivity().getSocialNetworkManager().getTwitterSocialNetwork();
         mTwitterSocialNetwork.setOnLoginCompleteListener(this);
+
+        mConnectDisconnectButton = (Button) view.findViewById(R.id.connect_disconnect_button);
+        if (mTwitterSocialNetwork.isConnected()) {
+            mConnectDisconnectButton.setText("Logout");
+        } else {
+            mConnectDisconnectButton.setText("Login");
+        }
     }
 
     @Override
@@ -35,9 +45,12 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
 
     @Override
     protected void onConnectDisconnectButtonClick() {
-        Toast.makeText(getActivity(), "Connect", Toast.LENGTH_SHORT).show();
-
-        mTwitterSocialNetwork.login();
+        if (!mTwitterSocialNetwork.isConnected()) {
+            mTwitterSocialNetwork.login();
+        } else {
+            mTwitterSocialNetwork.logout();
+            mConnectDisconnectButton.setText("Login");
+        }
 
         switchUIState(UIState.PROGRESS);
     }
@@ -48,6 +61,7 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
 
         switchUIState(UIState.CONTENT);
         Toast.makeText(getActivity(), "login successfull", Toast.LENGTH_SHORT).show();
+        mConnectDisconnectButton.setText("Logout");
     }
 
     @Override

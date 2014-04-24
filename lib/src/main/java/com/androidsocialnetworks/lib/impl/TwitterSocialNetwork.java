@@ -1,17 +1,23 @@
 package com.androidsocialnetworks.lib.impl;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +36,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
     private static final String SAVE_STATE_RUNNING_REQUESTS = "TwitterSocialNetwork.SAVE_STATE_RUNNING_REQUESTS";
     private static final String SAVE_STATE_LOGIN_2_URI = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_URI";
+    private static final String SAVE_STATE_LOGIN_2_REQUEST_TOKEN = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_REQUEST_TOKEN";
 
     private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
 
@@ -58,6 +65,28 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
 
         initTwitterClient();
+    }
+
+    /**
+     * Read the object from Base64 string.
+     */
+    private static Object fromString(String s) throws IOException, ClassNotFoundException {
+        byte[] data = Base64.decode(s, Base64.DEFAULT);
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+        Object o = ois.readObject();
+        ois.close();
+        return o;
+    }
+
+    /**
+     * Write the object to a Base64 string.
+     */
+    private static String toString(Serializable o) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(o);
+        oos.close();
+        return new String(Base64.encode(baos.toByteArray(), Base64.DEFAULT));
     }
 
     private void initTwitterClient() {
@@ -95,6 +124,14 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     @Override
+    public void logout() {
+        mSharedPreferences.edit()
+                .remove(SAVE_STATE_KEY_OAUTH_TOKEN)
+                .remove(SAVE_STATE_KEY_OAUTH_SECRET)
+                .apply();
+    }
+
+    @Override
     public int getID() {
         return ID;
     }
@@ -111,6 +148,18 @@ public class TwitterSocialNetwork extends SocialNetwork {
                 if (request.equals(LoginAsyncTask.class.getSimpleName())) {
                     mLoginAsyncTask = new LoginAsyncTask();
                     mLoginAsyncTask.execute();
+                } else if (request.equals(Login2AsyncTask.class.getSimpleName())) {
+                    String verifyer = mSharedPreferences.getString(SAVE_STATE_LOGIN_2_URI, "");
+                    try {
+                        mRequestToken = (RequestToken) fromString(mSharedPreferences.getString(SAVE_STATE_LOGIN_2_REQUEST_TOKEN, ""));
+                    } catch (IOException e) {
+                        Log.e(TAG, "ERROR", e);
+                    } catch (ClassNotFoundException e) {
+                        Log.e(TAG, "ERROR", e);
+                    }
+
+                    mLogin2AsyncTask = new Login2AsyncTask();
+                    mLogin2AsyncTask.execute(verifyer);
                 }
             }
 
@@ -129,6 +178,13 @@ public class TwitterSocialNetwork extends SocialNetwork {
             mLoginAsyncTask = null;
 
             runningRequests.add(LoginAsyncTask.class.getSimpleName());
+        }
+
+        if (mLogin2AsyncTask != null) {
+            mLogin2AsyncTask.cancel(true);
+            mLogin2AsyncTask = null;
+
+            runningRequests.add(Login2AsyncTask.class.getSimpleName());
         }
 
         String finalValue = "";
@@ -150,7 +206,14 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
             String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
-            mSharedPreferences.edit().putString(SAVE_STATE_LOGIN_2_URI, verifier).apply();
+            try {
+                mSharedPreferences.edit()
+                        .putString(SAVE_STATE_LOGIN_2_URI, verifier)
+                        .putString(SAVE_STATE_LOGIN_2_REQUEST_TOKEN, toString(mRequestToken))
+                        .apply();
+            } catch (IOException e) {
+                Log.e(TAG, "ERROR", e);
+            }
 
             mLogin2AsyncTask = new Login2AsyncTask();
             mLogin2AsyncTask.execute(verifier);
@@ -211,31 +274,44 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-    private class Login2AsyncTask extends AsyncTask<String, Void, String> {
+    private class Login2AsyncTask extends AsyncTask<String, Void, Bundle> {
+        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
+        private static final String RESULT_TOKEN = "LoginAsyncTask.RESULT_TOKEN";
+        private static final String RESULT_SECRET = "LoginAsyncTask.RESULT_SECRET";
+
         @Override
-        protected String doInBackground(String... params) {
+        protected Bundle doInBackground(String... params) {
             String verifier = params[0];
+
+            Bundle result = new Bundle();
 
             try {
                 AccessToken accessToken = mTwitter.getOAuthAccessToken(mRequestToken, verifier);
 
-                // Shared Preferences
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.putString(SAVE_STATE_KEY_OAUTH_TOKEN, accessToken.getToken());
-                editor.putString(SAVE_STATE_KEY_OAUTH_TOKEN, accessToken.getTokenSecret());
-                editor.commit();
+                result.putString(RESULT_TOKEN, accessToken.getToken());
+                result.putString(RESULT_SECRET, accessToken.getTokenSecret());
             } catch (Exception e) {
                 Log.e(TAG, "ERROR", e);
-                return e.getMessage();
+                result.putString(RESULT_ERROR, e.getMessage());
             }
 
-            return null;
+            return result;
         }
 
         @Override
-        protected void onPostExecute(String error) {
+        protected void onPostExecute(Bundle result) {
             mLogin2AsyncTask = null;
             mSharedPreferences.edit().remove(SAVE_STATE_LOGIN_2_URI).apply();
+
+            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
+
+            if (error == null) {
+                // Shared Preferences
+                mSharedPreferences.edit()
+                        .putString(SAVE_STATE_KEY_OAUTH_TOKEN, result.getString(RESULT_TOKEN))
+                        .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
+                        .apply();
+            }
 
             if (mOnLoginCompleteListener != null) {
                 if (error == null) {
