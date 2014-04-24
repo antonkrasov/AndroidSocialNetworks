@@ -21,6 +21,7 @@ import com.google.code.linkedinapi.client.oauth.LinkedInOAuthServiceFactory;
 import com.google.code.linkedinapi.client.oauth.LinkedInRequestToken;
 import com.google.code.linkedinapi.schema.Person;
 
+import java.io.File;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -106,6 +107,14 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
         mRequestPersonAsyncTask = new RequestPersonAsyncTask();
         mRequestPersonAsyncTask.execute(accessToken);
+    }
+
+    public void postMessage(String message) {
+        throw new IllegalStateException("Now implemented");
+    }
+
+    public void postPhoto(File photo, String message) {
+        throw new IllegalStateException("Now implemented");
     }
 
     @Override

@@ -24,6 +24,10 @@ public abstract class BaseFragment extends Fragment {
 
     protected abstract void onLoadProfileClick();
 
+    protected abstract void onPostMessage();
+
+    protected abstract void onPostPhoto();
+
     public MainActivity getMainActivity() {
         return (MainActivity) getActivity();
     }
@@ -47,6 +51,18 @@ public abstract class BaseFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onLoadProfileClick();
+            }
+        });
+        view.findViewById(R.id.post_message).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onPostMessage();
+            }
+        });
+        view.findViewById(R.id.post_photo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onPostPhoto();
             }
         });
 

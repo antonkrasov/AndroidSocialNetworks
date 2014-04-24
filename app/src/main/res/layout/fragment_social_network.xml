@@ -41,6 +41,20 @@
             android:text="Load Profile"
             />
 
+        <Button
+            android:id="@+id/post_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Post message"
+            />
+
+        <Button
+            android:id="@+id/post_photo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Post photo"
+            />
+
     </LinearLayout>
 
     <ProgressBar

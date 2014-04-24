@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import java.io.File;
+
 public abstract class SocialNetwork {
     private static final String TAG = SocialNetwork.class.getSimpleName();
 
@@ -17,6 +19,7 @@ public abstract class SocialNetwork {
 
     protected OnLoginCompleteListener mOnLoginCompleteListener;
     protected OnRequestSocialPersonListener mOnRequestSocialPersonListener;
+    protected OnPostingListener mOnPostingListener;
 
     /**
      * @param fragment ant not activity or context, as we will need to call startActivityForResult,
@@ -70,6 +73,10 @@ public abstract class SocialNetwork {
         mOnRequestSocialPersonListener = onRequestSocialPersonListener;
     }
 
+    public void setOnPostingListener(OnPostingListener onPostingListener) {
+        mOnPostingListener = onPostingListener;
+    }
+
     public abstract boolean isConnected();
 
     public abstract void login();
@@ -79,6 +86,10 @@ public abstract class SocialNetwork {
     public abstract int getID();
 
     public abstract void requestPerson();
+
+    public abstract void postMessage(String message);
+
+    public abstract void postPhoto(File photo, String message);
 
     public static interface OnLoginCompleteListener {
         public void onLoginSuccess(int socialNetworkID);
@@ -90,6 +101,12 @@ public abstract class SocialNetwork {
         public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson);
 
         public void onRequestSocialPersonFailed(int socialNetworkID, String reason);
+    }
+
+    public static interface OnPostingListener {
+        public void onPostSuccessfully(int socialNetworkID);
+
+        public void onPostFailed(int socialNetworkID, String reason);
     }
 
 }

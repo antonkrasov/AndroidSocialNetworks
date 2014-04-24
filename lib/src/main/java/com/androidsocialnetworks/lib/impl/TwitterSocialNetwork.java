@@ -15,6 +15,7 @@ import com.androidsocialnetworks.lib.SocialPerson;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -23,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -40,6 +42,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private static final String SAVE_STATE_RUNNING_REQUESTS = "TwitterSocialNetwork.SAVE_STATE_RUNNING_REQUESTS";
     private static final String SAVE_STATE_LOGIN_2_URI = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_URI";
     private static final String SAVE_STATE_LOGIN_2_REQUEST_TOKEN = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_REQUEST_TOKEN";
+    private static final String SAVE_STATE_REQUEST_UPDATE_MESSAGE = "TwitterSocialNetwork.SAVE_STATE_REQUEST_UPDATE_MESSAGE";
+    private static final String SAVE_STATE_REQUEST_UPDATE_PHOTO = "TwitterSocialNetwork.SAVE_STATE_REQUEST_UPDATE_PHOTO";
 
     private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
 
@@ -56,6 +60,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private LoginAsyncTask mLoginAsyncTask;
     private Login2AsyncTask mLogin2AsyncTask;
     private RequestPersonAsyncTask mRequestPersonAsyncTask;
+    private RequestUpdateStatus mRequestUpdateStatusAsyncTask;
 
     public TwitterSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret) {
         super(fragment);
@@ -148,6 +153,33 @@ public class TwitterSocialNetwork extends SocialNetwork {
         mRequestPersonAsyncTask.execute(userID);
     }
 
+    public void postMessage(String message) {
+        if (mRequestUpdateStatusAsyncTask != null) {
+            throw new IllegalStateException("Update status already running, please wait for completion");
+        }
+
+        mSharedPreferences.edit()
+                .putString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, message)
+                .apply();
+
+        mRequestUpdateStatusAsyncTask = new RequestUpdateStatus();
+        mRequestUpdateStatusAsyncTask.execute(message);
+    }
+
+    public void postPhoto(File photo, String message) {
+        if (mRequestUpdateStatusAsyncTask != null) {
+            throw new IllegalStateException("Update status already running, please wait for completion");
+        }
+
+        mSharedPreferences.edit()
+                .putString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, message)
+                .putString(SAVE_STATE_REQUEST_UPDATE_PHOTO, photo.getAbsolutePath())
+                .apply();
+
+        mRequestUpdateStatusAsyncTask = new RequestUpdateStatus();
+        mRequestUpdateStatusAsyncTask.execute(message, photo.getAbsolutePath());
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -174,6 +206,20 @@ public class TwitterSocialNetwork extends SocialNetwork {
                     mLogin2AsyncTask.execute(verifyer);
                 } else if (request.equals(RequestPersonAsyncTask.class.getSimpleName())) {
                     requestPerson();
+                } else if (request.equals(RequestUpdateStatus.class.getSimpleName())) {
+
+                    mRequestUpdateStatusAsyncTask = new RequestUpdateStatus();
+
+                    if (mSharedPreferences.contains(SAVE_STATE_REQUEST_UPDATE_PHOTO)) {
+                        mRequestUpdateStatusAsyncTask.execute(
+                                mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, ""),
+                                mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_PHOTO, "")
+                        );
+                    } else {
+                        mRequestUpdateStatusAsyncTask.execute(
+                                mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, "")
+                        );
+                    }
                 }
             }
 
@@ -206,6 +252,13 @@ public class TwitterSocialNetwork extends SocialNetwork {
             mRequestPersonAsyncTask = null;
 
             runningRequests.add(RequestPersonAsyncTask.class.getSimpleName());
+        }
+
+        if (mRequestUpdateStatusAsyncTask != null) {
+            mRequestUpdateStatusAsyncTask.cancel(true);
+            mRequestUpdateStatusAsyncTask = null;
+
+            runningRequests.add(RequestUpdateStatus.class.getSimpleName());
         }
 
         String finalValue = "";
@@ -296,10 +349,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     private class Login2AsyncTask extends AsyncTask<String, Void, Bundle> {
-        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
-        private static final String RESULT_TOKEN = "LoginAsyncTask.RESULT_TOKEN";
-        private static final String RESULT_SECRET = "LoginAsyncTask.RESULT_SECRET";
-        private static final String RESULT_USER_ID = "LoginAsyncTask.RESULT_USER_ID";
+        private static final String RESULT_ERROR = "Login2AsyncTask.RESULT_ERROR";
+        private static final String RESULT_TOKEN = "Login2AsyncTask.RESULT_TOKEN";
+        private static final String RESULT_SECRET = "Login2AsyncTask.RESULT_SECRET";
+        private static final String RESULT_USER_ID = "Login2AsyncTask.RESULT_USER_ID";
 
         @Override
         protected Bundle doInBackground(String... params) {
@@ -335,6 +388,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
                         .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
                         .putLong(SAVE_STATE_KEY_USER_ID, result.getLong(RESULT_USER_ID))
                         .apply();
+
+                initTwitterClient();
             }
 
             if (mOnLoginCompleteListener != null) {
@@ -348,10 +403,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     private class RequestPersonAsyncTask extends AsyncTask<Long, Void, Bundle> {
-        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
-        private static final String RESULT_ID = "LoginAsyncTask.RESULT_ID";
-        private static final String RESULT_NAME = "LoginAsyncTask.RESULT_NAME";
-        private static final String RESULT_AVATAR_URL = "LoginAsyncTask.RESULT_AVATAR_URL";
+        private static final String RESULT_ERROR = "RequestPersonAsyncTask.RESULT_ERROR";
+        private static final String RESULT_ID = "RequestPersonAsyncTask.RESULT_ID";
+        private static final String RESULT_NAME = "RequestPersonAsyncTask.RESULT_NAME";
+        private static final String RESULT_AVATAR_URL = "RequestPersonAsyncTask.RESULT_AVATAR_URL";
 
         @Override
         protected Bundle doInBackground(Long... params) {
@@ -391,6 +446,52 @@ public class TwitterSocialNetwork extends SocialNetwork {
                 } else {
                     mOnRequestSocialPersonListener.onRequestSocialPersonFailed(getID(), error);
                 }
+            }
+        }
+    }
+
+    private class RequestUpdateStatus extends AsyncTask<String, Void, Bundle> {
+        private static final String RESULT_ERROR = "RequestUpdateStatus.RESULT_ERROR";
+
+        @Override
+        protected Bundle doInBackground(String... params) {
+            Bundle result = new Bundle();
+
+            try {
+                StatusUpdate status = new StatusUpdate(params[0]);
+
+                if (params.length == 2) {
+                    status.setMedia(new File(params[1]));
+                }
+
+                mTwitter.updateStatus(status);
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle bundle) {
+            mRequestUpdateStatusAsyncTask = null;
+
+            mSharedPreferences.edit()
+                    .remove(SAVE_STATE_REQUEST_UPDATE_MESSAGE)
+                    .remove(SAVE_STATE_REQUEST_UPDATE_PHOTO)
+                    .apply();
+
+            if (bundle.containsKey(RESULT_ERROR)) {
+                if (mOnPostingListener != null) {
+                    mOnPostingListener.onPostFailed(getID(), bundle.getString(RESULT_ERROR));
+                }
+
+                return;
+            }
+
+            if (mOnPostingListener != null) {
+                mOnPostingListener.onPostSuccessfully(getID());
             }
         }
     }

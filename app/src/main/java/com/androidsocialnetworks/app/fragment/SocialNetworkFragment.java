@@ -14,7 +14,7 @@ import com.androidsocialnetworks.lib.SocialPerson;
 import com.squareup.picasso.Picasso;
 
 public class SocialNetworkFragment extends BaseFragment implements
-        SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener {
+        SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener, SocialNetwork.OnPostingListener {
 
     private static final String TAG = SocialNetworkFragment.class.getSimpleName();
 
@@ -48,6 +48,7 @@ public class SocialNetworkFragment extends BaseFragment implements
 
         mSocialNetwork.setOnLoginCompleteListener(this);
         mSocialNetwork.setOnRequestSocialPersonListener(this);
+        mSocialNetwork.setOnPostingListener(this);
 
         mConnectDisconnectButton = (Button) view.findViewById(R.id.connect_disconnect_button);
         if (mSocialNetwork.isConnected()) {
@@ -90,6 +91,30 @@ public class SocialNetworkFragment extends BaseFragment implements
     }
 
     @Override
+    protected void onPostMessage() {
+        if (!mSocialNetwork.isConnected()) {
+            Toast.makeText(getActivity(), "Please login first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mSocialNetwork.postMessage("Test");
+
+        switchUIState(UIState.PROGRESS);
+    }
+
+    @Override
+    protected void onPostPhoto() {
+        if (!mSocialNetwork.isConnected()) {
+            Toast.makeText(getActivity(), "Please login first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mSocialNetwork.postPhoto(MainActivity.ANDROID_IMAGE, "Test");
+
+        switchUIState(UIState.PROGRESS);
+    }
+
+    @Override
     public void onLoginSuccess(int socialNetworkID) {
         Log.d(TAG, "onLoginSuccess: " + socialNetworkID);
 
@@ -119,6 +144,23 @@ public class SocialNetworkFragment extends BaseFragment implements
     @Override
     public void onRequestSocialPersonFailed(int socialNetworkID, String reason) {
         Log.d(TAG, "onRequestSocialPersonFailed: " + socialNetworkID + " : " + reason);
+
+        switchUIState(UIState.CONTENT);
+        Toast.makeText(getActivity(), "error: " + reason, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPostSuccessfully(int socialNetworkID) {
+        Log.d(TAG, "onPostSuccessfully: " + socialNetworkID);
+
+        Toast.makeText(getActivity(), "Posted...", Toast.LENGTH_SHORT).show();
+
+        switchUIState(UIState.CONTENT);
+    }
+
+    @Override
+    public void onPostFailed(int socialNetworkID, String reason) {
+        Log.d(TAG, "onPostFailed: " + socialNetworkID + " : " + reason);
 
         switchUIState(UIState.CONTENT);
         Toast.makeText(getActivity(), "error: " + reason, Toast.LENGTH_SHORT).show();
