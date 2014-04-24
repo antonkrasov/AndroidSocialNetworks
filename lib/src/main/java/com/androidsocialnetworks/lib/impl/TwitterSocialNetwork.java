@@ -349,6 +349,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
     private class RequestPersonAsyncTask extends AsyncTask<Long, Void, Bundle> {
         private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
+        private static final String RESULT_ID = "LoginAsyncTask.RESULT_ID";
         private static final String RESULT_NAME = "LoginAsyncTask.RESULT_NAME";
         private static final String RESULT_AVATAR_URL = "LoginAsyncTask.RESULT_AVATAR_URL";
 
@@ -362,6 +363,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
             try {
                 User user = mTwitter.showUser(userID);
 
+                result.putString(RESULT_ID, user.getId() + "");
                 result.putString(RESULT_NAME, user.getName());
                 result.putString(RESULT_AVATAR_URL, user.getBiggerProfileImageURL());
             } catch (TwitterException e) {
@@ -381,6 +383,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
             if (mOnRequestSocialPersonListener != null) {
                 if (error == null) {
                     SocialPerson socialPerson = new SocialPerson();
+                    socialPerson.id = result.getString(RESULT_ID);
                     socialPerson.name = result.getString(RESULT_NAME);
                     socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
 
