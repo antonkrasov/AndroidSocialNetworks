@@ -19,7 +19,8 @@ public class MainActivity extends ActionBarActivity {
         if (savedInstanceState == null) {
             mSocialNetworkManager = SocialNetworkManager.Builder.create()
                     .twitter("KXJXZZItkNGiV3m2b5Q4GkGlM", "ggBxzt3Q7CcOM29tveliMJuBrCb8Y3AhXEi2K5M9m2IoGQYktk")
-                    .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
+//                    .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
+                    .linkedIn("82m4sz5rp2yd", "i5DkUGPGx4wtZGAq", "r_basicprofile+rw_nus+r_network+w_messages")
                     .build();
 
             getSupportFragmentManager().beginTransaction().add(mSocialNetworkManager, SocialNetworkManager.SAVE_KEY).commit();

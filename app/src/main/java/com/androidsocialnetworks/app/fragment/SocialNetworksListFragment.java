@@ -14,8 +14,8 @@ import java.util.List;
 
 public class SocialNetworksListFragment extends ListFragment {
 
-    private static final String LINKED_IN = "LinkedIn";
-    private static final String TWITTER = "Twitter";
+    public static final String LINKED_IN = "LinkedIn";
+    public static final String TWITTER = "Twitter";
 
     public static SocialNetworksListFragment newInstance() {
         return new SocialNetworksListFragment();
@@ -40,16 +40,9 @@ public class SocialNetworksListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         String item = (String) l.getAdapter().getItem(position);
-        if (item.equals(LINKED_IN)) {
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.root_container, LinkedInFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit();
-        } else if (item.equals(TWITTER)) {
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.root_container, TwitterFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit();
-        }
+        getFragmentManager().beginTransaction()
+                .replace(R.id.root_container, SocialNetworkFragment.newInstance(item))
+                .addToBackStack(null)
+                .commit();
     }
 }

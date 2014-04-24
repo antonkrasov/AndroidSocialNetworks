@@ -11,29 +11,46 @@ import com.androidsocialnetworks.app.activity.MainActivity;
 import com.androidsocialnetworks.app.fragment.base.BaseFragment;
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialPerson;
-import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
 import com.squareup.picasso.Picasso;
 
-public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener {
-    private static final String TAG = TwitterFragment.class.getSimpleName();
+public class SocialNetworkFragment extends BaseFragment implements
+        SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener {
 
-    private TwitterSocialNetwork mTwitterSocialNetwork;
+    private static final String TAG = SocialNetworkFragment.class.getSimpleName();
+
+    private static final String PARAM_NAME = "PARAM_NAME";
+
+    private SocialNetwork mSocialNetwork;
     private Button mConnectDisconnectButton;
 
-    public static TwitterFragment newInstance() {
-        return new TwitterFragment();
+    public static SocialNetworkFragment newInstance(String name) {
+        Bundle args = new Bundle();
+        args.putString(PARAM_NAME, name);
+
+        SocialNetworkFragment socialNetworkFragment = new SocialNetworkFragment();
+        socialNetworkFragment.setArguments(args);
+        return socialNetworkFragment;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mTwitterSocialNetwork = getMainActivity().getSocialNetworkManager().getTwitterSocialNetwork();
-        mTwitterSocialNetwork.setOnLoginCompleteListener(this);
-        mTwitterSocialNetwork.setOnRequestSocialPersonListener(this);
+        String name = getArguments().getString(PARAM_NAME);
+
+        if (name.equals(SocialNetworksListFragment.TWITTER)) {
+            mSocialNetwork = getMainActivity().getSocialNetworkManager().getTwitterSocialNetwork();
+        } else if (name.equals(SocialNetworksListFragment.LINKED_IN)) {
+            mSocialNetwork = getMainActivity().getSocialNetworkManager().getLinkedInSocialNetwork();
+        } else {
+            throw new IllegalStateException("Can't find social network for: " + name);
+        }
+
+        mSocialNetwork.setOnLoginCompleteListener(this);
+        mSocialNetwork.setOnRequestSocialPersonListener(this);
 
         mConnectDisconnectButton = (Button) view.findViewById(R.id.connect_disconnect_button);
-        if (mTwitterSocialNetwork.isConnected()) {
+        if (mSocialNetwork.isConnected()) {
             mConnectDisconnectButton.setText("Logout");
         } else {
             mConnectDisconnectButton.setText("Login");
@@ -43,16 +60,16 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Twitter");
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(getArguments().getString(PARAM_NAME));
     }
 
     @Override
     protected void onConnectDisconnectButtonClick() {
-        if (!mTwitterSocialNetwork.isConnected()) {
-            mTwitterSocialNetwork.login();
+        if (!mSocialNetwork.isConnected()) {
+            mSocialNetwork.login();
             switchUIState(UIState.PROGRESS);
         } else {
-            mTwitterSocialNetwork.logout();
+            mSocialNetwork.logout();
             mConnectDisconnectButton.setText("Login");
 
             mNameTextView.setText("");
@@ -62,12 +79,12 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
 
     @Override
     protected void onLoadProfileClick() {
-        if (!mTwitterSocialNetwork.isConnected()) {
+        if (!mSocialNetwork.isConnected()) {
             Toast.makeText(getActivity(), "Please login first", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        mTwitterSocialNetwork.requestPerson();
+        mSocialNetwork.requestPerson();
 
         switchUIState(UIState.PROGRESS);
     }

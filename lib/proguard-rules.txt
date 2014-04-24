@@ -16,10 +16,6 @@
 #   public *;
 #}
 
+# http://stackoverflow.com/questions/14059888/android-proguard-keep-inner-class
+-keepattributes Exceptions, InnerClasses
 -keep class com.androidsocialnetworks.lib.** { *; }
-
-# otto event bus
--keepclassmembers class ** {
-    @com.squareup.otto.Subscribe public *;
-    @com.squareup.otto.Produce public *;
-}
