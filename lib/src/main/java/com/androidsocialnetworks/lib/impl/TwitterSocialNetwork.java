@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.androidsocialnetworks.lib.SocialPerson;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,6 +26,7 @@ import java.util.UUID;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import twitter4j.conf.ConfigurationBuilder;
@@ -34,6 +36,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private static final String TAG = TwitterSocialNetwork.class.getSimpleName();
     private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
+    private static final String SAVE_STATE_KEY_USER_ID = "TwitterSocialNetwork.SAVE_STATE_KEY_USER_ID";
     private static final String SAVE_STATE_RUNNING_REQUESTS = "TwitterSocialNetwork.SAVE_STATE_RUNNING_REQUESTS";
     private static final String SAVE_STATE_LOGIN_2_URI = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_URI";
     private static final String SAVE_STATE_LOGIN_2_REQUEST_TOKEN = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_REQUEST_TOKEN";
@@ -52,6 +55,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
     private LoginAsyncTask mLoginAsyncTask;
     private Login2AsyncTask mLogin2AsyncTask;
+    private RequestPersonAsyncTask mRequestPersonAsyncTask;
 
     public TwitterSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret) {
         super(fragment);
@@ -137,6 +141,14 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     @Override
+    public void requestPerson() {
+        long userID = mSharedPreferences.getLong(SAVE_STATE_KEY_USER_ID, -1);
+
+        mRequestPersonAsyncTask = new RequestPersonAsyncTask();
+        mRequestPersonAsyncTask.execute(userID);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -160,6 +172,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
                     mLogin2AsyncTask = new Login2AsyncTask();
                     mLogin2AsyncTask.execute(verifyer);
+                } else if (request.equals(RequestPersonAsyncTask.class.getSimpleName())) {
+                    requestPerson();
                 }
             }
 
@@ -185,6 +199,13 @@ public class TwitterSocialNetwork extends SocialNetwork {
             mLogin2AsyncTask = null;
 
             runningRequests.add(Login2AsyncTask.class.getSimpleName());
+        }
+
+        if (mRequestPersonAsyncTask != null) {
+            mRequestPersonAsyncTask.cancel(true);
+            mRequestPersonAsyncTask = null;
+
+            runningRequests.add(RequestPersonAsyncTask.class.getSimpleName());
         }
 
         String finalValue = "";
@@ -278,6 +299,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
         private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
         private static final String RESULT_TOKEN = "LoginAsyncTask.RESULT_TOKEN";
         private static final String RESULT_SECRET = "LoginAsyncTask.RESULT_SECRET";
+        private static final String RESULT_USER_ID = "LoginAsyncTask.RESULT_USER_ID";
 
         @Override
         protected Bundle doInBackground(String... params) {
@@ -290,6 +312,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
                 result.putString(RESULT_TOKEN, accessToken.getToken());
                 result.putString(RESULT_SECRET, accessToken.getTokenSecret());
+                result.putLong(RESULT_USER_ID, accessToken.getUserId());
             } catch (Exception e) {
                 Log.e(TAG, "ERROR", e);
                 result.putString(RESULT_ERROR, e.getMessage());
@@ -310,6 +333,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
                 mSharedPreferences.edit()
                         .putString(SAVE_STATE_KEY_OAUTH_TOKEN, result.getString(RESULT_TOKEN))
                         .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
+                        .putLong(SAVE_STATE_KEY_USER_ID, result.getLong(RESULT_USER_ID))
                         .apply();
             }
 
@@ -318,6 +342,51 @@ public class TwitterSocialNetwork extends SocialNetwork {
                     mOnLoginCompleteListener.onLoginSuccess(getID());
                 } else {
                     mOnLoginCompleteListener.onLoginFailed(getID(), error);
+                }
+            }
+        }
+    }
+
+    private class RequestPersonAsyncTask extends AsyncTask<Long, Void, Bundle> {
+        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
+        private static final String RESULT_NAME = "LoginAsyncTask.RESULT_NAME";
+        private static final String RESULT_AVATAR_URL = "LoginAsyncTask.RESULT_AVATAR_URL";
+
+        @Override
+        protected Bundle doInBackground(Long... params) {
+            final long userID = params[0];
+            Log.d(TAG, "load user: " + userID);
+
+            Bundle result = new Bundle();
+
+            try {
+                User user = mTwitter.showUser(userID);
+
+                result.putString(RESULT_NAME, user.getName());
+                result.putString(RESULT_AVATAR_URL, user.getBiggerProfileImageURL());
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            mRequestPersonAsyncTask = null;
+
+            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
+
+            if (mOnRequestSocialPersonListener != null) {
+                if (error == null) {
+                    SocialPerson socialPerson = new SocialPerson();
+                    socialPerson.name = result.getString(RESULT_NAME);
+                    socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+
+                    mOnRequestSocialPersonListener.onRequestSocialPersonSuccess(getID(), socialPerson);
+                } else {
+                    mOnRequestSocialPersonListener.onRequestSocialPersonFailed(getID(), error);
                 }
             }
         }

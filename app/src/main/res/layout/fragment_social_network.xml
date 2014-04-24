@@ -12,7 +12,15 @@
         android:orientation="vertical"
         >
 
+        <ImageView
+            android:id="@+id/avatar_image_view"
+            android:layout_width="70dip"
+            android:layout_height="70dip"
+            android:layout_gravity="center"
+            />
+
         <TextView
+            android:id="@+id/name_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -24,6 +32,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Connect"
+            />
+
+        <Button
+            android:id="@+id/load_profile_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Load Profile"
             />
 
     </LinearLayout>

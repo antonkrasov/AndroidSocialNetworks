@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.androidsocialnetworks.app.R;
 import com.androidsocialnetworks.app.activity.MainActivity;
@@ -12,11 +14,15 @@ import com.androidsocialnetworks.app.activity.MainActivity;
 public abstract class BaseFragment extends Fragment {
 
     private static final String SAVE_STATE_KEY_UI_STATE = "BaseFragment.SAVE_STATE_KEY_UI_STATE";
+    protected TextView mNameTextView;
+    protected ImageView mAvatarImageView;
     private View mContainerContent;
     private View mContainerProgress;
     private UIState mUIState = UIState.CONTENT;
 
     protected abstract void onConnectDisconnectButtonClick();
+
+    protected abstract void onLoadProfileClick();
 
     public MainActivity getMainActivity() {
         return (MainActivity) getActivity();
@@ -37,9 +43,18 @@ public abstract class BaseFragment extends Fragment {
                 onConnectDisconnectButtonClick();
             }
         });
+        view.findViewById(R.id.load_profile_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onLoadProfileClick();
+            }
+        });
 
         mContainerContent = view.findViewById(R.id.container_content);
         mContainerProgress = view.findViewById(R.id.container_progress);
+
+        mNameTextView = (TextView) view.findViewById(R.id.name_text_view);
+        mAvatarImageView = (ImageView) view.findViewById(R.id.avatar_image_view);
 
         if (savedInstanceState != null && savedInstanceState.containsKey(SAVE_STATE_KEY_UI_STATE)) {
             switchUIState((UIState.values()[savedInstanceState.getInt(SAVE_STATE_KEY_UI_STATE)]));

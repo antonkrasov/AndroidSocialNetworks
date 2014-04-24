@@ -10,9 +10,11 @@ import com.androidsocialnetworks.app.R;
 import com.androidsocialnetworks.app.activity.MainActivity;
 import com.androidsocialnetworks.app.fragment.base.BaseFragment;
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.androidsocialnetworks.lib.SocialPerson;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
+import com.squareup.picasso.Picasso;
 
-public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLoginCompleteListener {
+public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener {
     private static final String TAG = TwitterFragment.class.getSimpleName();
 
     private TwitterSocialNetwork mTwitterSocialNetwork;
@@ -28,6 +30,7 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
 
         mTwitterSocialNetwork = getMainActivity().getSocialNetworkManager().getTwitterSocialNetwork();
         mTwitterSocialNetwork.setOnLoginCompleteListener(this);
+        mTwitterSocialNetwork.setOnRequestSocialPersonListener(this);
 
         mConnectDisconnectButton = (Button) view.findViewById(R.id.connect_disconnect_button);
         if (mTwitterSocialNetwork.isConnected()) {
@@ -47,10 +50,24 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
     protected void onConnectDisconnectButtonClick() {
         if (!mTwitterSocialNetwork.isConnected()) {
             mTwitterSocialNetwork.login();
+            switchUIState(UIState.PROGRESS);
         } else {
             mTwitterSocialNetwork.logout();
             mConnectDisconnectButton.setText("Login");
+
+            mNameTextView.setText("");
+            mAvatarImageView.setImageBitmap(null);
         }
+    }
+
+    @Override
+    protected void onLoadProfileClick() {
+        if (!mTwitterSocialNetwork.isConnected()) {
+            Toast.makeText(getActivity(), "Please login first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mTwitterSocialNetwork.requestPerson();
 
         switchUIState(UIState.PROGRESS);
     }
@@ -67,6 +84,24 @@ public class TwitterFragment extends BaseFragment implements SocialNetwork.OnLog
     @Override
     public void onLoginFailed(int socialNetworkID, String reason) {
         Log.d(TAG, "onLoginFailed: " + socialNetworkID + " : " + reason);
+
+        switchUIState(UIState.CONTENT);
+        Toast.makeText(getActivity(), "error: " + reason, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
+        Log.d(TAG, "onRequestSocialPersonSuccess: " + socialPerson);
+
+        mNameTextView.setText(socialPerson.name);
+        Picasso.with(getActivity()).load(socialPerson.avatarURL).into(mAvatarImageView);
+
+        switchUIState(UIState.CONTENT);
+    }
+
+    @Override
+    public void onRequestSocialPersonFailed(int socialNetworkID, String reason) {
+        Log.d(TAG, "onRequestSocialPersonFailed: " + socialNetworkID + " : " + reason);
 
         switchUIState(UIState.CONTENT);
         Toast.makeText(getActivity(), "error: " + reason, Toast.LENGTH_SHORT).show();

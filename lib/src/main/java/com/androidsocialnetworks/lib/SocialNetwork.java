@@ -16,6 +16,7 @@ public abstract class SocialNetwork {
     protected SharedPreferences mSharedPreferences;
 
     protected OnLoginCompleteListener mOnLoginCompleteListener;
+    protected OnRequestSocialPersonListener mOnRequestSocialPersonListener;
 
     /**
      * @param fragment ant not activity or context, as we will need to call startActivityForResult,
@@ -65,6 +66,10 @@ public abstract class SocialNetwork {
         mOnLoginCompleteListener = onLoginCompleteListener;
     }
 
+    public void setOnRequestSocialPersonListener(OnRequestSocialPersonListener onRequestSocialPersonListener) {
+        mOnRequestSocialPersonListener = onRequestSocialPersonListener;
+    }
+
     public abstract boolean isConnected();
 
     public abstract void login();
@@ -73,10 +78,18 @@ public abstract class SocialNetwork {
 
     public abstract int getID();
 
+    public abstract void requestPerson();
+
     public static interface OnLoginCompleteListener {
         public void onLoginSuccess(int socialNetworkID);
 
         public void onLoginFailed(int socialNetworkID, String reason);
+    }
+
+    public static interface OnRequestSocialPersonListener {
+        public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson);
+
+        public void onRequestSocialPersonFailed(int socialNetworkID, String reason);
     }
 
 }

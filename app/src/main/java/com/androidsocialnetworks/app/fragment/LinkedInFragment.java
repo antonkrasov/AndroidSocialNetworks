@@ -17,6 +17,11 @@ public class LinkedInFragment extends BaseFragment {
     }
 
     @Override
+    protected void onLoadProfileClick() {
+        Toast.makeText(getActivity(), "onLoadProfileClick", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("LinkedIn");
