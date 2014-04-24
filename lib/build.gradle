@@ -4,6 +4,10 @@ apply plugin: 'maven'
 def coreAarFile = file('build/core.aar')
 
 android {
+    packagingOptions {
+        exclude 'jaxb.properties'
+    }
+
     compileSdkVersion 19
     buildToolsVersion "19.0.3"
 
