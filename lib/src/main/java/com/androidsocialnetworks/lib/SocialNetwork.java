@@ -3,6 +3,7 @@ package com.androidsocialnetworks.lib;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -95,23 +96,29 @@ public abstract class SocialNetwork {
 
     public abstract boolean isConnected();
 
-    public abstract void login();
+    public abstract void requestLogin() throws SocialNetworkException;
 
     public abstract void logout();
 
     public abstract int getID();
 
-    public abstract void requestPerson();
+    public abstract void requestPerson() throws SocialNetworkException;
 
-    public abstract void postMessage(String message);
+    public abstract void requestPostMessage(String message) throws SocialNetworkException;
 
-    public abstract void postPhoto(File photo, String message);
+    public abstract void requestPostPhoto(File photo, String message) throws SocialNetworkException;
 
-    public abstract void isFriend(String userID);
+    public abstract void requestCheckIsFriend(String userID) throws SocialNetworkException;
 
-    public abstract void addFriend(String userID);
+    public abstract void requestAddFriend(String userID) throws SocialNetworkException;
 
-    public abstract void removeFriend(String userID);
+    public abstract void requestRemoveFriend(String userID) throws SocialNetworkException;
+
+    protected void checkRequestState(AsyncTask request) throws SocialNetworkException {
+        if (request != null) {
+            throw new SocialNetworkException("Request is already running");
+        }
+    }
 
     public static interface OnLoginCompleteListener {
         public void onLoginSuccess(int socialNetworkID);

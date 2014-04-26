@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.androidsocialnetworks.lib.SocialNetworkException;
 import com.androidsocialnetworks.lib.SocialPerson;
 
 import java.io.File;
@@ -96,10 +97,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     @Override
-    public void login() {
-        if (mRequestLoginAsyncTask != null) {
-            throw new IllegalStateException("login already started, please wait for complete");
-        }
+    public void requestLogin() throws SocialNetworkException {
+        checkRequestState(mRequestLoginAsyncTask);
 
         mRequestLoginAsyncTask = new RequestLoginAsyncTask();
         mRequestLoginAsyncTask.execute();
@@ -117,58 +116,49 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     @Override
-    public void requestPerson() {
-        if (mRequestGetPersonAsyncTask != null) {
-            throw new IllegalStateException("mRequestGetPersonAsyncTask is already started, please wait for complete");
-        }
+    public void requestPerson() throws SocialNetworkException {
+        checkRequestState(mRequestGetPersonAsyncTask);
 
         mRequestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
         mRequestGetPersonAsyncTask.execute();
     }
 
-    public void postMessage(String message) {
-        if (mRequestUpdateStatusAsyncTask != null) {
-            throw new IllegalStateException("Update status already running, please wait for completion");
-        }
+
+    @Override
+    public void requestPostMessage(String message) throws SocialNetworkException {
+        checkRequestState(mRequestUpdateStatusAsyncTask);
 
         mRequestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
         mRequestUpdateStatusAsyncTask.execute(message);
     }
 
-    public void postPhoto(File photo, String message) {
-        if (mRequestUpdateStatusAsyncTask != null) {
-            throw new IllegalStateException("Update status already running, please wait for completion");
-        }
+    @Override
+    public void requestPostPhoto(File photo, String message) throws SocialNetworkException {
+        checkRequestState(mRequestUpdateStatusAsyncTask);
 
         mRequestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
         mRequestUpdateStatusAsyncTask.execute(message, photo.getAbsolutePath());
     }
 
     @Override
-    public void isFriend(String userID) {
-        if (mRequestCheckIsFriendAsyncTask != null) {
-            throw new IllegalStateException("mRequestCheckIsFriendAsyncTask is already running, please wait for completion");
-        }
+    public void requestCheckIsFriend(String userID) throws SocialNetworkException {
+        checkRequestState(mRequestCheckIsFriendAsyncTask);
 
         mRequestCheckIsFriendAsyncTask = new RequestCheckIsFriendAsyncTask();
         mRequestCheckIsFriendAsyncTask.execute(userID);
     }
 
     @Override
-    public void addFriend(String userID) {
-        if (mRequestAddFriendAsyncTask != null) {
-            throw new IllegalStateException("mRequestCheckIsFriendAsyncTask is already running, please wait for completion");
-        }
+    public void requestAddFriend(String userID) throws SocialNetworkException {
+        checkRequestState(mRequestAddFriendAsyncTask);
 
         mRequestAddFriendAsyncTask = new RequestAddFriendAsyncTask();
         mRequestAddFriendAsyncTask.execute(userID);
     }
 
     @Override
-    public void removeFriend(String userID) {
-        if (mRequestRemoveFriendAsyncTask != null) {
-            throw new IllegalStateException("mRequestCheckIsFriendAsyncTask is already running, please wait for completion");
-        }
+    public void requestRemoveFriend(String userID) throws SocialNetworkException {
+        checkRequestState(mRequestRemoveFriendAsyncTask);
 
         mRequestRemoveFriendAsyncTask = new RequestRemoveFriendAsyncTask();
         mRequestRemoveFriendAsyncTask.execute(userID);

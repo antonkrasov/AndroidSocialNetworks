@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.androidsocialnetworks.lib.SocialNetworkException;
 import com.androidsocialnetworks.lib.SocialPerson;
 import com.google.code.linkedinapi.client.CommunicationsApiClient;
 import com.google.code.linkedinapi.client.LinkedInApiClient;
@@ -84,7 +85,9 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     }
 
     @Override
-    public void login() {
+    public void requestLogin() throws SocialNetworkException {
+        checkRequestState(mRequestLoginAsyncTask);
+
         mRequestLoginAsyncTask = new RequestLoginAsyncTask();
         mRequestLoginAsyncTask.execute();
     }
@@ -100,10 +103,8 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     }
 
     @Override
-    public void requestPerson() {
-        if (mRequestGetPersonAsyncTask != null) {
-            throw new RuntimeException("mRequestGetPersonAsyncTask already running");
-        }
+    public void requestPerson() throws SocialNetworkException {
+        checkRequestState(mRequestGetPersonAsyncTask);
 
         LinkedInAccessToken accessToken = new LinkedInAccessToken(
                 mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, ""),
@@ -114,38 +115,38 @@ public class LinkedInSocialNetwork extends SocialNetwork {
         mRequestGetPersonAsyncTask.execute(accessToken);
     }
 
-    public void postMessage(String message) {
+    @Override
+    public void requestPostMessage(String message) throws SocialNetworkException {
+        checkRequestState(mRequestPostMessageAsyncTask);
+
         mRequestPostMessageAsyncTask = new RequestPostMessageAsyncTask();
         mRequestPostMessageAsyncTask.execute(message);
     }
 
-    public void postPhoto(File photo, String message) {
-        throw new IllegalStateException("Posting photo isn't allowed for LinkedIn");
+    @Override
+    public void requestPostPhoto(File photo, String message) throws SocialNetworkException {
+        throw new IllegalStateException("requestPostPhoto isn't allowed for LinkedInSocialNetwork");
     }
 
     @Override
-    public void isFriend(String userID) {
-        if (mRequestCheckIsFriendAsyncTask != null) {
-            throw new IllegalStateException("mRequestCheckIsFriendAsyncTask already running");
-        }
+    public void requestCheckIsFriend(String userID) throws SocialNetworkException {
+        checkRequestState(mRequestCheckIsFriendAsyncTask);
 
         mRequestCheckIsFriendAsyncTask = new RequestCheckIsFriendAsyncTask();
         mRequestCheckIsFriendAsyncTask.execute(userID);
     }
 
     @Override
-    public void addFriend(String userID) {
-        if (mRequestAddFriendAsyncTask != null) {
-            throw new IllegalStateException("mRequestAddFriendAsyncTask already running");
-        }
+    public void requestAddFriend(String userID) throws SocialNetworkException {
+        checkRequestState(mRequestAddFriendAsyncTask);
 
         mRequestAddFriendAsyncTask = new RequestAddFriendAsyncTask();
         mRequestAddFriendAsyncTask.execute(userID);
     }
 
     @Override
-    public void removeFriend(String userID) {
-        throw new IllegalStateException("removeFriend isn't allowed for LinkedIn");
+    public void requestRemoveFriend(String userID) throws SocialNetworkException {
+        throw new IllegalStateException("requestRemoveFriend isn't allowed for LinkedInSocialNetwork");
     }
 
     @Override

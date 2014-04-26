@@ -95,7 +95,7 @@ public class SocialNetworkFragment extends BaseFragment implements
     @Override
     protected void onConnectDisconnectButtonClick() {
         if (!mSocialNetwork.isConnected()) {
-            mSocialNetwork.login();
+            mSocialNetwork.requestLogin();
             switchUIState(UIState.PROGRESS);
         } else {
             mSocialNetwork.logout();
@@ -109,7 +109,7 @@ public class SocialNetworkFragment extends BaseFragment implements
     @Override
     protected void onLoadProfileClick() {
         if (!mSocialNetwork.isConnected()) {
-            Toast.makeText(getActivity(), "Please login first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Please requestLogin first", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -121,11 +121,11 @@ public class SocialNetworkFragment extends BaseFragment implements
     @Override
     protected void onPostMessage() {
         if (!mSocialNetwork.isConnected()) {
-            Toast.makeText(getActivity(), "Please login first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Please requestLogin first", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        mSocialNetwork.postMessage(UUID.randomUUID().toString());
+        mSocialNetwork.requestPostMessage(UUID.randomUUID().toString());
 
         switchUIState(UIState.PROGRESS);
     }
@@ -133,12 +133,12 @@ public class SocialNetworkFragment extends BaseFragment implements
     @Override
     protected void onPostPhoto() {
         if (!mSocialNetwork.isConnected()) {
-            Toast.makeText(getActivity(), "Please login first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Please requestLogin first", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
-            mSocialNetwork.postPhoto(MainActivity.ANDROID_IMAGE, "Test");
+            mSocialNetwork.requestPostPhoto(MainActivity.ANDROID_IMAGE, "Test");
             switchUIState(UIState.PROGRESS);
         } catch (Exception e) {
             Log.e(TAG, "ERROR", e);
@@ -148,14 +148,14 @@ public class SocialNetworkFragment extends BaseFragment implements
 
     @Override
     protected void checkIsFriendClick() {
-        mSocialNetwork.isFriend(getUserID());
+        mSocialNetwork.requestCheckIsFriend(getUserID());
 
         switchUIState(UIState.PROGRESS);
     }
 
     @Override
     protected void addFriendClick() {
-        mSocialNetwork.addFriend(getUserID());
+        mSocialNetwork.requestAddFriend(getUserID());
 
         switchUIState(UIState.PROGRESS);
     }
@@ -163,7 +163,7 @@ public class SocialNetworkFragment extends BaseFragment implements
     @Override
     protected void removeFriendClick() {
         try {
-            mSocialNetwork.removeFriend(getUserID());
+            mSocialNetwork.requestRemoveFriend(getUserID());
             switchUIState(UIState.PROGRESS);
         } catch (Exception e) {
             Log.e(TAG, "ERROR", e);
@@ -176,7 +176,7 @@ public class SocialNetworkFragment extends BaseFragment implements
         Log.d(TAG, "onLoginSuccess: " + socialNetworkID);
 
         switchUIState(UIState.CONTENT);
-        Toast.makeText(getActivity(), "login successfull", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "requestLogin successfull", Toast.LENGTH_SHORT).show();
         mConnectDisconnectButton.setText("Logout");
     }
 
