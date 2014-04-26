@@ -86,7 +86,7 @@ public class SocialNetworkFragment extends BaseFragment implements
         if (name.equals(SocialNetworksListFragment.TWITTER)) {
             return "39222068";
         } else if (name.equals(SocialNetworksListFragment.LINKED_IN)) {
-            return "";
+            return "WQlagxgbbw";
         } else {
             throw new IllegalStateException("Can't find social network for: " + name);
         }
@@ -139,12 +139,11 @@ public class SocialNetworkFragment extends BaseFragment implements
 
         try {
             mSocialNetwork.postPhoto(MainActivity.ANDROID_IMAGE, "Test");
+            switchUIState(UIState.PROGRESS);
         } catch (Exception e) {
             Log.e(TAG, "ERROR", e);
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
-        switchUIState(UIState.PROGRESS);
     }
 
     @Override
@@ -165,12 +164,11 @@ public class SocialNetworkFragment extends BaseFragment implements
     protected void removeFriendClick() {
         try {
             mSocialNetwork.removeFriend(getUserID());
+            switchUIState(UIState.PROGRESS);
         } catch (Exception e) {
             Log.e(TAG, "ERROR", e);
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
-        switchUIState(UIState.PROGRESS);
     }
 
     @Override
