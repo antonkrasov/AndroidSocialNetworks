@@ -64,6 +64,18 @@ public class SocialNetworkFragment extends BaseFragment implements
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        mSocialNetwork.setOnLoginCompleteListener(null);
+        mSocialNetwork.setOnRequestSocialPersonListener(null);
+        mSocialNetwork.setOnPostingListener(null);
+        mSocialNetwork.setOnCheckingIsFriendListener(null);
+        mSocialNetwork.setOnAddFriendListener(null);
+        mSocialNetwork.setOnRemoveFriendListener(null);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         ((MainActivity) getActivity()).getSupportActionBar().setTitle(getArguments().getString(PARAM_NAME));

@@ -229,6 +229,13 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "onCreate");
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
