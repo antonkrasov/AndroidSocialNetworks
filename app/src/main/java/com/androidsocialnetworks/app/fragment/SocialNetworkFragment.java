@@ -10,6 +10,7 @@ import com.androidsocialnetworks.app.R;
 import com.androidsocialnetworks.app.activity.MainActivity;
 import com.androidsocialnetworks.app.fragment.base.BaseFragment;
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.androidsocialnetworks.lib.SocialNetworkException;
 import com.androidsocialnetworks.lib.SocialPerson;
 import com.squareup.picasso.Picasso;
 
@@ -44,6 +45,8 @@ public class SocialNetworkFragment extends BaseFragment implements
             mSocialNetwork = getMainActivity().getSocialNetworkManager().getTwitterSocialNetwork();
         } else if (name.equals(SocialNetworksListFragment.LINKED_IN)) {
             mSocialNetwork = getMainActivity().getSocialNetworkManager().getLinkedInSocialNetwork();
+        } else if (name.equals(SocialNetworksListFragment.FACEBOOK)) {
+            mSocialNetwork = getMainActivity().getSocialNetworkManager().getFacebookSocialNetwork();
         } else {
             throw new IllegalStateException("Can't find social network for: " + name);
         }
@@ -85,6 +88,8 @@ public class SocialNetworkFragment extends BaseFragment implements
         String name = getArguments().getString(PARAM_NAME);
         if (name.equals(SocialNetworksListFragment.TWITTER)) {
             return "39222068";
+        } else if (name.equals(SocialNetworksListFragment.FACEBOOK)) {
+            return "100008263800271";
         } else if (name.equals(SocialNetworksListFragment.LINKED_IN)) {
             return "WQlagxgbbw";
         } else {
@@ -140,7 +145,7 @@ public class SocialNetworkFragment extends BaseFragment implements
         try {
             mSocialNetwork.requestPostPhoto(MainActivity.ANDROID_IMAGE, "Test");
             switchUIState(UIState.PROGRESS);
-        } catch (Exception e) {
+        } catch (SocialNetworkException e) {
             Log.e(TAG, "ERROR", e);
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -165,7 +170,7 @@ public class SocialNetworkFragment extends BaseFragment implements
         try {
             mSocialNetwork.requestRemoveFriend(getUserID());
             switchUIState(UIState.PROGRESS);
-        } catch (Exception e) {
+        } catch (SocialNetworkException e) {
             Log.e(TAG, "ERROR", e);
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }

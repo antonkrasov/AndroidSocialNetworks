@@ -1,13 +1,16 @@
 package com.androidsocialnetworks.lib;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.androidsocialnetworks.lib.impl.FacebookSocialNetwork;
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
+import com.facebook.internal.Utility;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +24,11 @@ public class SocialNetworkManager extends Fragment {
     private static final String PARAM_LINKEDIN_SECRET = "SocialNetworkManager.PARAM_LINKEDIN_SECRET";
     private static final String PARAM_LINKEDIN_PERMISSIONS = "SocialNetworkManager.PARAM_LINKEDIN_PERMISSIONS";
 
+    private static final String PARAM_FACEBOOK = "SocialNetworkManager.PARAM_FACEBOOK";
+
     private static final String KEY_SOCIAL_NETWORK_TWITTER = "KEY_SOCIAL_NETWORK_TWITTER";
     private static final String KEY_SOCIAL_NETWORK_LINKED_IN = "KEY_SOCIAL_NETWORK_LINKED_IN";
+    private static final String KEY_SOCIAL_NETWORK_FACEBOOK = "KEY_SOCIAL_NETWORK_FACEBOOK";
 
     private Map<String, SocialNetwork> mSocialNetworksMap = new HashMap<String, SocialNetwork>();
 
@@ -42,6 +48,8 @@ public class SocialNetworkManager extends Fragment {
         final String paramLinkedInSecret = args.getString(PARAM_LINKEDIN_SECRET);
         final String paramLinkedInPermissions = args.getString(PARAM_LINKEDIN_PERMISSIONS);
 
+        final boolean paramFacebook = args.getBoolean(PARAM_FACEBOOK, false);
+
         if (!TextUtils.isEmpty(paramTwitterKey) || !TextUtils.isEmpty(paramTwitterKey)) {
             mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_TWITTER,
                     new TwitterSocialNetwork(this, paramTwitterKey, paramTwitterSecret));
@@ -50,6 +58,10 @@ public class SocialNetworkManager extends Fragment {
         if (!TextUtils.isEmpty(paramLinkedInKey) || !TextUtils.isEmpty(paramLinkedInSecret)) {
             mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_LINKED_IN,
                     new LinkedInSocialNetwork(this, paramLinkedInKey, paramLinkedInSecret, paramLinkedInPermissions));
+        }
+
+        if (paramFacebook) {
+            mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_FACEBOOK, new FacebookSocialNetwork(this));
         }
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
@@ -127,32 +139,43 @@ public class SocialNetworkManager extends Fragment {
         }
     }
 
-    public TwitterSocialNetwork getTwitterSocialNetwork() {
+    public TwitterSocialNetwork getTwitterSocialNetwork() throws SocialNetworkException {
         if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_TWITTER)) {
-            throw new IllegalStateException("Twitter wasn't initialized...");
+            throw new SocialNetworkException("Twitter wasn't initialized...");
         }
 
         return (TwitterSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_TWITTER);
     }
 
-    public LinkedInSocialNetwork getLinkedInSocialNetwork() {
+    public LinkedInSocialNetwork getLinkedInSocialNetwork() throws SocialNetworkException {
         if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_LINKED_IN)) {
-            throw new IllegalStateException("LinkedIn wasn't initialized...");
+            throw new SocialNetworkException("LinkedIn wasn't initialized...");
         }
 
         return (LinkedInSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_LINKED_IN);
     }
 
+    public FacebookSocialNetwork getFacebookSocialNetwork() throws SocialNetworkException {
+        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_FACEBOOK)) {
+            throw new IllegalStateException("Facebook wasn't initialized...");
+        }
+
+        return (FacebookSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_FACEBOOK);
+    }
+
     public static class Builder {
         private String twitterConsumerKey, twitterConsumerSecret;
         private String linkedInConsumerKey, linkedInConsumerSecret, linkedInPermissions;
+        private boolean facebook;
 
-        private Builder() {
+        private Context mContext;
 
+        private Builder(Context context) {
+            mContext = context;
         }
 
-        public static Builder create() {
-            return new Builder();
+        public static Builder from(Context context) {
+            return new Builder(context);
         }
 
         public Builder twitter(String consumerKey, String consumerSecret) {
@@ -165,6 +188,20 @@ public class SocialNetworkManager extends Fragment {
             linkedInConsumerKey = consumerKey;
             linkedInConsumerSecret = consumerSecret;
             linkedInPermissions = permissions;
+            return this;
+        }
+
+        // https://developers.facebook.com/docs/android/getting-started/
+        public Builder facebook() {
+            String applicationID = Utility.getMetadataApplicationId(mContext);
+
+            if (applicationID == null) {
+                throw new IllegalStateException("applicationID can't be null\n" +
+                        "Please check https://developers.facebook.com/docs/android/getting-started/");
+            }
+
+            facebook = true;
+
             return this;
         }
 
@@ -181,6 +218,10 @@ public class SocialNetworkManager extends Fragment {
                 args.putString(PARAM_LINKEDIN_KEY, linkedInConsumerKey);
                 args.putString(PARAM_LINKEDIN_SECRET, linkedInConsumerSecret);
                 args.putString(PARAM_LINKEDIN_PERMISSIONS, linkedInPermissions);
+            }
+
+            if (facebook) {
+                args.putBoolean(PARAM_FACEBOOK, true);
             }
 
             SocialNetworkManager socialNetworkManager = new SocialNetworkManager();

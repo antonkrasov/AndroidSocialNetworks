@@ -125,7 +125,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
     @Override
     public void requestPostPhoto(File photo, String message) throws SocialNetworkException {
-        throw new IllegalStateException("requestPostPhoto isn't allowed for LinkedInSocialNetwork");
+        throw new SocialNetworkException("requestPostPhoto isn't allowed for LinkedInSocialNetwork");
     }
 
     @Override
@@ -146,7 +146,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
     @Override
     public void requestRemoveFriend(String userID) throws SocialNetworkException {
-        throw new IllegalStateException("requestRemoveFriend isn't allowed for LinkedInSocialNetwork");
+        throw new SocialNetworkException("requestRemoveFriend isn't allowed for LinkedInSocialNetwork");
     }
 
     @Override
