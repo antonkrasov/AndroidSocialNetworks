@@ -64,8 +64,8 @@ public class SocialNetworkFragment extends BaseFragment implements
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDetach() {
+        super.onDetach();
 
         mSocialNetwork.setOnLoginCompleteListener(null);
         mSocialNetwork.setOnRequestSocialPersonListener(null);

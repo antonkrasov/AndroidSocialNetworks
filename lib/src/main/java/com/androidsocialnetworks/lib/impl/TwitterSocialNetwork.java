@@ -6,22 +6,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialPerson;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import twitter4j.Relationship;
@@ -40,15 +31,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
     private static final String SAVE_STATE_KEY_USER_ID = "TwitterSocialNetwork.SAVE_STATE_KEY_USER_ID";
-    private static final String SAVE_STATE_RUNNING_REQUESTS = "TwitterSocialNetwork.SAVE_STATE_RUNNING_REQUESTS";
-    private static final String SAVE_STATE_LOGIN_2_URI = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_URI";
-    private static final String SAVE_STATE_LOGIN_2_REQUEST_TOKEN = "TwitterSocialNetwork.SAVE_STATE_LOGIN_2_REQUEST_TOKEN";
-    private static final String SAVE_STATE_REQUEST_UPDATE_MESSAGE = "TwitterSocialNetwork.SAVE_STATE_REQUEST_UPDATE_MESSAGE";
-    private static final String SAVE_STATE_REQUEST_UPDATE_PHOTO = "TwitterSocialNetwork.SAVE_STATE_REQUEST_UPDATE_PHOTO";
-
-    private static final String SAVE_STATE_REQUEST_CHECK_IS_FRIEND = "TwitterSocialNetwork.SAVE_STATE_REQUEST_CHECK_IS_FRIEND";
-    private static final String SAVE_STATE_REQUEST_ADD_FRIEND = "TwitterSocialNetwork.SAVE_STATE_REQUEST_ADD_FRIEND";
-    private static final String SAVE_STATE_REQUEST_REMOVE_FRIEND = "TwitterSocialNetwork.SAVE_STATE_REQUEST_REMOVE_FRIEND";
 
     private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
 
@@ -62,11 +44,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private Twitter mTwitter;
     private RequestToken mRequestToken;
 
-    private LoginAsyncTask mLoginAsyncTask;
-    private Login2AsyncTask mLogin2AsyncTask;
-    private RequestPersonAsyncTask mRequestPersonAsyncTask;
-    private RequestUpdateStatus mRequestUpdateStatusAsyncTask;
-
+    private RequestLoginAsyncTask mRequestLoginAsyncTask;
+    private RequestLogin2AsyncTask mRequestLogin2AsyncTask;
+    private RequestGetPersonAsyncTask mRequestGetPersonAsyncTask;
+    private RequestUpdateStatusAsyncTask mRequestUpdateStatusAsyncTask;
     private RequestCheckIsFriendAsyncTask mRequestCheckIsFriendAsyncTask;
     private RequestAddFriendAsyncTask mRequestAddFriendAsyncTask;
     private RequestRemoveFriendAsyncTask mRequestRemoveFriendAsyncTask;
@@ -83,28 +64,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
 
         initTwitterClient();
-    }
-
-    /**
-     * Read the object from Base64 string.
-     */
-    private static Object fromString(String s) throws IOException, ClassNotFoundException {
-        byte[] data = Base64.decode(s, Base64.DEFAULT);
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-        Object o = ois.readObject();
-        ois.close();
-        return o;
-    }
-
-    /**
-     * Write the object to a Base64 string.
-     */
-    private static String toString(Serializable o) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(o);
-        oos.close();
-        return new String(Base64.encode(baos.toByteArray(), Base64.DEFAULT));
     }
 
     private void initTwitterClient() {
@@ -125,6 +84,11 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     @Override
+    public int getID() {
+        return ID;
+    }
+
+    @Override
     public boolean isConnected() {
         String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
         String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
@@ -133,12 +97,12 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
     @Override
     public void login() {
-        if (mLoginAsyncTask != null) {
+        if (mRequestLoginAsyncTask != null) {
             throw new IllegalStateException("login already started, please wait for complete");
         }
 
-        mLoginAsyncTask = new LoginAsyncTask();
-        mLoginAsyncTask.execute();
+        mRequestLoginAsyncTask = new RequestLoginAsyncTask();
+        mRequestLoginAsyncTask.execute();
     }
 
     @Override
@@ -153,16 +117,13 @@ public class TwitterSocialNetwork extends SocialNetwork {
     }
 
     @Override
-    public int getID() {
-        return ID;
-    }
-
-    @Override
     public void requestPerson() {
-        long userID = mSharedPreferences.getLong(SAVE_STATE_KEY_USER_ID, -1);
+        if (mRequestGetPersonAsyncTask != null) {
+            throw new IllegalStateException("mRequestGetPersonAsyncTask is already started, please wait for complete");
+        }
 
-        mRequestPersonAsyncTask = new RequestPersonAsyncTask();
-        mRequestPersonAsyncTask.execute(userID);
+        mRequestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
+        mRequestGetPersonAsyncTask.execute();
     }
 
     public void postMessage(String message) {
@@ -170,11 +131,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
             throw new IllegalStateException("Update status already running, please wait for completion");
         }
 
-        mSharedPreferences.edit()
-                .putString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, message)
-                .apply();
-
-        mRequestUpdateStatusAsyncTask = new RequestUpdateStatus();
+        mRequestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
         mRequestUpdateStatusAsyncTask.execute(message);
     }
 
@@ -183,12 +140,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
             throw new IllegalStateException("Update status already running, please wait for completion");
         }
 
-        mSharedPreferences.edit()
-                .putString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, message)
-                .putString(SAVE_STATE_REQUEST_UPDATE_PHOTO, photo.getAbsolutePath())
-                .apply();
-
-        mRequestUpdateStatusAsyncTask = new RequestUpdateStatus();
+        mRequestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
         mRequestUpdateStatusAsyncTask.execute(message, photo.getAbsolutePath());
     }
 
@@ -197,8 +149,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
         if (mRequestCheckIsFriendAsyncTask != null) {
             throw new IllegalStateException("mRequestCheckIsFriendAsyncTask is already running, please wait for completion");
         }
-
-        mSharedPreferences.edit().putString(SAVE_STATE_REQUEST_CHECK_IS_FRIEND, userID).apply();
 
         mRequestCheckIsFriendAsyncTask = new RequestCheckIsFriendAsyncTask();
         mRequestCheckIsFriendAsyncTask.execute(userID);
@@ -210,8 +160,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
             throw new IllegalStateException("mRequestCheckIsFriendAsyncTask is already running, please wait for completion");
         }
 
-        mSharedPreferences.edit().putString(SAVE_STATE_REQUEST_ADD_FRIEND, userID).apply();
-
         mRequestAddFriendAsyncTask = new RequestAddFriendAsyncTask();
         mRequestAddFriendAsyncTask.execute(userID);
     }
@@ -222,165 +170,63 @@ public class TwitterSocialNetwork extends SocialNetwork {
             throw new IllegalStateException("mRequestCheckIsFriendAsyncTask is already running, please wait for completion");
         }
 
-        mSharedPreferences.edit().putString(SAVE_STATE_REQUEST_REMOVE_FRIEND, userID).apply();
-
         mRequestRemoveFriendAsyncTask = new RequestRemoveFriendAsyncTask();
         mRequestRemoveFriendAsyncTask.execute(userID);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onDestroy() {
+        super.onDestroy();
 
-        Log.d(TAG, "onCreate");
+        stopAllRequests();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    private void stopAllRequests() {
+        Log.d(TAG, "stopAllRequests()");
+        final boolean mayInterruptIfRunning = true;
 
-        if (mSharedPreferences.contains(SAVE_STATE_RUNNING_REQUESTS)) {
-            String savedRequests = mSharedPreferences.getString(SAVE_STATE_RUNNING_REQUESTS, null);
-            String[] runningRequests = savedRequests.split("#");
-
-            for (String request : runningRequests) {
-                if (request.equals(LoginAsyncTask.class.getSimpleName())) {
-                    mLoginAsyncTask = new LoginAsyncTask();
-                    mLoginAsyncTask.execute();
-                } else if (request.equals(Login2AsyncTask.class.getSimpleName())) {
-                    String verifyer = mSharedPreferences.getString(SAVE_STATE_LOGIN_2_URI, "");
-                    try {
-                        mRequestToken = (RequestToken) fromString(mSharedPreferences.getString(SAVE_STATE_LOGIN_2_REQUEST_TOKEN, ""));
-                    } catch (IOException e) {
-                        Log.e(TAG, "ERROR", e);
-                    } catch (ClassNotFoundException e) {
-                        Log.e(TAG, "ERROR", e);
-                    }
-
-                    mLogin2AsyncTask = new Login2AsyncTask();
-                    mLogin2AsyncTask.execute(verifyer);
-                } else if (request.equals(RequestPersonAsyncTask.class.getSimpleName())) {
-                    requestPerson();
-                } else if (request.equals(RequestUpdateStatus.class.getSimpleName())) {
-                    mRequestUpdateStatusAsyncTask = new RequestUpdateStatus();
-
-                    if (mSharedPreferences.contains(SAVE_STATE_REQUEST_UPDATE_PHOTO)) {
-                        mRequestUpdateStatusAsyncTask.execute(
-                                mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, ""),
-                                mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_PHOTO, "")
-                        );
-                    } else {
-                        mRequestUpdateStatusAsyncTask.execute(
-                                mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, "")
-                        );
-                    }
-                } else if (request.equals(RequestCheckIsFriendAsyncTask.class.getSimpleName())) {
-                    mRequestCheckIsFriendAsyncTask = new RequestCheckIsFriendAsyncTask();
-                    mRequestCheckIsFriendAsyncTask.execute(
-                            mSharedPreferences.getString(SAVE_STATE_REQUEST_CHECK_IS_FRIEND, "")
-                    );
-                } else if (request.equals(RequestAddFriendAsyncTask.class.getSimpleName())) {
-                    mRequestAddFriendAsyncTask = new RequestAddFriendAsyncTask();
-                    mRequestAddFriendAsyncTask.execute(
-                            mSharedPreferences.getString(SAVE_STATE_REQUEST_ADD_FRIEND, "")
-                    );
-                } else if (request.equals(RequestRemoveFriendAsyncTask.class.getSimpleName())) {
-                    mRequestRemoveFriendAsyncTask = new RequestRemoveFriendAsyncTask();
-                    mRequestRemoveFriendAsyncTask.execute(
-                            mSharedPreferences.getString(SAVE_STATE_REQUEST_REMOVE_FRIEND, "")
-                    );
-                }
-            }
-
-            mSharedPreferences.edit().remove(SAVE_STATE_RUNNING_REQUESTS).apply();
+        if (mRequestLoginAsyncTask != null) {
+            mRequestLoginAsyncTask.cancel(mayInterruptIfRunning);
+            mRequestLoginAsyncTask = null;
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Set<String> runningRequests = new HashSet<String>();
-
-        if (mLoginAsyncTask != null) {
-            mLoginAsyncTask.cancel(true);
-            mLoginAsyncTask = null;
-
-            runningRequests.add(LoginAsyncTask.class.getSimpleName());
+        if (mRequestLogin2AsyncTask != null) {
+            mRequestLogin2AsyncTask.cancel(mayInterruptIfRunning);
+            mRequestLogin2AsyncTask = null;
         }
-
-        if (mLogin2AsyncTask != null) {
-            mLogin2AsyncTask.cancel(true);
-            mLogin2AsyncTask = null;
-
-            runningRequests.add(Login2AsyncTask.class.getSimpleName());
+        if (mRequestGetPersonAsyncTask != null) {
+            mRequestGetPersonAsyncTask.cancel(mayInterruptIfRunning);
+            mRequestGetPersonAsyncTask = null;
         }
-
-        if (mRequestPersonAsyncTask != null) {
-            mRequestPersonAsyncTask.cancel(true);
-            mRequestPersonAsyncTask = null;
-
-            runningRequests.add(RequestPersonAsyncTask.class.getSimpleName());
-        }
-
         if (mRequestUpdateStatusAsyncTask != null) {
-            mRequestUpdateStatusAsyncTask.cancel(true);
+            mRequestUpdateStatusAsyncTask.cancel(mayInterruptIfRunning);
             mRequestUpdateStatusAsyncTask = null;
-
-            runningRequests.add(RequestUpdateStatus.class.getSimpleName());
         }
-
         if (mRequestCheckIsFriendAsyncTask != null) {
-            mRequestCheckIsFriendAsyncTask.cancel(true);
+            mRequestCheckIsFriendAsyncTask.cancel(mayInterruptIfRunning);
             mRequestCheckIsFriendAsyncTask = null;
-
-            runningRequests.add(RequestCheckIsFriendAsyncTask.class.getSimpleName());
         }
-
         if (mRequestAddFriendAsyncTask != null) {
-            mRequestAddFriendAsyncTask.cancel(true);
+            mRequestAddFriendAsyncTask.cancel(mayInterruptIfRunning);
             mRequestAddFriendAsyncTask = null;
-
-            runningRequests.add(RequestAddFriendAsyncTask.class.getSimpleName());
         }
-
         if (mRequestRemoveFriendAsyncTask != null) {
-            mRequestRemoveFriendAsyncTask.cancel(true);
+            mRequestRemoveFriendAsyncTask.cancel(mayInterruptIfRunning);
             mRequestRemoveFriendAsyncTask = null;
-
-            runningRequests.add(RequestRemoveFriendAsyncTask.class.getSimpleName());
         }
-
-        String finalValue = "";
-        for (String request : runningRequests) {
-            finalValue += request;
-            finalValue += '#';
-        }
-
-        mSharedPreferences.edit().putString(SAVE_STATE_RUNNING_REQUESTS, finalValue).apply();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode + " : " + data);
 
         Uri uri = data != null ? data.getData() : null;
 
         if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
             String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
-            try {
-                mSharedPreferences.edit()
-                        .putString(SAVE_STATE_LOGIN_2_URI, verifier)
-                        .putString(SAVE_STATE_LOGIN_2_REQUEST_TOKEN, toString(mRequestToken))
-                        .apply();
-            } catch (IOException e) {
-                Log.e(TAG, "ERROR", e);
-            }
 
-            mLogin2AsyncTask = new Login2AsyncTask();
-            mLogin2AsyncTask.execute(verifier);
+            mRequestLogin2AsyncTask = new RequestLogin2AsyncTask();
+            mRequestLogin2AsyncTask.execute(verifier);
         } else {
             if (mOnLoginCompleteListener != null) {
                 mOnLoginCompleteListener.onLoginFailed(getID(), "incorrect URI returned: " + uri);
@@ -388,7 +234,15 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-    private class LoginAsyncTask extends AsyncTask<String, String, Bundle> {
+    private void requestHook() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class RequestLoginAsyncTask extends AsyncTask<String, String, Bundle> {
         private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
         private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
 
@@ -399,6 +253,9 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
+            requestHook();
+
+
             Bundle result = new Bundle();
 
             Log.d(TAG, "LoginAsyncTask.doInBackground()");
@@ -422,7 +279,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
         protected void onPostExecute(Bundle result) {
             Log.d(TAG, "LoginAsyncTask.onPostExecute()");
 
-            mLoginAsyncTask = null;
+            mRequestLoginAsyncTask = null;
 
             if (result.containsKey(RESULT_ERROR) && mOnLoginCompleteListener != null) {
                 mOnLoginCompleteListener.onLoginFailed(getID(), result.getString(RESULT_ERROR));
@@ -438,7 +295,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-    private class Login2AsyncTask extends AsyncTask<String, Void, Bundle> {
+    private class RequestLogin2AsyncTask extends AsyncTask<String, Void, Bundle> {
         private static final String RESULT_ERROR = "Login2AsyncTask.RESULT_ERROR";
         private static final String RESULT_TOKEN = "Login2AsyncTask.RESULT_TOKEN";
         private static final String RESULT_SECRET = "Login2AsyncTask.RESULT_SECRET";
@@ -446,6 +303,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
+            requestHook();
+
+
+
             String verifier = params[0];
 
             Bundle result = new Bundle();
@@ -466,8 +327,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            mLogin2AsyncTask = null;
-            mSharedPreferences.edit().remove(SAVE_STATE_LOGIN_2_URI).apply();
+            mRequestLogin2AsyncTask = null;
 
             String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
 
@@ -492,7 +352,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-    private class RequestPersonAsyncTask extends AsyncTask<Long, Void, Bundle> {
+    private class RequestGetPersonAsyncTask extends AsyncTask<Long, Void, Bundle> {
         private static final String RESULT_ERROR = "RequestPersonAsyncTask.RESULT_ERROR";
         private static final String RESULT_ID = "RequestPersonAsyncTask.RESULT_ID";
         private static final String RESULT_NAME = "RequestPersonAsyncTask.RESULT_NAME";
@@ -500,13 +360,14 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(Long... params) {
-            final long userID = params[0];
-            Log.d(TAG, "load user: " + userID);
+            requestHook();
+
 
             Bundle result = new Bundle();
 
             try {
-                User user = mTwitter.showUser(userID);
+                long currentUserID = mSharedPreferences.getLong(SAVE_STATE_KEY_USER_ID, -1);
+                User user = mTwitter.showUser(currentUserID);
 
                 result.putString(RESULT_ID, user.getId() + "");
                 result.putString(RESULT_NAME, user.getName());
@@ -521,7 +382,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            mRequestPersonAsyncTask = null;
+            mRequestGetPersonAsyncTask = null;
 
             String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
 
@@ -540,11 +401,16 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-    private class RequestUpdateStatus extends AsyncTask<String, Void, Bundle> {
+    private class RequestUpdateStatusAsyncTask extends AsyncTask<String, Void, Bundle> {
         private static final String RESULT_ERROR = "RequestUpdateStatus.RESULT_ERROR";
 
         @Override
         protected Bundle doInBackground(String... params) {
+            requestHook();
+
+
+            Log.d(TAG, "RequestUpdateStatus.doInBackground");
+
             Bundle result = new Bundle();
 
             try {
@@ -554,7 +420,9 @@ public class TwitterSocialNetwork extends SocialNetwork {
                     status.setMedia(new File(params[1]));
                 }
 
+                Log.d(TAG, "RequestUpdateStatus.updateStatus start");
                 mTwitter.updateStatus(status);
+                Log.d(TAG, "RequestUpdateStatus.updateStatus complete");
             } catch (TwitterException e) {
                 Log.e(TAG, "ERROR", e);
                 result.putString(RESULT_ERROR, e.getMessage());
@@ -565,12 +433,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle bundle) {
+            Log.d(TAG, "RequestUpdateStatus.onPostExecute");
             mRequestUpdateStatusAsyncTask = null;
-
-            mSharedPreferences.edit()
-                    .remove(SAVE_STATE_REQUEST_UPDATE_MESSAGE)
-                    .remove(SAVE_STATE_REQUEST_UPDATE_PHOTO)
-                    .apply();
 
             if (bundle.containsKey(RESULT_ERROR)) {
                 if (mOnPostingListener != null) {
@@ -593,6 +457,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
+            requestHook();
+
+
+
             Bundle result = new Bundle();
 
             final String requestedID = params[0];
@@ -615,7 +483,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
         @Override
         protected void onPostExecute(Bundle bundle) {
             mRequestCheckIsFriendAsyncTask = null;
-            mSharedPreferences.edit().remove(SAVE_STATE_REQUEST_CHECK_IS_FRIEND).apply();
 
             String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
 
@@ -639,6 +506,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
+            requestHook();
+
+
+
             Bundle result = new Bundle();
 
             final String requestedID = params[0];
@@ -658,7 +529,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
         @Override
         protected void onPostExecute(Bundle bundle) {
             mRequestAddFriendAsyncTask = null;
-            mSharedPreferences.edit().remove(SAVE_STATE_REQUEST_ADD_FRIEND).apply();
 
             String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
 
@@ -681,6 +551,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
+            requestHook();
+
+
+
             Bundle result = new Bundle();
 
             final String requestedID = params[0];
@@ -700,7 +574,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
         @Override
         protected void onPostExecute(Bundle bundle) {
             mRequestRemoveFriendAsyncTask = null;
-            mSharedPreferences.edit().remove(SAVE_STATE_REQUEST_REMOVE_FRIEND).apply();
 
             String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
 
