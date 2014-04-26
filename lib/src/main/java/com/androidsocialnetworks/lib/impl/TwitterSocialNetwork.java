@@ -234,14 +234,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-    private void requestHook() {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     private class RequestLoginAsyncTask extends AsyncTask<String, String, Bundle> {
         private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
         private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
@@ -253,9 +245,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
-            requestHook();
-
-
             Bundle result = new Bundle();
 
             Log.d(TAG, "LoginAsyncTask.doInBackground()");
@@ -303,10 +292,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
-            requestHook();
-
-
-
             String verifier = params[0];
 
             Bundle result = new Bundle();
@@ -360,9 +345,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(Long... params) {
-            requestHook();
-
-
             Bundle result = new Bundle();
 
             try {
@@ -406,9 +388,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
-            requestHook();
-
-
             Log.d(TAG, "RequestUpdateStatus.doInBackground");
 
             Bundle result = new Bundle();
@@ -457,10 +436,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
-            requestHook();
-
-
-
             Bundle result = new Bundle();
 
             final String requestedID = params[0];
@@ -506,10 +481,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
-            requestHook();
-
-
-
             Bundle result = new Bundle();
 
             final String requestedID = params[0];
@@ -551,10 +522,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected Bundle doInBackground(String... params) {
-            requestHook();
-
-
-
             Bundle result = new Bundle();
 
             final String requestedID = params[0];
