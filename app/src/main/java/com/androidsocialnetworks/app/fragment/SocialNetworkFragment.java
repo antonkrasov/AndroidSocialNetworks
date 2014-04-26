@@ -153,16 +153,24 @@ public class SocialNetworkFragment extends BaseFragment implements
 
     @Override
     protected void checkIsFriendClick() {
-        mSocialNetwork.requestCheckIsFriend(getUserID());
-
-        switchUIState(UIState.PROGRESS);
+        try {
+            mSocialNetwork.requestCheckIsFriend(getUserID());
+            switchUIState(UIState.PROGRESS);
+        } catch (SocialNetworkException e) {
+            Log.e(TAG, "ERROR", e);
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     protected void addFriendClick() {
-        mSocialNetwork.requestAddFriend(getUserID());
-
-        switchUIState(UIState.PROGRESS);
+        try {
+            mSocialNetwork.requestAddFriend(getUserID());
+            switchUIState(UIState.PROGRESS);
+        } catch (SocialNetworkException e) {
+            Log.e(TAG, "ERROR", e);
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

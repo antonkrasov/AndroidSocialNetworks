@@ -1,5 +1,6 @@
 package com.androidsocialnetworks.app.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentManager;
@@ -49,6 +50,13 @@ public class MainActivity extends ActionBarActivity {
         if (!ANDROID_IMAGE.exists()) {
             copyAsset();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode);
     }
 
     @Override
