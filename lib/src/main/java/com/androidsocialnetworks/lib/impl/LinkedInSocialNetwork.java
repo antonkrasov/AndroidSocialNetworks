@@ -12,22 +12,28 @@ import android.util.Log;
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialPerson;
+import com.google.code.linkedinapi.client.CommunicationsApiClient;
 import com.google.code.linkedinapi.client.LinkedInApiClient;
 import com.google.code.linkedinapi.client.LinkedInApiClientFactory;
+import com.google.code.linkedinapi.client.constant.ApplicationConstants;
 import com.google.code.linkedinapi.client.enumeration.ProfileField;
 import com.google.code.linkedinapi.client.oauth.LinkedInAccessToken;
 import com.google.code.linkedinapi.client.oauth.LinkedInOAuthService;
 import com.google.code.linkedinapi.client.oauth.LinkedInOAuthServiceFactory;
 import com.google.code.linkedinapi.client.oauth.LinkedInRequestToken;
+import com.google.code.linkedinapi.schema.Headers;
+import com.google.code.linkedinapi.schema.HttpHeader;
 import com.google.code.linkedinapi.schema.Person;
 
 import java.io.File;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 public class LinkedInSocialNetwork extends SocialNetwork {
+
     public static final int ID = UUID.randomUUID().hashCode();
     public static final String OAUTH_CALLBACK_SCHEME = "x-oauthflow-linkedin";
     public static final String OAUTH_CALLBACK_HOST = "linkedinApiTestCallback";
@@ -35,46 +41,39 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     public static final String OAUTH_QUERY_TOKEN = "oauth_token";
     public static final String OAUTH_QUERY_VERIFIER = "oauth_verifier";
     public static final String OAUTH_QUERY_PROBLEM = "oauth_problem";
+
     private static final String TAG = LinkedInSocialNetwork.class.getSimpleName();
     private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
-    private static final String SAVE_STATE_RUNNING_REQUESTS = "LinkedInSocialNetwork.SAVE_STATE_RUNNING_REQUESTS";
-    private static final String SAVE_STATE_AUTH_REQUEST_URL = "LinkedInSocialNetwork.SAVE_STATE_AUTH_URL";
-    private static final String SAVE_STATE_AUTH_REQUEST_TOKEN = "LinkedInSocialNetwork.SAVE_STATE_AUTH_REQUEST_TOKEN";
-    private static final String SAVE_STATE_REQUEST_UPDATE_MESSAGE = "LinkedInSocialNetwork.SAVE_STATE_REQUEST_UPDATE_MESSAGE";
-    private static final String SAVE_STATE_LOGIN2_URI = "LinkedInSocialNetwork.SAVE_STATE_LOGIN2_URI";
+
     private static final EnumSet<ProfileField> PROFILE_PARAMETERS = EnumSet.allOf(ProfileField.class);
 
     // max 16 bit to use in startActivityForResult
     private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
 
-    private final String fConsumerKey;
-    private final String fConsumerSecret;
-    private final String fPermissions;
-
     private final LinkedInOAuthService mOAuthService;
     private final LinkedInApiClientFactory mLinkedInApiClientFactory;
 
-    private LoginAsyncTask mLoginAsyncTask;
-    private Login2AsyncTask mLogin2AsyncTask;
-    private RequestPersonAsyncTask mRequestPersonAsyncTask;
+    private String mOAuthTokenSecret;
+
+    private RequestLoginAsyncTask mRequestLoginAsyncTask;
+    private RequestLogin2AsyncTask mRequestLogin2AsyncTask;
+    private RequestGetPersonAsyncTask mRequestGetPersonAsyncTask;
     private RequestPostMessageAsyncTask mRequestPostMessageAsyncTask;
+    private RequestCheckIsFriendAsyncTask mRequestCheckIsFriendAsyncTask;
+    private RequestAddFriendAsyncTask mRequestAddFriendAsyncTask;
 
     public LinkedInSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret, String permissions) {
         super(fragment);
         Log.d(TAG, "new LinkedInSocialNetwork: " + consumerKey + " : " + consumerSecret + " : " + permissions);
 
-        fConsumerKey = consumerKey;
-        fConsumerSecret = consumerSecret;
-        fPermissions = permissions;
-
-        if (TextUtils.isEmpty(fConsumerKey) || TextUtils.isEmpty(fConsumerSecret) || TextUtils.isEmpty(fPermissions)) {
+        if (TextUtils.isEmpty(consumerKey) || TextUtils.isEmpty(consumerSecret) || TextUtils.isEmpty(permissions)) {
             throw new IllegalArgumentException("TextUtils.isEmpty(fConsumerKey) || TextUtils.isEmpty(fConsumerSecret) || TextUtils.isEmpty(fPermissions)");
         }
 
         mOAuthService = LinkedInOAuthServiceFactory.getInstance()
-                .createLinkedInOAuthService(fConsumerKey, fConsumerSecret, fPermissions);
-        mLinkedInApiClientFactory = LinkedInApiClientFactory.newInstance(fConsumerKey, fConsumerSecret);
+                .createLinkedInOAuthService(consumerKey, consumerSecret, permissions);
+        mLinkedInApiClientFactory = LinkedInApiClientFactory.newInstance(consumerKey, consumerSecret);
     }
 
     @Override
@@ -86,8 +85,8 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
     @Override
     public void login() {
-        mLoginAsyncTask = new LoginAsyncTask();
-        mLoginAsyncTask.execute();
+        mRequestLoginAsyncTask = new RequestLoginAsyncTask();
+        mRequestLoginAsyncTask.execute();
     }
 
     @Override
@@ -102,114 +101,51 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
     @Override
     public void requestPerson() {
+        if (mRequestGetPersonAsyncTask != null) {
+            throw new RuntimeException("mRequestGetPersonAsyncTask already running");
+        }
+
         LinkedInAccessToken accessToken = new LinkedInAccessToken(
                 mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, ""),
                 mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, "")
         );
 
-        mRequestPersonAsyncTask = new RequestPersonAsyncTask();
-        mRequestPersonAsyncTask.execute(accessToken);
+        mRequestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
+        mRequestGetPersonAsyncTask.execute(accessToken);
     }
 
     public void postMessage(String message) {
-        mSharedPreferences.edit().putString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, message).apply();
-
         mRequestPostMessageAsyncTask = new RequestPostMessageAsyncTask();
         mRequestPostMessageAsyncTask.execute(message);
     }
 
     public void postPhoto(File photo, String message) {
-        throw new IllegalStateException("posting photo isn't allowed for LinkedIn");
+        throw new IllegalStateException("Posting photo isn't allowed for LinkedIn");
     }
 
     @Override
     public void isFriend(String userID) {
-        throw new RuntimeException("Not implemented");
+        if (mRequestCheckIsFriendAsyncTask != null) {
+            throw new IllegalStateException("mRequestCheckIsFriendAsyncTask already running");
+        }
+
+        mRequestCheckIsFriendAsyncTask = new RequestCheckIsFriendAsyncTask();
+        mRequestCheckIsFriendAsyncTask.execute(userID);
     }
 
     @Override
     public void addFriend(String userID) {
-        throw new RuntimeException("Not implemented");
+        if (mRequestAddFriendAsyncTask != null) {
+            throw new IllegalStateException("mRequestAddFriendAsyncTask already running");
+        }
+
+        mRequestAddFriendAsyncTask = new RequestAddFriendAsyncTask();
+        mRequestAddFriendAsyncTask.execute(userID);
     }
 
     @Override
     public void removeFriend(String userID) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (mSharedPreferences.contains(SAVE_STATE_RUNNING_REQUESTS)) {
-            String savedRequests = mSharedPreferences.getString(SAVE_STATE_RUNNING_REQUESTS, null);
-            String[] runningRequests = savedRequests.split("#");
-
-            for (String request : runningRequests) {
-                if (request.equals(LoginAsyncTask.class.getSimpleName())) {
-                    mLogin2AsyncTask = new Login2AsyncTask();
-                    mLogin2AsyncTask.execute();
-                } else if (request.equals(Login2AsyncTask.class.getSimpleName())) {
-                    String authRequestToken = mSharedPreferences.getString(SAVE_STATE_AUTH_REQUEST_TOKEN, "");
-                    String login2Uri = mSharedPreferences.getString(SAVE_STATE_LOGIN2_URI, "");
-
-                    mLogin2AsyncTask = new Login2AsyncTask();
-                    mLogin2AsyncTask.execute(authRequestToken, login2Uri);
-                } else if (request.equals(RequestPersonAsyncTask.class.getSimpleName())) {
-                    requestPerson();
-                } else if (request.equals(RequestPostMessageAsyncTask.class.getSimpleName())) {
-                    mRequestPostMessageAsyncTask = new RequestPostMessageAsyncTask();
-                    mRequestPostMessageAsyncTask.execute(
-                            mSharedPreferences.getString(SAVE_STATE_REQUEST_UPDATE_MESSAGE, null)
-                    );
-                }
-            }
-
-            mSharedPreferences.edit().remove(SAVE_STATE_RUNNING_REQUESTS).apply();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Set<String> runningRequests = new HashSet<String>();
-
-        if (mLoginAsyncTask != null) {
-            mLoginAsyncTask.cancel(true);
-            mLoginAsyncTask = null;
-
-            runningRequests.add(LoginAsyncTask.class.getSimpleName());
-        }
-
-        if (mLogin2AsyncTask != null) {
-            mLogin2AsyncTask.cancel(true);
-            mLogin2AsyncTask = null;
-
-            runningRequests.add(Login2AsyncTask.class.getSimpleName());
-        }
-
-        if (mRequestPersonAsyncTask != null) {
-            mRequestPersonAsyncTask.cancel(true);
-            mRequestPersonAsyncTask = null;
-
-            runningRequests.add(RequestPersonAsyncTask.class.getSimpleName());
-        }
-
-        if (mRequestPostMessageAsyncTask != null) {
-            mRequestPostMessageAsyncTask.cancel(true);
-            mRequestPostMessageAsyncTask = null;
-
-            runningRequests.add(RequestPostMessageAsyncTask.class.getSimpleName());
-        }
-
-        String finalValue = "";
-        for (String request : runningRequests) {
-            finalValue += request;
-            finalValue += '#';
-        }
-
-        mSharedPreferences.edit().putString(SAVE_STATE_RUNNING_REQUESTS, finalValue).apply();
+        throw new IllegalStateException("removeFriend isn't allowed for LinkedIn");
     }
 
     @Override
@@ -233,13 +169,45 @@ public class LinkedInSocialNetwork extends SocialNetwork {
             return;
         }
 
-        String authRequestToken = mSharedPreferences.getString(SAVE_STATE_AUTH_REQUEST_TOKEN, "");
-        String login2Uri = uri.toString();
+        mRequestLogin2AsyncTask = new RequestLogin2AsyncTask();
+        mRequestLogin2AsyncTask.execute(mOAuthTokenSecret, uri.toString());
+    }
 
-        mSharedPreferences.edit().putString(SAVE_STATE_LOGIN2_URI, login2Uri).apply();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
 
-        mLogin2AsyncTask = new Login2AsyncTask();
-        mLogin2AsyncTask.execute(authRequestToken, login2Uri);
+        stopAllRequests();
+    }
+
+    private void stopAllRequests() {
+        Log.d(TAG, "stopAllRequests()");
+        final boolean mayInterruptIfRunning = true;
+
+        if (mRequestLoginAsyncTask != null) {
+            mRequestLoginAsyncTask.cancel(mayInterruptIfRunning);
+            mRequestLoginAsyncTask = null;
+        }
+        if (mRequestLogin2AsyncTask != null) {
+            mRequestLogin2AsyncTask.cancel(mayInterruptIfRunning);
+            mRequestLogin2AsyncTask = null;
+        }
+        if (mRequestGetPersonAsyncTask != null) {
+            mRequestGetPersonAsyncTask.cancel(mayInterruptIfRunning);
+            mRequestGetPersonAsyncTask = null;
+        }
+        if (mRequestPostMessageAsyncTask != null) {
+            mRequestPostMessageAsyncTask.cancel(mayInterruptIfRunning);
+            mRequestPostMessageAsyncTask = null;
+        }
+        if (mRequestCheckIsFriendAsyncTask != null) {
+            mRequestCheckIsFriendAsyncTask.cancel(mayInterruptIfRunning);
+            mRequestCheckIsFriendAsyncTask = null;
+        }
+        if (mRequestAddFriendAsyncTask != null) {
+            mRequestAddFriendAsyncTask.cancel(mayInterruptIfRunning);
+            mRequestAddFriendAsyncTask = null;
+        }
     }
 
     private void fatalError() {
@@ -249,15 +217,9 @@ public class LinkedInSocialNetwork extends SocialNetwork {
                 .apply();
     }
 
-    private class LoginAsyncTask extends AsyncTask<String, String, Bundle> {
-        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
-        private static final String RESULT_OAUTH_URL = "LoginAsyncTask.RESULT_OAUTH_URL";
-        private static final String RESULT_OAUTH_TOKEN = "LoginAsyncTask.RESULT_OAUTH_TOKEN";
-
-        @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "LoginAsyncTask.onPreExecute()");
-        }
+    private class RequestLoginAsyncTask extends AsyncTask<String, String, Bundle> {
+        private static final String RESULT_ERROR = "RequestLoginAsyncTask.RESULT_ERROR";
+        private static final String RESULT_URL = "RequestLoginAsyncTask.RESULT_URL";
 
         @Override
         protected Bundle doInBackground(String... params) {
@@ -267,8 +229,10 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
             try {
                 final LinkedInRequestToken liToken = mOAuthService.getOAuthRequestToken(OAUTH_CALLBACK_URL);
-                result.putString(RESULT_OAUTH_URL, liToken.getAuthorizationUrl());
-                result.putString(RESULT_OAUTH_TOKEN, liToken.getTokenSecret());
+
+                mOAuthTokenSecret = liToken.getTokenSecret();
+
+                result.putString(RESULT_URL, liToken.getAuthorizationUrl());
             } catch (Exception e) {
                 Log.e(TAG, "ERROR", e);
                 result.putString(RESULT_ERROR, e.getMessage());
@@ -279,29 +243,22 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            Log.d(TAG, "LoginAsyncTask.onPostExecute()");
-
-            mLoginAsyncTask = null;
+            mRequestLoginAsyncTask = null;
 
             if (result.containsKey(RESULT_ERROR) && mOnLoginCompleteListener != null) {
                 mOnLoginCompleteListener.onLoginFailed(getID(), result.getString(RESULT_ERROR));
                 return;
             }
 
-            mSharedPreferences.edit()
-                    .putString(SAVE_STATE_AUTH_REQUEST_URL, result.getString(RESULT_OAUTH_URL))
-                    .putString(SAVE_STATE_AUTH_REQUEST_TOKEN, result.getString(RESULT_OAUTH_TOKEN))
-                    .apply();
-
             Intent intent = new Intent(mSocialNetworkManager.getActivity(), OAuthActivity.class)
                     .putExtra(OAuthActivity.PARAM_CALLBACK, OAUTH_CALLBACK_URL)
-                    .putExtra(OAuthActivity.PARAM_URL_TO_LOAD, result.getString(RESULT_OAUTH_URL));
+                    .putExtra(OAuthActivity.PARAM_URL_TO_LOAD, result.getString(RESULT_URL));
 
             mSocialNetworkManager.startActivityForResult(intent, REQUEST_AUTH);
         }
     }
 
-    private class Login2AsyncTask extends AsyncTask<String, Void, Bundle> {
+    private class RequestLogin2AsyncTask extends AsyncTask<String, Void, Bundle> {
         private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
         private static final String RESULT_TOKEN = "LoginAsyncTask.RESULT_TOKEN";
         private static final String RESULT_SECRET = "LoginAsyncTask.RESULT_SECRET";
@@ -337,7 +294,9 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            mLogin2AsyncTask = null;
+            mRequestLogin2AsyncTask = null;
+
+            mOAuthTokenSecret = null;
 
             String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
 
@@ -346,8 +305,6 @@ public class LinkedInSocialNetwork extends SocialNetwork {
                 mSharedPreferences.edit()
                         .putString(SAVE_STATE_KEY_OAUTH_TOKEN, result.getString(RESULT_TOKEN))
                         .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
-                        .remove(SAVE_STATE_AUTH_REQUEST_URL)
-                        .remove(SAVE_STATE_LOGIN2_URI)
                         .apply();
             }
 
@@ -361,7 +318,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
         }
     }
 
-    private class RequestPersonAsyncTask extends AsyncTask<LinkedInAccessToken, Void, Bundle> {
+    private class RequestGetPersonAsyncTask extends AsyncTask<LinkedInAccessToken, Void, Bundle> {
         private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
         private static final String RESULT_ID = "LoginAsyncTask.RESULT_ID";
         private static final String RESULT_NAME = "LoginAsyncTask.RESULT_NAME";
@@ -387,6 +344,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
+            mRequestGetPersonAsyncTask = null;
             String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
 
             if (error != null) {
@@ -439,8 +397,6 @@ public class LinkedInSocialNetwork extends SocialNetwork {
         protected void onPostExecute(Bundle result) {
             mRequestPostMessageAsyncTask = null;
 
-            mSharedPreferences.edit().remove(SAVE_STATE_REQUEST_UPDATE_MESSAGE).apply();
-
             String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
 
             if (mOnPostingListener == null) return;
@@ -451,7 +407,130 @@ public class LinkedInSocialNetwork extends SocialNetwork {
                 mOnPostingListener.onPostFailed(getID(), error);
             }
         }
+    }
 
+    private class RequestCheckIsFriendAsyncTask extends AsyncTask<String, Void, Bundle> {
+        private static final String RESULT_ERROR = "RequestCheckIsFriendAsyncTask.RESULT_ERROR";
+        private static final String RESULT_IS_FRIEND = "RequestCheckIsFriendAsyncTask.RESULT_IS_FRIEND";
+        private static final String RESULT_REQUESTED_ID = "RequestCheckIsFriendAsyncTask.RESULT_REQUESTED_ID";
+
+        @Override
+        protected Bundle doInBackground(String... params) {
+            Bundle result = new Bundle();
+
+            try {
+                String userID = params[0];
+                result.putString(RESULT_REQUESTED_ID, userID);
+
+                LinkedInApiClient apiClient = mLinkedInApiClientFactory.createLinkedInApiClient(
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, ""),
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, "")
+                );
+
+                Person person = apiClient.getProfileForCurrentUser(PROFILE_PARAMETERS);
+
+                List<Person> list = person.getConnections().getPersonList();
+                if (list != null) {
+                    for (Person p : list) {
+                        if (p.getId().equals(userID)) {
+                            result.putBoolean(RESULT_IS_FRIEND, true);
+                            return result;
+                        }
+                    }
+                }
+
+                result.putBoolean(RESULT_IS_FRIEND, false);
+            } catch (Exception e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle bundle) {
+            mRequestCheckIsFriendAsyncTask = null;
+
+            String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
+
+            if (mOnCheckingIsFriendListener != null) {
+                if (error != null) {
+                    mOnCheckingIsFriendListener.onCheckIsFriendFailed(getID(), bundle.getString(RESULT_REQUESTED_ID), error);
+                } else {
+                    mOnCheckingIsFriendListener.onCheckIsFriendSuccess(
+                            getID(),
+                            bundle.getString(RESULT_REQUESTED_ID),
+                            bundle.getBoolean(RESULT_IS_FRIEND)
+                    );
+                }
+            }
+        }
+    }
+
+    private class RequestAddFriendAsyncTask extends AsyncTask<String, Void, Bundle> {
+        private static final String RESULT_ERROR = "RequestAddFriendAsyncTask.RESULT_ERROR";
+        private static final String RESULT_REQUESTED_ID = "RequestAddFriendAsyncTask.RESULT_REQUESTED_ID";
+
+        @Override
+        protected Bundle doInBackground(String... params) {
+            Bundle result = new Bundle();
+
+            try {
+                String userID = params[0];
+                result.putString(RESULT_REQUESTED_ID, userID);
+
+                LinkedInApiClient apiClient = mLinkedInApiClientFactory.createLinkedInApiClient(
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, ""),
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, "")
+                );
+
+                Set<ProfileField> fields = new HashSet<ProfileField>();
+                fields.add(ProfileField.API_STANDARD_PROFILE_REQUEST);
+
+                Person person = apiClient.getProfileById(userID, fields);
+
+                String authHeader = "";
+                Headers headers = person.getApiStandardProfileRequest().getHeaders();
+                List<HttpHeader> httpHeaders = headers.getHttpHeaderList();
+                for (HttpHeader httpHeader : httpHeaders) {
+                    if (httpHeader.getName().equals(ApplicationConstants.AUTH_HEADER_NAME)) {
+                        authHeader = httpHeader.getValue();
+                        break;
+                    }
+                }
+
+                CommunicationsApiClient communicationsApiClient = mLinkedInApiClientFactory.createCommunicationsApiClient(
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, ""),
+                        mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, "")
+                );
+                communicationsApiClient.sendInviteById(userID, "Join my network on LinkedIn",
+                        "Since you are a person I trust, I wanted to invite you to join my network on LinkedIn.", authHeader);
+            } catch (Exception e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle bundle) {
+            mRequestAddFriendAsyncTask = null;
+
+            String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
+
+            if (mOnAddFriendListener != null) {
+                if (error != null) {
+                    mOnAddFriendListener.onAddFriendFailed(getID(), bundle.getString(RESULT_REQUESTED_ID), error);
+                } else {
+                    mOnAddFriendListener.onAddFriendSuccess(
+                            getID(),
+                            bundle.getString(RESULT_REQUESTED_ID)
+                    );
+                }
+            }
+        }
     }
 
 }

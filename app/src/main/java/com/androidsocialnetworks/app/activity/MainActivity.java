@@ -2,6 +2,7 @@ package com.androidsocialnetworks.app.activity;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 
@@ -18,6 +19,8 @@ import java.io.OutputStream;
 public class MainActivity extends ActionBarActivity {
     public static final File ANDROID_IMAGE = new File(Environment.getExternalStorageDirectory(), "android.jpg");
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG_SOCIAL_NETWORK_MANAGER = "TAG_SOCIAL_NETWORK_MANAGER";
+
     private SocialNetworkManager mSocialNetworkManager;
 
     @Override
@@ -25,31 +28,26 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
+        FragmentManager fm = getSupportFragmentManager();
+        mSocialNetworkManager = (SocialNetworkManager) fm.findFragmentByTag(TAG_SOCIAL_NETWORK_MANAGER);
+
+        if (mSocialNetworkManager == null) {
             mSocialNetworkManager = SocialNetworkManager.Builder.create()
                     .twitter("3IYEDC9Pq5SIjzENhgorlpera", "fawjHMhyzhrfcFKZVB6d5YfiWbWGmgX7vPfazi61xZY9pdD1aE")
                     .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
                     .build();
+            fm.beginTransaction().add(mSocialNetworkManager, TAG_SOCIAL_NETWORK_MANAGER).commit();
+        }
 
-            getSupportFragmentManager().beginTransaction().add(mSocialNetworkManager, SocialNetworkManager.SAVE_KEY).commit();
-
+        if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.root_container, SocialNetworksListFragment.newInstance())
                     .commit();
-        } else {
-            mSocialNetworkManager = (SocialNetworkManager) getSupportFragmentManager().getFragment(savedInstanceState, SocialNetworkManager.SAVE_KEY);
         }
 
         if (!ANDROID_IMAGE.exists()) {
             copyAsset();
         }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        getSupportFragmentManager().putFragment(outState, SocialNetworkManager.SAVE_KEY, mSocialNetworkManager);
-
-        super.onSaveInstanceState(outState);
     }
 
     @Override

@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SocialNetworkManager extends Fragment {
-    public static final String SAVE_KEY = SocialNetworkManager.class.getSimpleName();
     private static final String TAG = SocialNetworkManager.class.getSimpleName();
     private static final String PARAM_TWITTER_KEY = "SocialNetworkManager.PARAM_TWITTER_KEY";
     private static final String PARAM_TWITTER_SECRET = "SocialNetworkManager.PARAM_TWITTER_SECRET";

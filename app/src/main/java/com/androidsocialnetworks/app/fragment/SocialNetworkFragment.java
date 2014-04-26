@@ -137,7 +137,12 @@ public class SocialNetworkFragment extends BaseFragment implements
             return;
         }
 
-        mSocialNetwork.postPhoto(MainActivity.ANDROID_IMAGE, "Test");
+        try {
+            mSocialNetwork.postPhoto(MainActivity.ANDROID_IMAGE, "Test");
+        } catch (Exception e) {
+            Log.e(TAG, "ERROR", e);
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
         switchUIState(UIState.PROGRESS);
     }
@@ -158,7 +163,12 @@ public class SocialNetworkFragment extends BaseFragment implements
 
     @Override
     protected void removeFriendClick() {
-        mSocialNetwork.removeFriend(getUserID());
+        try {
+            mSocialNetwork.removeFriend(getUserID());
+        } catch (Exception e) {
+            Log.e(TAG, "ERROR", e);
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
         switchUIState(UIState.PROGRESS);
     }
