@@ -55,6 +55,37 @@
             android:text="Post photo"
             />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/is_friend_button"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="friend?"
+                />
+
+            <Button
+                android:id="@+id/add_friend_button"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="add"
+                />
+
+            <Button
+                android:id="@+id/remove_friend_button"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="remove"
+                />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <ProgressBar

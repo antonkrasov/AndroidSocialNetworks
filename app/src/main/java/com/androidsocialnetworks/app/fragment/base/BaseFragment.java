@@ -28,6 +28,12 @@ public abstract class BaseFragment extends Fragment {
 
     protected abstract void onPostPhoto();
 
+    protected abstract void checkIsFriendClick();
+
+    protected abstract void addFriendClick();
+
+    protected abstract void removeFriendClick();
+
     public MainActivity getMainActivity() {
         return (MainActivity) getActivity();
     }
@@ -63,6 +69,24 @@ public abstract class BaseFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onPostPhoto();
+            }
+        });
+        view.findViewById(R.id.is_friend_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkIsFriendClick();
+            }
+        });
+        view.findViewById(R.id.add_friend_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addFriendClick();
+            }
+        });
+        view.findViewById(R.id.remove_friend_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeFriendClick();
             }
         });
 

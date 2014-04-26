@@ -16,7 +16,7 @@ import com.squareup.picasso.Picasso;
 import java.util.UUID;
 
 public class SocialNetworkFragment extends BaseFragment implements
-        SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener, SocialNetwork.OnPostingListener {
+        SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener, SocialNetwork.OnPostingListener, SocialNetwork.OnCheckingIsFriendListener, SocialNetwork.OnAddFriendListener, SocialNetwork.OnRemoveFriendListener {
 
     private static final String TAG = SocialNetworkFragment.class.getSimpleName();
 
@@ -51,6 +51,9 @@ public class SocialNetworkFragment extends BaseFragment implements
         mSocialNetwork.setOnLoginCompleteListener(this);
         mSocialNetwork.setOnRequestSocialPersonListener(this);
         mSocialNetwork.setOnPostingListener(this);
+        mSocialNetwork.setOnCheckingIsFriendListener(this);
+        mSocialNetwork.setOnAddFriendListener(this);
+        mSocialNetwork.setOnRemoveFriendListener(this);
 
         mConnectDisconnectButton = (Button) view.findViewById(R.id.connect_disconnect_button);
         if (mSocialNetwork.isConnected()) {
@@ -64,6 +67,17 @@ public class SocialNetworkFragment extends BaseFragment implements
     public void onResume() {
         super.onResume();
         ((MainActivity) getActivity()).getSupportActionBar().setTitle(getArguments().getString(PARAM_NAME));
+    }
+
+    private String getUserID() {
+        String name = getArguments().getString(PARAM_NAME);
+        if (name.equals(SocialNetworksListFragment.TWITTER)) {
+            return "39222068";
+        } else if (name.equals(SocialNetworksListFragment.LINKED_IN)) {
+            return "";
+        } else {
+            throw new IllegalStateException("Can't find social network for: " + name);
+        }
     }
 
     @Override
@@ -117,6 +131,27 @@ public class SocialNetworkFragment extends BaseFragment implements
     }
 
     @Override
+    protected void checkIsFriendClick() {
+        mSocialNetwork.isFriend(getUserID());
+
+        switchUIState(UIState.PROGRESS);
+    }
+
+    @Override
+    protected void addFriendClick() {
+        mSocialNetwork.addFriend(getUserID());
+
+        switchUIState(UIState.PROGRESS);
+    }
+
+    @Override
+    protected void removeFriendClick() {
+        mSocialNetwork.removeFriend(getUserID());
+
+        switchUIState(UIState.PROGRESS);
+    }
+
+    @Override
     public void onLoginSuccess(int socialNetworkID) {
         Log.d(TAG, "onLoginSuccess: " + socialNetworkID);
 
@@ -127,10 +162,7 @@ public class SocialNetworkFragment extends BaseFragment implements
 
     @Override
     public void onLoginFailed(int socialNetworkID, String reason) {
-        Log.d(TAG, "onLoginFailed: " + socialNetworkID + " : " + reason);
-
-        switchUIState(UIState.CONTENT);
-        Toast.makeText(getActivity(), "error: " + reason, Toast.LENGTH_SHORT).show();
+        handleError(socialNetworkID, reason);
     }
 
     @Override
@@ -145,10 +177,7 @@ public class SocialNetworkFragment extends BaseFragment implements
 
     @Override
     public void onRequestSocialPersonFailed(int socialNetworkID, String reason) {
-        Log.d(TAG, "onRequestSocialPersonFailed: " + socialNetworkID + " : " + reason);
-
-        switchUIState(UIState.CONTENT);
-        Toast.makeText(getActivity(), "error: " + reason, Toast.LENGTH_SHORT).show();
+        handleError(socialNetworkID, reason);
     }
 
     @Override
@@ -162,7 +191,45 @@ public class SocialNetworkFragment extends BaseFragment implements
 
     @Override
     public void onPostFailed(int socialNetworkID, String reason) {
-        Log.d(TAG, "onPostFailed: " + socialNetworkID + " : " + reason);
+        handleError(socialNetworkID, reason);
+    }
+
+
+    @Override
+    public void onCheckIsFriendSuccess(int socialNetworkID, String userID, boolean isFriend) {
+        Toast.makeText(getActivity(), "onCheckIsFriendSuccess: " + isFriend, Toast.LENGTH_SHORT).show();
+        switchUIState(UIState.CONTENT);
+    }
+
+    @Override
+    public void onCheckIsFriendFailed(int socialNetworkID, String userID, String error) {
+        handleError(socialNetworkID, error);
+    }
+
+    @Override
+    public void onAddFriendSuccess(int socialNetworkID, String userID) {
+        Toast.makeText(getActivity(), "onAddFriendSuccess", Toast.LENGTH_SHORT).show();
+        switchUIState(UIState.CONTENT);
+    }
+
+    @Override
+    public void onAddFriendFailed(int socialNetworkID, String userID, String error) {
+        handleError(socialNetworkID, error);
+    }
+
+    @Override
+    public void onRemoveFriendSuccess(int socialNetworkID, String userID) {
+        Toast.makeText(getActivity(), "onRemoveFriendSuccess", Toast.LENGTH_SHORT).show();
+        switchUIState(UIState.CONTENT);
+    }
+
+    @Override
+    public void onRemoveFriendFailed(int socialNetworkID, String userID, String error) {
+        handleError(socialNetworkID, error);
+    }
+
+    private void handleError(int socialNetworkID, String reason) {
+        Log.d(TAG, "handleError: " + socialNetworkID + " : " + reason);
 
         switchUIState(UIState.CONTENT);
         Toast.makeText(getActivity(), "error: " + reason, Toast.LENGTH_SHORT).show();

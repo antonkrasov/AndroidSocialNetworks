@@ -123,6 +123,21 @@ public class LinkedInSocialNetwork extends SocialNetwork {
     }
 
     @Override
+    public void isFriend(String userID) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void addFriend(String userID) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void removeFriend(String userID) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 

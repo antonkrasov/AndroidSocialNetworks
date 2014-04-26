@@ -21,6 +21,10 @@ public abstract class SocialNetwork {
     protected OnRequestSocialPersonListener mOnRequestSocialPersonListener;
     protected OnPostingListener mOnPostingListener;
 
+    protected OnCheckingIsFriendListener mOnCheckingIsFriendListener;
+    protected OnAddFriendListener mOnAddFriendListener;
+    protected OnRemoveFriendListener mOnRemoveFriendListener;
+
     /**
      * @param fragment ant not activity or context, as we will need to call startActivityForResult,
      *                 we will want to receice on onActivityResult in out SocialNetworkManager
@@ -77,6 +81,18 @@ public abstract class SocialNetwork {
         mOnPostingListener = onPostingListener;
     }
 
+    public void setOnCheckingIsFriendListener(OnCheckingIsFriendListener onCheckingIsFriendListener) {
+        mOnCheckingIsFriendListener = onCheckingIsFriendListener;
+    }
+
+    public void setOnAddFriendListener(OnAddFriendListener onAddFriendListener) {
+        mOnAddFriendListener = onAddFriendListener;
+    }
+
+    public void setOnRemoveFriendListener(OnRemoveFriendListener onRemoveFriendListener) {
+        mOnRemoveFriendListener = onRemoveFriendListener;
+    }
+
     public abstract boolean isConnected();
 
     public abstract void login();
@@ -90,6 +106,12 @@ public abstract class SocialNetwork {
     public abstract void postMessage(String message);
 
     public abstract void postPhoto(File photo, String message);
+
+    public abstract void isFriend(String userID);
+
+    public abstract void addFriend(String userID);
+
+    public abstract void removeFriend(String userID);
 
     public static interface OnLoginCompleteListener {
         public void onLoginSuccess(int socialNetworkID);
@@ -107,6 +129,24 @@ public abstract class SocialNetwork {
         public void onPostSuccessfully(int socialNetworkID);
 
         public void onPostFailed(int socialNetworkID, String reason);
+    }
+
+    public static interface OnCheckingIsFriendListener {
+        public void onCheckIsFriendSuccess(int socialNetworkID, String userID, boolean isFriend);
+
+        public void onCheckIsFriendFailed(int socialNetworkID, String userID, String error);
+    }
+
+    public static interface OnAddFriendListener {
+        public void onAddFriendSuccess(int socialNetworkID, String userID);
+
+        public void onAddFriendFailed(int socialNetworkID, String userID, String error);
+    }
+
+    public static interface OnRemoveFriendListener {
+        public void onRemoveFriendSuccess(int socialNetworkID, String userID);
+
+        public void onRemoveFriendFailed(int socialNetworkID, String userID, String error);
     }
 
 }
