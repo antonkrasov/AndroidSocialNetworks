@@ -8,9 +8,7 @@ Android Social Networks is library which makes working with social networks easi
    - [Our Solution](#our-solution)
   - [Sample Application](#sample-application)
   - [Show me the code](#show-me-the-code)
-  - [Under the hood?](#under-the-hood)
   - [Getting Started](#getting-started)
-  - [Dependencies](#dependencies)
   - [Dependencies](#dependencies)
   - [License](#license)
 
@@ -30,10 +28,6 @@ Android Social Networks is library which makes working with social networks easi
 ### Show me the code
 
   TODO Show me the code
-
-### Under the hood
-
-  TODO Under the hood
 
 ### Getting started
 
