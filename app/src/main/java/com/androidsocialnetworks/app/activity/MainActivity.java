@@ -37,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
                     .twitter("3IYEDC9Pq5SIjzENhgorlpera", "fawjHMhyzhrfcFKZVB6d5YfiWbWGmgX7vPfazi61xZY9pdD1aE")
                     .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
                     .facebook()
+                    .googlePlus()
                     .build();
             fm.beginTransaction().add(mSocialNetworkManager, TAG_SOCIAL_NETWORK_MANAGER).commit();
         }
@@ -57,6 +58,7 @@ public class MainActivity extends ActionBarActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode);
+        mSocialNetworkManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

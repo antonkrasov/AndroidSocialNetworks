@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.androidsocialnetworks.lib.impl.FacebookSocialNetwork;
+import com.androidsocialnetworks.lib.impl.GooglePlusSocialNetwork;
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
 import com.facebook.internal.Utility;
@@ -25,10 +26,12 @@ public class SocialNetworkManager extends Fragment {
     private static final String PARAM_LINKEDIN_PERMISSIONS = "SocialNetworkManager.PARAM_LINKEDIN_PERMISSIONS";
 
     private static final String PARAM_FACEBOOK = "SocialNetworkManager.PARAM_FACEBOOK";
+    private static final String PARAM_GOOGLE_PLUS = "SocialNetworkManager.PARAM_GOOGLE_PLUS";
 
     private static final String KEY_SOCIAL_NETWORK_TWITTER = "KEY_SOCIAL_NETWORK_TWITTER";
     private static final String KEY_SOCIAL_NETWORK_LINKED_IN = "KEY_SOCIAL_NETWORK_LINKED_IN";
     private static final String KEY_SOCIAL_NETWORK_FACEBOOK = "KEY_SOCIAL_NETWORK_FACEBOOK";
+    private static final String KEY_SOCIAL_NETWORK_GOOGLE_PLUS = "KEY_SOCIAL_NETWORK_GOOGLE_PLUS";
 
     private Map<String, SocialNetwork> mSocialNetworksMap = new HashMap<String, SocialNetwork>();
 
@@ -49,6 +52,7 @@ public class SocialNetworkManager extends Fragment {
         final String paramLinkedInPermissions = args.getString(PARAM_LINKEDIN_PERMISSIONS);
 
         final boolean paramFacebook = args.getBoolean(PARAM_FACEBOOK, false);
+        final boolean paramGooglePlus = args.getBoolean(PARAM_GOOGLE_PLUS, false);
 
         if (!TextUtils.isEmpty(paramTwitterKey) || !TextUtils.isEmpty(paramTwitterKey)) {
             mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_TWITTER,
@@ -62,6 +66,10 @@ public class SocialNetworkManager extends Fragment {
 
         if (paramFacebook) {
             mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_FACEBOOK, new FacebookSocialNetwork(this));
+        }
+
+        if (paramGooglePlus) {
+            mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_GOOGLE_PLUS, new GooglePlusSocialNetwork(this));
         }
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
@@ -163,10 +171,19 @@ public class SocialNetworkManager extends Fragment {
         return (FacebookSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_FACEBOOK);
     }
 
+    public GooglePlusSocialNetwork getGooglePlusSocialNetwork() {
+        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_GOOGLE_PLUS)) {
+            throw new IllegalStateException("Facebook wasn't initialized...");
+        }
+
+        return (GooglePlusSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_GOOGLE_PLUS);
+    }
+
     public static class Builder {
         private String twitterConsumerKey, twitterConsumerSecret;
         private String linkedInConsumerKey, linkedInConsumerSecret, linkedInPermissions;
         private boolean facebook;
+        private boolean googlePlus;
 
         private Context mContext;
 
@@ -205,6 +222,11 @@ public class SocialNetworkManager extends Fragment {
             return this;
         }
 
+        public Builder googlePlus() {
+            googlePlus = true;
+            return this;
+        }
+
         public SocialNetworkManager build() {
             Bundle args = new Bundle();
 
@@ -222,6 +244,10 @@ public class SocialNetworkManager extends Fragment {
 
             if (facebook) {
                 args.putBoolean(PARAM_FACEBOOK, true);
+            }
+
+            if (googlePlus) {
+                args.putBoolean(PARAM_GOOGLE_PLUS, true);
             }
 
             SocialNetworkManager socialNetworkManager = new SocialNetworkManager();

@@ -17,6 +17,7 @@ public class SocialNetworksListFragment extends ListFragment {
     public static final String LINKED_IN = "LinkedIn";
     public static final String TWITTER = "Twitter";
     public static final String FACEBOOK = "Facebook";
+    public static final String GOOGLE_PLUS = "Google Plus";
 
     public static SocialNetworksListFragment newInstance() {
         return new SocialNetworksListFragment();
@@ -30,6 +31,7 @@ public class SocialNetworksListFragment extends ListFragment {
         items.add(LINKED_IN);
         items.add(TWITTER);
         items.add(FACEBOOK);
+        items.add(GOOGLE_PLUS);
         setListAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items));
     }
 

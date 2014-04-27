@@ -47,6 +47,8 @@ public class SocialNetworkFragment extends BaseFragment implements
             mSocialNetwork = getMainActivity().getSocialNetworkManager().getLinkedInSocialNetwork();
         } else if (name.equals(SocialNetworksListFragment.FACEBOOK)) {
             mSocialNetwork = getMainActivity().getSocialNetworkManager().getFacebookSocialNetwork();
+        } else if (name.equals(SocialNetworksListFragment.GOOGLE_PLUS)) {
+            mSocialNetwork = getMainActivity().getSocialNetworkManager().getGooglePlusSocialNetwork();
         } else {
             throw new IllegalStateException("Can't find social network for: " + name);
         }
@@ -92,6 +94,8 @@ public class SocialNetworkFragment extends BaseFragment implements
             return "100008263800271";
         } else if (name.equals(SocialNetworksListFragment.LINKED_IN)) {
             return "WQlagxgbbw";
+        } else if (name.equals(SocialNetworksListFragment.GOOGLE_PLUS)) {
+            return "";
         } else {
             throw new IllegalStateException("Can't find social network for: " + name);
         }
@@ -130,9 +134,13 @@ public class SocialNetworkFragment extends BaseFragment implements
             return;
         }
 
-        mSocialNetwork.requestPostMessage(UUID.randomUUID().toString());
-
-        switchUIState(UIState.PROGRESS);
+        try {
+            mSocialNetwork.requestPostMessage(UUID.randomUUID().toString());
+            switchUIState(UIState.PROGRESS);
+        } catch (SocialNetworkException e) {
+            Log.e(TAG, "ERROR", e);
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

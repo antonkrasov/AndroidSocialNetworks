@@ -3,7 +3,9 @@ package com.androidsocialnetworks.lib.impl;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.androidsocialnetworks.lib.MomentUtil;
 import com.androidsocialnetworks.lib.SocialNetwork;
@@ -28,6 +30,8 @@ public class GooglePlusSocialNetwork extends SocialNetwork implements GooglePlay
 
     private boolean mConnectRequested;
 
+    private Handler mHandler = new Handler();
+
     public GooglePlusSocialNetwork(Fragment fragment) {
         super(fragment);
     }
@@ -44,6 +48,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork implements GooglePlay
         try {
             mConnectionResult.startResolutionForResult(mSocialNetworkManager.getActivity(), REQUEST_AUTH);
         } catch (Exception e) {
+            Log.e(TAG, "ERROR", e);
             if (!mPlusClient.isConnecting()) {
                 mPlusClient.connect();
             }
@@ -70,13 +75,18 @@ public class GooglePlusSocialNetwork extends SocialNetwork implements GooglePlay
 
         if (person == null) {
             if (mOnRequestSocialPersonListener != null) {
-                mOnRequestSocialPersonListener.onRequestSocialPersonFailed(getID(), "Can't get person");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mOnRequestSocialPersonListener.onRequestSocialPersonFailed(getID(), "Can't get person");
+                    }
+                });
             }
 
             return;
         }
 
-        SocialPerson socialPerson = new SocialPerson();
+        final SocialPerson socialPerson = new SocialPerson();
         socialPerson.id = person.getId();
         socialPerson.name = person.getDisplayName();
 
@@ -90,7 +100,12 @@ public class GooglePlusSocialNetwork extends SocialNetwork implements GooglePlay
         }
 
         if (mOnRequestSocialPersonListener != null) {
-            mOnRequestSocialPersonListener.onRequestSocialPersonSuccess(getID(), socialPerson);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mOnRequestSocialPersonListener.onRequestSocialPersonSuccess(getID(), socialPerson);
+                }
+            });
         }
     }
 
@@ -146,6 +161,10 @@ public class GooglePlusSocialNetwork extends SocialNetwork implements GooglePlay
             if (resultCode == Activity.RESULT_OK && !mPlusClient.isConnected() && !mPlusClient.isConnecting()) {
                 // This time, connect should succeed.
                 mPlusClient.connect();
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                if (mOnLoginCompleteListener != null) {
+                    mOnLoginCompleteListener.onLoginFailed(getID(), "canceled");
+                }
             }
         }
     }
