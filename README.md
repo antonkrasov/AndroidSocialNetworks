@@ -51,7 +51,7 @@ Android Social Networks is library which makes working with social networks easi
 
 ## License
 
-Android Priority Jobqueue is made available under the [MIT license](http://opensource.org/licenses/MIT):
+Android Social Networks is made available under the [MIT license](http://opensource.org/licenses/MIT):
 
 <pre>
 The MIT License (MIT)
