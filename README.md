@@ -42,7 +42,13 @@ Android Social Networks is library which makes working with social networks easi
 
 ### Dependencies
 
-  TODO Dependencies
+- [support-v4](http://developer.android.com/tools/support-library/index.html)
+- [Twitter4j](http://twitter4j.org/en)
+- [Google Play Services](http://developer.android.com/google/play-services/index.html)
+- [Facebook SDK](https://developers.facebook.com/docs/android/)
+- [linkedin-j-android](https://code.google.com/p/linkedin-j/)
+- [signpost-core](https://code.google.com/p/oauth-signpost/)
+- [signpost-commonshttp4](https://code.google.com/p/oauth-signpost/)
 
 ### Wiki
 
