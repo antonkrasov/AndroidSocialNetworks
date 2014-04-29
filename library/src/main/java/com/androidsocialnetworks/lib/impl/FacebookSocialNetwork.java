@@ -26,10 +26,11 @@ import com.facebook.model.GraphUser;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.UUID;
 
 public class FacebookSocialNetwork extends SocialNetwork {
-    public static final int ID = UUID.randomUUID().hashCode();
+
+    public static final int ID = 4;
+
     private static final String TAG = FacebookSocialNetwork.class.getSimpleName();
     private static final String PERMISSION = "publish_actions";
     private SessionTracker mSessionTracker;

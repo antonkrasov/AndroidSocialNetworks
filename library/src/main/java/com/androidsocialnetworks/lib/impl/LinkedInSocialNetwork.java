@@ -35,7 +35,8 @@ import java.util.UUID;
 
 public class LinkedInSocialNetwork extends SocialNetwork {
 
-    public static final int ID = UUID.randomUUID().hashCode();
+    public static final int ID = 2;
+
     public static final String OAUTH_CALLBACK_SCHEME = "x-oauthflow-linkedin";
     public static final String OAUTH_CALLBACK_HOST = "linkedinApiTestCallback";
     public static final String OAUTH_CALLBACK_URL = String.format("%s://%s", OAUTH_CALLBACK_SCHEME, OAUTH_CALLBACK_HOST);

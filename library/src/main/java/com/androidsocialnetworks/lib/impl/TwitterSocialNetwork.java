@@ -27,7 +27,8 @@ import twitter4j.auth.RequestToken;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterSocialNetwork extends SocialNetwork {
-    public static final int ID = UUID.randomUUID().hashCode();
+    public static final int ID = 1;
+
     private static final String TAG = TwitterSocialNetwork.class.getSimpleName();
     private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";

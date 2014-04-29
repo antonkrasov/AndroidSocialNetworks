@@ -19,8 +19,11 @@ import com.google.android.gms.plus.model.people.Person;
 import java.io.File;
 import java.util.UUID;
 
-public class GooglePlusSocialNetwork extends SocialNetwork implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
-    public static final int ID = UUID.randomUUID().hashCode();
+public class GooglePlusSocialNetwork extends SocialNetwork
+        implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+
+    public static final int ID = 3;
+
     private static final String TAG = GooglePlusSocialNetwork.class.getSimpleName();
     // max 16 bit to use in startActivityForResult
     private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
