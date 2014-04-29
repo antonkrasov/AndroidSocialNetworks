@@ -179,6 +179,20 @@ public class SocialNetworkManager extends Fragment {
         return (GooglePlusSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_GOOGLE_PLUS);
     }
 
+    public SocialNetwork getSocialNetwork(int id) throws SocialNetworkException {
+        if (id == TwitterSocialNetwork.ID) {
+            return getTwitterSocialNetwork();
+        } else if (id == FacebookSocialNetwork.ID) {
+            return getFacebookSocialNetwork();
+        } else if (id == LinkedInSocialNetwork.ID) {
+            return getLinkedInSocialNetwork();
+        } else if (id == GooglePlusSocialNetwork.ID) {
+            return getGooglePlusSocialNetwork();
+        } else {
+            throw new SocialNetworkException("Social network with id = " + id + " not found");
+        }
+    }
+
     public static class Builder {
         private String twitterConsumerKey, twitterConsumerSecret;
         private String linkedInConsumerKey, linkedInConsumerSecret, linkedInPermissions;
