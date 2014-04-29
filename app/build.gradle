@@ -19,11 +19,18 @@ android {
 }
 
 dependencies {
-    compile project(':lib');
+    compile 'com.github.androidsocialnetworks:library:0.1.1-SNAPSHOT@aar'
+    compile 'com.github.androidsocialnetworks:facebook:0.1.1-SNAPSHOT@aar'
+    compile 'com.android.support:support-v4:19.1.0@jar'
+    compile 'org.twitter4j:twitter4j-core:4.0.1'
+    compile 'com.google.android.gms:play-services:4.3.23@aar'
+
 
     compile 'com.squareup.picasso:picasso:2.2.0@jar'
     compile 'com.android.support:appcompat-v7:19.+'
 
     // to display facebook avatar: https://github.com/square/picasso/issues/166
     compile 'com.squareup.okhttp:okhttp:1.5.4@jar'
+
+    compile 'com.google.android.gms:play-services:4.3.23@aar'
 }
