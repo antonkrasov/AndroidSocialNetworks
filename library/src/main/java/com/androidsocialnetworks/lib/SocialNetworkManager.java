@@ -17,23 +17,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SocialNetworkManager extends Fragment {
+
     private static final String TAG = SocialNetworkManager.class.getSimpleName();
     private static final String PARAM_TWITTER_KEY = "SocialNetworkManager.PARAM_TWITTER_KEY";
     private static final String PARAM_TWITTER_SECRET = "SocialNetworkManager.PARAM_TWITTER_SECRET";
-
     private static final String PARAM_LINKEDIN_KEY = "SocialNetworkManager.PARAM_LINKEDIN_KEY";
     private static final String PARAM_LINKEDIN_SECRET = "SocialNetworkManager.PARAM_LINKEDIN_SECRET";
     private static final String PARAM_LINKEDIN_PERMISSIONS = "SocialNetworkManager.PARAM_LINKEDIN_PERMISSIONS";
-
     private static final String PARAM_FACEBOOK = "SocialNetworkManager.PARAM_FACEBOOK";
     private static final String PARAM_GOOGLE_PLUS = "SocialNetworkManager.PARAM_GOOGLE_PLUS";
-
     private static final String KEY_SOCIAL_NETWORK_TWITTER = "KEY_SOCIAL_NETWORK_TWITTER";
     private static final String KEY_SOCIAL_NETWORK_LINKED_IN = "KEY_SOCIAL_NETWORK_LINKED_IN";
     private static final String KEY_SOCIAL_NETWORK_FACEBOOK = "KEY_SOCIAL_NETWORK_FACEBOOK";
     private static final String KEY_SOCIAL_NETWORK_GOOGLE_PLUS = "KEY_SOCIAL_NETWORK_GOOGLE_PLUS";
-
     private Map<String, SocialNetwork> mSocialNetworksMap = new HashMap<String, SocialNetwork>();
+    private OnInitializationCompleteListener mOnInitializationCompleteListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +72,10 @@ public class SocialNetworkManager extends Fragment {
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onCreate(savedInstanceState);
+        }
+
+        if (mOnInitializationCompleteListener != null) {
+            mOnInitializationCompleteListener.onSocialNetworkManagerInitialized();
         }
     }
 
@@ -191,6 +193,14 @@ public class SocialNetworkManager extends Fragment {
         } else {
             throw new SocialNetworkException("Social network with id = " + id + " not found");
         }
+    }
+
+    public void setOnInitializationCompleteListener(OnInitializationCompleteListener onInitializationCompleteListener) {
+        mOnInitializationCompleteListener = onInitializationCompleteListener;
+    }
+
+    public static interface OnInitializationCompleteListener {
+        public void onSocialNetworkManagerInitialized();
     }
 
     public static class Builder {
