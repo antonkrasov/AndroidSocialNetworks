@@ -13,7 +13,10 @@ import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
 import com.facebook.internal.Utility;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SocialNetworkManager extends Fragment {
@@ -193,6 +196,10 @@ public class SocialNetworkManager extends Fragment {
         } else {
             throw new SocialNetworkException("Social network with id = " + id + " not found");
         }
+    }
+
+    public List<SocialNetwork> getInitializedSocialNetworks() {
+        return Collections.unmodifiableList(new ArrayList<SocialNetwork>(mSocialNetworksMap.values()));
     }
 
     public void setOnInitializationCompleteListener(OnInitializationCompleteListener onInitializationCompleteListener) {
