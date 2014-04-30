@@ -5,11 +5,13 @@ Android Social Networks is library which makes working with social networks easi
 If you sometime tried to work with social networks on android you should remember that this is a hell.
 You should read documentation for every social network, download SDK or use some libraries for OAuth and make
 http calls by yourself. This library should makes your life easier, it contains common interface for 
-Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and configure your AndroidManiferst and you can login users, or post messages or photos or add / remove friends. More features will be added soon.
+Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and configure your AndroidManiferst and you can login users, or post messages or photos or add / remove friends. 
+**Library is still in development so more features will be added soon**
 
   - [Features](#features)
   - [Sample Application](#sample-application)
   - [Getting Started](#getting-started)
+  - [Including in your project](#cncluding-in-your-project)
   - [Dependencies](#dependencies)
   - [License](#license)
 
@@ -30,6 +32,18 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 ### Getting started
 
   TODO Getting started
+
+### Including in your project
+
+  repositories {
+      maven {
+          url "https://oss.sonatype.org/content/repositories/snapshots"
+      }
+  }
+  
+  compile('com.github.androidsocialnetworks:library:0.1.8-SNAPSHOT@aar') {
+      transitive = true
+  }
 
 ### Dependencies
 
