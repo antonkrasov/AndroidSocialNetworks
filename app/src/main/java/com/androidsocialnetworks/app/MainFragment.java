@@ -18,7 +18,10 @@ import com.squareup.picasso.Picasso;
 public class MainFragment extends Fragment implements View.OnClickListener, SocialNetworkManager.OnInitializationCompleteListener, SocialNetwork.OnLoginCompleteListener, SocialNetwork.OnRequestSocialPersonListener {
     public static final String SOCIAL_NETWORK_TAG = "MainFragment";
     private static final String TAG = MainFragment.class.getSimpleName();
+
     private static final String SAVE_STATE_KEY_UI_STATE = "MainFragment.SAVE_STATE_KEY_UI_STATE";
+    private static final String SAVE_STATE_KEY_AVATAR_URL = "MainFragment.SAVE_STATE_KEY_AVATAR_URL";
+    private static final String SAVE_STATE_KEY_NAME = "MainFragment.SAVE_STATE_KEY_NAME";
 
     private SocialNetworkManager mSocialNetworkManager;
     private UIState mUIState = UIState.LOGIN;
@@ -29,6 +32,8 @@ public class MainFragment extends Fragment implements View.OnClickListener, Soci
 
     private ImageView mAvatarImageView;
     private TextView mNameTextView;
+
+    private SocialPerson mSocialPerson;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -91,6 +96,13 @@ public class MainFragment extends Fragment implements View.OnClickListener, Soci
 
         if (savedInstanceState != null) {
             mUIState = UIState.values()[savedInstanceState.getInt(SAVE_STATE_KEY_UI_STATE, 0)];
+
+            if (savedInstanceState.containsKey(SAVE_STATE_KEY_AVATAR_URL)) {
+                Picasso.with(getActivity())
+                        .load(savedInstanceState.getString(SAVE_STATE_KEY_AVATAR_URL))
+                        .into(mAvatarImageView);
+                mNameTextView.setText(savedInstanceState.getString(SAVE_STATE_KEY_NAME));
+            }
         }
 
         switchUIState(mUIState);
@@ -109,6 +121,11 @@ public class MainFragment extends Fragment implements View.OnClickListener, Soci
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(SAVE_STATE_KEY_UI_STATE, mUIState.ordinal());
+
+        if (mSocialPerson != null) {
+            outState.putString(SAVE_STATE_KEY_AVATAR_URL, mSocialPerson.avatarURL);
+            outState.putString(SAVE_STATE_KEY_NAME, mSocialPerson.name);
+        }
     }
 
     @Override
@@ -182,6 +199,8 @@ public class MainFragment extends Fragment implements View.OnClickListener, Soci
 
         Picasso.with(getActivity()).load(socialPerson.avatarURL).into(mAvatarImageView);
         mNameTextView.setText(socialPerson.name);
+
+        mSocialPerson = socialPerson;
     }
 
     @Override

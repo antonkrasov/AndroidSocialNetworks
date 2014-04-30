@@ -60,6 +60,8 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 
     @Override
     public void logout() {
+        mConnectRequested = false;
+
         if (mPlusClient.isConnected()) {
             mPlusClient.clearDefaultAccount();
             mPlusClient.disconnect();
