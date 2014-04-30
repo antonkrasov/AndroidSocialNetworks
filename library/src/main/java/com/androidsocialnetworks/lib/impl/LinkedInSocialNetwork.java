@@ -336,6 +336,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
                 LinkedInApiClient client = mLinkedInApiClientFactory.createLinkedInApiClient(params[0]);
                 Person person = client.getProfileForCurrentUser(PROFILE_PARAMETERS);
 
+                result.putString(RESULT_ID, person.getId());
                 result.putString(RESULT_NAME, person.getFirstName() + " " + person.getLastName());
                 result.putString(RESULT_AVATAR_URL, person.getPictureUrl());
             } catch (Exception e) {
