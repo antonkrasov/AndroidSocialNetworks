@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/normal_padding"
+    >
+
+    <LinearLayout
+        android:id="@+id/login_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        >
+
+        <Button
+            android:id="@+id/twitter_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/normal_padding"
+            android:background="#55acee"
+            android:text="Login with Twitter"
+            android:textColor="@android:color/white"
+            />
+
+        <Button
+            android:id="@+id/linkedin_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/normal_padding"
+            android:background="#0e7cb7"
+            android:text="Login with LinkedIn"
+            android:textColor="@android:color/white"
+            />
+
+        <Button
+            android:id="@+id/facebook_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/normal_padding"
+            android:background="#3b5998"
+            android:text="Login with Facebook"
+            android:textColor="@android:color/white"
+            />
+
+        <Button
+            android:id="@+id/google_plus_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/normal_padding"
+            android:background="#c83929"
+            android:text="Login with Google Plus"
+            android:textColor="@android:color/white"
+            />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
+    <LinearLayout
+        android:id="@+id/profile_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+        <ImageView
+            android:id="@+id/avatar_image_view"
+            android:layout_width="100dip"
+            android:layout_height="100dip"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <TextView
+            android:id="@+id/name_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/normal_padding"
+            android:gravity="center"
+            android:textAppearance="@android:style/TextAppearance.Large"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:id="@+id/logout_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#c83929"
+            android:text="Logout"
+            android:textColor="@android:color/white"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

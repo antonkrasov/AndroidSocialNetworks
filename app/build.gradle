@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
-    compile('com.github.androidsocialnetworks:library:0.1.1-SNAPSHOT@aar') {
+    compile('com.github.androidsocialnetworks:library:0.1.6-SNAPSHOT@aar') {
         transitive = true
     }
 

@@ -152,6 +152,8 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != REQUEST_AUTH) return;
+
         if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
             if (mOnLoginCompleteListener != null) {
                 mOnLoginCompleteListener.onLoginFailed(getID(), "Login canceled");

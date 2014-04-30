@@ -208,6 +208,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != REQUEST_AUTH) return;
+
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode + " : " + data);
 

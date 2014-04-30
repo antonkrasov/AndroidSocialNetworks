@@ -76,10 +76,6 @@ public class SocialNetworkManager extends Fragment {
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onCreate(savedInstanceState);
         }
-
-        if (mOnInitializationCompleteListener != null) {
-            mOnInitializationCompleteListener.onSocialNetworkManagerInitialized();
-        }
     }
 
     @Override
@@ -99,6 +95,11 @@ public class SocialNetworkManager extends Fragment {
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
             socialNetwork.onResume();
+        }
+
+        if (mOnInitializationCompleteListener != null) {
+            Log.d(TAG, "SocialNetworkManager.onResume: mOnInitializationCompleteListener != null");
+            mOnInitializationCompleteListener.onSocialNetworkManagerInitialized();
         }
     }
 

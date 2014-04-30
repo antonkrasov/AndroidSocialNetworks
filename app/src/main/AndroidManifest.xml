@@ -20,7 +20,7 @@
             android:value="@integer/google_play_services_version"/>
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
