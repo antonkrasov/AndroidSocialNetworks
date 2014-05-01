@@ -31,7 +31,76 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
 ### Getting started
 
-  TODO Getting started
+  First you need to initialize **mSocialNetworkManager**. Build it with SocialNetworkManager.Builder and
+  add to fragment manager.
+  
+```java
+
+    mSocialNetworkManager = (SocialNetworkManager) getFragmentManager().findFragmentByTag(SOCIAL_NETWORK_TAG);
+
+    if (mSocialNetworkManager == null) {
+        mSocialNetworkManager = SocialNetworkManager.Builder.from(getActivity())
+                .twitter("3IYEDC9Pq5SIjzENhgorlpera", "fawjHMhyzhrfcFKZVB6d5YfiWbWGmgX7vPfazi61xZY9pdD1aE")
+                .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
+                .facebook()
+                .googlePlus()
+                .build();
+        getFragmentManager().beginTransaction().add(mSocialNetworkManager, SOCIAL_NETWORK_TAG).commit();
+    }
+
+```
+
+  Then you need to implement SocialNetworkManager.OnInitializationCompleteListener callback 
+  and pass it to your SocialNetworkManager instance.
+  
+```java
+  public class MainFragment extends Fragment implements SocialNetworkManager.OnInitializationCompleteListener
+  
+    ...
+  
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        ...
+
+        mSocialNetworkManager.setOnInitializationCompleteListener(this);
+    }
+  
+```
+
+  Add listeners for events you will use.
+  Don't forget to null them in onDetach to avoid memory leaks.
+
+```java
+    @Override
+    public void onSocialNetworkManagerInitialized() {
+        for (SocialNetwork socialNetwork : mSocialNetworkManager.getInitializedSocialNetworks()) {
+            socialNetwork.setOnLoginCompleteListener(this);
+            socialNetwork.setOnRequestSocialPersonListener(this);
+        }
+    }
+    
+    ...
+    
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        mSocialNetworkManager.setOnInitializationCompleteListener(null);
+        for (SocialNetwork socialNetwork : mSocialNetworkManager.getInitializedSocialNetworks()) {
+            socialNetwork.setOnLoginCompleteListener(null);
+            socialNetwork.setOnRequestSocialPersonListener(null);
+        }
+    }
+    
+```  
+
+  Now you can execute requests, results you will receive in your listeners.
+ 
+```java
+  mSocialNetworkManager.getTwitterSocialNetwork().requestLogin();
+  
+  mSocialNetworkManager.getSocialNetwork(TwitterSocialNetwork.ID).requestPerson();
+```  
 
 ### Including in your project
 
