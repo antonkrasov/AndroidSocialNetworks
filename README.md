@@ -35,6 +35,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
 ### Including in your project
 
+```groovy
   repositories {
       maven {
           url "https://oss.sonatype.org/content/repositories/snapshots"
@@ -44,6 +45,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
   compile('com.github.androidsocialnetworks:library:0.1.8-SNAPSHOT@aar') {
       transitive = true
   }
+```
 
 ### Dependencies
 
