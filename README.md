@@ -11,7 +11,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
   - [Features](#features)
   - [Sample Application](#sample-application)
   - [Getting Started](#getting-started)
-  - [Including in your project](#cncluding-in-your-project)
+  - [Including in your project](#including-in-your-project)
   - [Dependencies](#dependencies)
   - [License](#license)
 
