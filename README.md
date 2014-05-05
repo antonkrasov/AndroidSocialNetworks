@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/antonkrasov/androidsocialnetworks.png?label=ready&title=Ready)](https://waffle.io/antonkrasov/androidsocialnetworks)
 Android Social Networks
 =====================
 
