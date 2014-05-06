@@ -215,7 +215,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
      */
     @Override
     public void cancelLoginRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     /**
