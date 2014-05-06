@@ -27,6 +27,9 @@ import com.facebook.model.GraphUser;
 import java.io.File;
 import java.util.Collections;
 
+/**
+ * TODO: think about canceling requests
+ */
 public class FacebookSocialNetwork extends SocialNetwork {
 
     public static final int ID = 4;
@@ -354,39 +357,42 @@ public class FacebookSocialNetwork extends SocialNetwork {
         }
     }
 
+    /**
+     * We can't cancel login request for facebook
+     */
     @Override
     public void cancelLoginRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     @Override
     public void cancelGetPersonRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     @Override
     public void cancelPostMessageRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     @Override
     public void cancelPostPhotoRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     @Override
     public void cancenCheckIsFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     @Override
     public void cancelAddFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     @Override
     public void cancenRemoveFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     private enum PendingAction {
