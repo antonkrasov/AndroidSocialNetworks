@@ -223,37 +223,63 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
     @Override
     public void cancelLoginRequest() {
-        throw new IllegalStateException("Not implemented yet");
+        if (mRequestLoginAsyncTask != null) {
+            mRequestLoginAsyncTask.cancel(true);
+            mRequestLoginAsyncTask = null;
+        }
+
+        if (mRequestLogin2AsyncTask != null) {
+            mRequestLogin2AsyncTask.cancel(true);
+            mRequestLogin2AsyncTask = null;
+        }
     }
 
     @Override
     public void cancelGetPersonRequest() {
-        throw new IllegalStateException("Not implemented yet");
+        if (mRequestGetPersonAsyncTask != null) {
+            mRequestGetPersonAsyncTask.cancel(true);
+            mRequestGetPersonAsyncTask = null;
+        }
     }
 
     @Override
     public void cancelPostMessageRequest() {
-        throw new IllegalStateException("Not implemented yet");
+        if (mRequestPostMessageAsyncTask != null) {
+            mRequestPostMessageAsyncTask.cancel(true);
+            mRequestPostMessageAsyncTask = null;
+        }
     }
 
+    /**
+     * requestPostPhoto isn't allowed for LinkedInSocialNetwork
+     */
     @Override
     public void cancelPostPhotoRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     @Override
     public void cancenCheckIsFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+        if (mRequestCheckIsFriendAsyncTask != null) {
+            mRequestCheckIsFriendAsyncTask.cancel(true);
+            mRequestCheckIsFriendAsyncTask = null;
+        }
     }
 
     @Override
     public void cancelAddFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+        if (mRequestAddFriendAsyncTask != null) {
+            mRequestAddFriendAsyncTask.cancel(true);
+            mRequestAddFriendAsyncTask = null;
+        }
     }
 
+    /**
+     * requestRemoveFriend isn't allowed for LinkedInSocialNetwork
+     */
     @Override
     public void cancenRemoveFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
     private class RequestLoginAsyncTask extends AsyncTask<String, String, Bundle> {
