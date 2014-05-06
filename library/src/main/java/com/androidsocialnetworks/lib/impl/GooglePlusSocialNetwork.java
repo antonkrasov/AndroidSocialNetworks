@@ -209,38 +209,61 @@ public class GooglePlusSocialNetwork extends SocialNetwork
         mConnectRequested = false;
     }
 
+    /**
+     * requestLogin is executing synchronously in GooglePlusSocialNetwork, so canceling
+     * doesn't have any sence
+     */
     @Override
     public void cancelLoginRequest() {
         throw new IllegalStateException("Not implemented yet");
     }
 
+    /**
+     * requestPerson is executing synchronously in GooglePlusSocialNetwork, so canceling
+     * doesn't have any sence
+     */
     @Override
     public void cancelGetPersonRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
+    /**
+     * requestPostMessage isn't allowed for GooglePlusSocialNetwork
+     */
     @Override
     public void cancelPostMessageRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
+    /**
+     * requestPostPhoto isn't allowed for GooglePlusSocialNetwork
+     */
     @Override
     public void cancelPostPhotoRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
+    /**
+     * requestCheckIsFriend isn't allowed for GooglePlusSocialNetwork
+     */
     @Override
     public void cancenCheckIsFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
+    /**
+     * requestAddFriend isn't allowed for GooglePlusSocialNetwork
+     */
     @Override
     public void cancelAddFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 
+    /**
+     * requestRemoveFriend isn't allowed for GooglePlusSocialNetwork
+     */
     @Override
     public void cancenRemoveFriendRequest() {
-        throw new IllegalStateException("Not implemented yet");
+
     }
 }
