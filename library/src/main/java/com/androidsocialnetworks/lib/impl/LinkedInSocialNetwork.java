@@ -221,6 +221,41 @@ public class LinkedInSocialNetwork extends SocialNetwork {
                 .apply();
     }
 
+    @Override
+    public void cancelLoginRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelGetPersonRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelPostMessageRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelPostPhotoRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancenCheckIsFriendRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelAddFriendRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancenRemoveFriendRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
     private class RequestLoginAsyncTask extends AsyncTask<String, String, Bundle> {
         private static final String RESULT_ERROR = "RequestLoginAsyncTask.RESULT_ERROR";
         private static final String RESULT_URL = "RequestLoginAsyncTask.RESULT_URL";
@@ -537,5 +572,4 @@ public class LinkedInSocialNetwork extends SocialNetwork {
             }
         }
     }
-
 }

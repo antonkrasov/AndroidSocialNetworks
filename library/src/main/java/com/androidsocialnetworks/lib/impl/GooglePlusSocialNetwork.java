@@ -208,4 +208,39 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 
         mConnectRequested = false;
     }
+
+    @Override
+    public void cancelLoginRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelGetPersonRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelPostMessageRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelPostPhotoRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancenCheckIsFriendRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancelAddFriendRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    @Override
+    public void cancenRemoveFriendRequest() {
+        throw new IllegalStateException("Not implemented yet");
+    }
 }

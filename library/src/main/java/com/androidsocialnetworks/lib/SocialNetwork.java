@@ -114,6 +114,22 @@ public abstract class SocialNetwork {
 
     public abstract void requestRemoveFriend(String userID) throws SocialNetworkException;
 
+    // cancel login requests
+
+    public abstract void cancelLoginRequest();
+
+    public abstract void cancelGetPersonRequest();
+
+    public abstract void cancelPostMessageRequest();
+
+    public abstract void cancelPostPhotoRequest();
+
+    public abstract void cancenCheckIsFriendRequest();
+
+    public abstract void cancelAddFriendRequest();
+
+    public abstract void cancenRemoveFriendRequest();
+
     protected void checkRequestState(AsyncTask request) throws SocialNetworkException {
         if (request != null) {
             throw new SocialNetworkException("Request is already running");
