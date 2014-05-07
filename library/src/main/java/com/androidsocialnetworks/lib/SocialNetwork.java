@@ -23,7 +23,8 @@ public abstract class SocialNetwork {
     protected static final String REQUEST_LOGIN = "SocialNetwork.REQUEST_LOGIN";
     protected static final String REQUEST_GET_CURRENT_PERSON = "SocialNetwork.REQUEST_GET_CURRENT_PERSON";
     protected static final String REQUEST_GET_PERSON = "SocialNetwork.REQUEST_GET_PERSON";
-    protected static final String REQUEST_POST = "SocialNetwork.REQUEST_POST";
+    protected static final String REQUEST_POST_MESSAGE = "SocialNetwork.REQUEST_POST_MESSAGE";
+    protected static final String REQUEST_POST_PHOTO = "SocialNetwork.REQUEST_POST_PHOTO";
     protected static final String REQUEST_CHECK_IS_FRIEND = "SocialNetwork.REQUEST_CHECK_IS_FRIEND";
     protected static final String REQUEST_ADD_FRIEND = "SocialNetwork.REQUEST_ADD_FRIEND";
     protected static final String REQUEST_REMOVE_FRIEND = "SocialNetwork.REQUEST_REMOVE_FRIEND";
@@ -88,7 +89,9 @@ public abstract class SocialNetwork {
         requestLogin(null);
     }
 
-    public abstract void requestLogin(OnLoginCompleteListener onLoginCompleteListener);
+    public void requestLogin(OnLoginCompleteListener onLoginCompleteListener) {
+        registerListener(REQUEST_LOGIN, onLoginCompleteListener);
+    }
 
     public abstract void logout();
 
@@ -98,70 +101,88 @@ public abstract class SocialNetwork {
         requestCurrentPerson(null);
     }
 
-    public abstract void requestCurrentPerson(OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener);
+    public void requestCurrentPerson(OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
+        registerListener(REQUEST_GET_CURRENT_PERSON, onRequestSocialPersonCompleteListener);
+    }
 
     public void requestSocialPerson(String userID) {
         requestSocialPerson(userID, null);
     }
 
-    public abstract void requestSocialPerson(String userID, OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener);
+    public void requestSocialPerson(String userID, OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
+        registerListener(REQUEST_GET_PERSON, onRequestSocialPersonCompleteListener);
+    }
 
     public void requestPostMessage(String message) {
         requestPostMessage(message, null);
     }
 
-    public abstract void requestPostMessage(String message, OnPostingCompleteListener onPostingCompleteListener);
+    public void requestPostMessage(String message, OnPostingCompleteListener onPostingCompleteListener) {
+        registerListener(REQUEST_POST_MESSAGE, onPostingCompleteListener);
+    }
 
     public void requestPostPhoto(File photo, String message) {
         requestPostPhoto(photo, message, null);
     }
 
-    public abstract void requestPostPhoto(File photo, String message, OnPostingCompleteListener onPostingCompleteListener);
+    public void requestPostPhoto(File photo, String message, OnPostingCompleteListener onPostingCompleteListener) {
+        registerListener(REQUEST_POST_PHOTO, onPostingCompleteListener);
+    }
 
     public void requestCheckIsFriend(String userID) {
         requestCheckIsFriend(userID, null);
     }
 
-    public abstract void requestCheckIsFriend(String userID, OnCheckIsFriendCompleteListener onCheckIsFriendCompleteListener);
+    public void requestCheckIsFriend(String userID, OnCheckIsFriendCompleteListener onCheckIsFriendCompleteListener) {
+        registerListener(REQUEST_CHECK_IS_FRIEND, onCheckIsFriendCompleteListener);
+    }
 
     public void requestAddFriend(String userID) {
         requestAddFriend(userID, null);
     }
 
-    public abstract void requestAddFriend(String userID, OnRequestAddFriendCompleteListener onRequestAddFriendCompleteListener);
+    public void requestAddFriend(String userID, OnRequestAddFriendCompleteListener onRequestAddFriendCompleteListener) {
+        registerListener(REQUEST_ADD_FRIEND, onRequestAddFriendCompleteListener);
+    }
 
     public void requestRemoveFriend(String userID) {
         requestRemoveFriend(userID, null);
     }
 
-    public abstract void requestRemoveFriend(String userID, OnRequestRemoveFriendCompleteListener onRequestRemoveFriendCompleteListener);
-
-    public void cancelLoginRequest() {
-
+    public void requestRemoveFriend(String userID, OnRequestRemoveFriendCompleteListener onRequestRemoveFriendCompleteListener) {
+        registerListener(REQUEST_REMOVE_FRIEND, onRequestRemoveFriendCompleteListener);
     }
 
-    public void cancelGetPersonRequest() {
+    public void cancelLoginRequest() {
+        mLocalListeners.remove(REQUEST_LOGIN);
+    }
 
+    public void cancelGetCurrentSocialPersonRequest() {
+        mLocalListeners.remove(REQUEST_GET_CURRENT_PERSON);
+    }
+
+    public void cancelGetSocialPersonRequest() {
+        mLocalListeners.remove(REQUEST_GET_PERSON);
     }
 
     public void cancelPostMessageRequest() {
-
+        mLocalListeners.remove(REQUEST_POST_MESSAGE);
     }
 
     public void cancelPostPhotoRequest() {
-
+        mLocalListeners.remove(REQUEST_POST_PHOTO);
     }
 
     public void cancenCheckIsFriendRequest() {
-
+        mLocalListeners.remove(REQUEST_CHECK_IS_FRIEND);
     }
 
     public void cancelAddFriendRequest() {
-
+        mLocalListeners.remove(REQUEST_ADD_FRIEND);
     }
 
     public void cancenRemoveFriendRequest() {
-
+        mLocalListeners.remove(REQUEST_REMOVE_FRIEND);
     }
 
     //////////////////// UTIL METHODS ////////////////////
@@ -169,6 +190,14 @@ public abstract class SocialNetwork {
     protected void checkRequestState(AsyncTask request) throws SocialNetworkException {
         if (request != null) {
             throw new SocialNetworkException("Request is already running");
+        }
+    }
+
+    private void registerListener(String listenerID, SocialNetworkListener socialNetworkListener) {
+        if (socialNetworkListener != null) {
+            mLocalListeners.put(listenerID, socialNetworkListener);
+        } else {
+            mLocalListeners.put(listenerID, mGlobalListeners.get(listenerID));
         }
     }
 
@@ -190,8 +219,12 @@ public abstract class SocialNetwork {
         mGlobalListeners.put(REQUEST_CHECK_IS_FRIEND, onCheckIsFriendListener);
     }
 
-    public void setOnPostingCompleteListener(OnPostingCompleteListener onPostingCompleteListener) {
-        mGlobalListeners.put(REQUEST_POST, onPostingCompleteListener);
+    public void setOnPostingMessageCompleteListener(OnPostingCompleteListener onPostingCompleteListener) {
+        mGlobalListeners.put(REQUEST_POST_MESSAGE, onPostingCompleteListener);
+    }
+
+    public void setOnPostingPhotoCompleteListener(OnPostingCompleteListener onPostingCompleteListener) {
+        mGlobalListeners.put(REQUEST_POST_PHOTO, onPostingCompleteListener);
     }
 
     public void setOnRequestAddFriendCompleteListener(OnRequestAddFriendCompleteListener onRequestAddFriendCompleteListener) {
