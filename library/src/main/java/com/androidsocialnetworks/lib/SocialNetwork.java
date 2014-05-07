@@ -93,6 +93,10 @@ public abstract class SocialNetwork {
     }
 
     public void requestLogin(OnLoginCompleteListener onLoginCompleteListener) {
+        if (isConnected()) {
+            throw new SocialNetworkException("Already connected, please check isConnected() method");
+        }
+
         registerListener(REQUEST_LOGIN, onLoginCompleteListener);
     }
 

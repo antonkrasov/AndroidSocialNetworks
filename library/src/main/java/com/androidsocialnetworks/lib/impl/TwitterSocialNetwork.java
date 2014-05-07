@@ -91,15 +91,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
     public void requestLogin(OnLoginCompleteListener onLoginCompleteListener) {
         super.requestLogin(onLoginCompleteListener);
 
-        if (isConnected()) {
-            if (mLocalListeners.get(REQUEST_LOGIN) != null) {
-                ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
-                mLocalListeners.remove(REQUEST_LOGIN);
-            }
-
-            return;
-        }
-
         checkRequestState(mRequests.get(REQUEST_LOGIN));
 
         RequestLoginAsyncTask requestLoginAsyncTask = new RequestLoginAsyncTask();
