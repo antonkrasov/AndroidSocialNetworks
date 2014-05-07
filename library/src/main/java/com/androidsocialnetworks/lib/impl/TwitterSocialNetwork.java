@@ -1,49 +1,38 @@
 package com.androidsocialnetworks.lib.impl;
 
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.androidsocialnetworks.lib.SocialNetwork;
 
+import java.util.UUID;
+
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+import twitter4j.conf.ConfigurationBuilder;
+
 public class TwitterSocialNetwork extends SocialNetwork {
+    public static final int ID = 1;
+    private static final String TAG = TwitterSocialNetwork.class.getSimpleName();
+    private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
+    private static final String SAVE_STATE_KEY_OAUTH_SECRET = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
+    private static final String SAVE_STATE_KEY_USER_ID = "TwitterSocialNetwork.SAVE_STATE_KEY_USER_ID";
 
-    public TwitterSocialNetwork(Fragment fragment) {
-        super(fragment);
-    }
+    private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
 
-    @Override
-    public boolean isConnected() {
-        return false;
-    }
+    // max 16 bit to use in startActivityForResult
+    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
 
-    @Override
-    public void logout() {
+    private final String TWITTER_CALLBACK_URL = "oauth://AndroidSocialNetworks";
+    private final String fConsumerKey;
+    private final String fConsumerSecret;
 
-    }
+    private Twitter mTwitter;
+    private RequestToken mRequestToken;
 
-    @Override
-    public int getID() {
-        return 0;
-    }
-
-    //    public static final int ID = 1;
-//
-//    private static final String TAG = TwitterSocialNetwork.class.getSimpleName();
-//    private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
-//    private static final String SAVE_STATE_KEY_OAUTH_SECRET = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
-//    private static final String SAVE_STATE_KEY_USER_ID = "TwitterSocialNetwork.SAVE_STATE_KEY_USER_ID";
-//
-//    private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
-//
-//    // max 16 bit to use in startActivityForResult
-//    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
-//
-//    private final String TWITTER_CALLBACK_URL = "oauth://AndroidSocialNetworks";
-//    private final String fConsumerKey;
-//    private final String fConsumerSecret;
-//
-//    private Twitter mTwitter;
-//    private RequestToken mRequestToken;
-//
 //    private RequestLoginAsyncTask mRequestLoginAsyncTask;
 //    private RequestLogin2AsyncTask mRequestLogin2AsyncTask;
 //    private RequestGetPersonAsyncTask mRequestGetPersonAsyncTask;
@@ -51,50 +40,50 @@ public class TwitterSocialNetwork extends SocialNetwork {
 //    private RequestCheckIsFriendAsyncTask mRequestCheckIsFriendAsyncTask;
 //    private RequestAddFriendAsyncTask mRequestAddFriendAsyncTask;
 //    private RequestRemoveFriendAsyncTask mRequestRemoveFriendAsyncTask;
-//
-//    public TwitterSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret) {
-//        super(fragment);
-//        Log.d(TAG, "new TwitterSocialNetwork: " + consumerKey + " : " + consumerSecret);
-//
-//        fConsumerKey = consumerKey;
-//        fConsumerSecret = consumerSecret;
-//
-//        if (TextUtils.isEmpty(fConsumerKey) || TextUtils.isEmpty(fConsumerSecret)) {
-//            throw new IllegalArgumentException("consumerKey and consumerSecret are invalid");
-//        }
-//
-//        initTwitterClient();
-//    }
-//
-//    private void initTwitterClient() {
-//        ConfigurationBuilder builder = new ConfigurationBuilder();
-//        builder.setOAuthConsumerKey(fConsumerKey);
-//        builder.setOAuthConsumerSecret(fConsumerSecret);
-//
-//        String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
-//        String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
-//
-//        TwitterFactory factory = new TwitterFactory(builder.build());
-//
-//        if (TextUtils.isEmpty(accessToken) && TextUtils.isEmpty(accessTokenSecret)) {
-//            mTwitter = factory.getInstance();
-//        } else {
-//            mTwitter = factory.getInstance(new AccessToken(accessToken, accessTokenSecret));
-//        }
-//    }
-//
-//    @Override
-//    public int getID() {
-//        return ID;
-//    }
-//
-//    @Override
-//    public boolean isConnected() {
-//        String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
-//        String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
-//        return accessToken != null && accessTokenSecret != null;
-//    }
-//
+
+    public TwitterSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret) {
+        super(fragment);
+        Log.d(TAG, "new TwitterSocialNetwork: " + consumerKey + " : " + consumerSecret);
+
+        fConsumerKey = consumerKey;
+        fConsumerSecret = consumerSecret;
+
+        if (TextUtils.isEmpty(fConsumerKey) || TextUtils.isEmpty(fConsumerSecret)) {
+            throw new IllegalArgumentException("consumerKey and consumerSecret are invalid");
+        }
+
+        initTwitterClient();
+    }
+
+    private void initTwitterClient() {
+        ConfigurationBuilder builder = new ConfigurationBuilder();
+        builder.setOAuthConsumerKey(fConsumerKey);
+        builder.setOAuthConsumerSecret(fConsumerSecret);
+
+        String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
+        String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
+
+        TwitterFactory factory = new TwitterFactory(builder.build());
+
+        if (TextUtils.isEmpty(accessToken) && TextUtils.isEmpty(accessTokenSecret)) {
+            mTwitter = factory.getInstance();
+        } else {
+            mTwitter = factory.getInstance(new AccessToken(accessToken, accessTokenSecret));
+        }
+    }
+
+    @Override
+    public int getID() {
+        return ID;
+    }
+
+    @Override
+    public boolean isConnected() {
+        String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
+        String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
+        return accessToken != null && accessTokenSecret != null;
+    }
+
 //    @Override
 //    public void requestLogin() throws SocialNetworkException {
 //        if (isConnected()) {
@@ -110,18 +99,18 @@ public class TwitterSocialNetwork extends SocialNetwork {
 //        mRequestLoginAsyncTask = new RequestLoginAsyncTask();
 //        mRequestLoginAsyncTask.execute();
 //    }
-//
-//    @Override
-//    public void logout() {
-//        mSharedPreferences.edit()
-//                .remove(SAVE_STATE_KEY_OAUTH_TOKEN)
-//                .remove(SAVE_STATE_KEY_OAUTH_SECRET)
-//                .apply();
-//
-//        mTwitter = null;
-//        initTwitterClient();
-//    }
-//
+
+    @Override
+    public void logout() {
+        mSharedPreferences.edit()
+                .remove(SAVE_STATE_KEY_OAUTH_TOKEN)
+                .remove(SAVE_STATE_KEY_OAUTH_SECRET)
+                .apply();
+
+        mTwitter = null;
+        initTwitterClient();
+    }
+
 //    @Override
 //    public void requestPerson() throws SocialNetworkException {
 //        checkRequestState(mRequestGetPersonAsyncTask);

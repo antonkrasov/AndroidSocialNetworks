@@ -1,11 +1,32 @@
 package com.androidsocialnetworks.lib.impl;
 
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 
+import com.androidsocialnetworks.lib.MomentUtil;
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.plus.PlusClient;
+
+import java.util.UUID;
 
 public class GooglePlusSocialNetwork extends SocialNetwork
-        /*implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener*/ {
+        implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+
+    public static final int ID = 3;
+
+    private static final String TAG = GooglePlusSocialNetwork.class.getSimpleName();
+    // max 16 bit to use in startActivityForResult
+    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
+
+    private PlusClient mPlusClient;
+    private ConnectionResult mConnectionResult;
+
+    private boolean mConnectRequested;
+
+    private Handler mHandler = new Handler();
 
     public GooglePlusSocialNetwork(Fragment fragment) {
         super(fragment);
@@ -13,41 +34,9 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 
     @Override
     public boolean isConnected() {
-        return false;
+        return mPlusClient.isConnected();
     }
 
-    @Override
-    public void logout() {
-
-    }
-
-    @Override
-    public int getID() {
-        return 0;
-    }
-
-//    public static final int ID = 3;
-//
-//    private static final String TAG = GooglePlusSocialNetwork.class.getSimpleName();
-//    // max 16 bit to use in startActivityForResult
-//    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
-//
-//    private PlusClient mPlusClient;
-//    private ConnectionResult mConnectionResult;
-//
-//    private boolean mConnectRequested;
-//
-//    private Handler mHandler = new Handler();
-//
-//    public GooglePlusSocialNetwork(Fragment fragment) {
-//        super(fragment);
-//    }
-//
-//    @Override
-//    public boolean isConnected() {
-//        return mPlusClient.isConnected();
-//    }
-//
 //    @Override
 //    public void requestLogin() throws SocialNetworkException {
 //        if (isConnected()) {
@@ -69,23 +58,23 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 //            }
 //        }
 //    }
-//
-//    @Override
-//    public void logout() {
-//        mConnectRequested = false;
-//
-//        if (mPlusClient.isConnected()) {
-//            mPlusClient.clearDefaultAccount();
-//            mPlusClient.disconnect();
-//            mPlusClient.connect();
-//        }
-//    }
-//
-//    @Override
-//    public int getID() {
-//        return ID;
-//    }
-//
+
+    @Override
+    public void logout() {
+        mConnectRequested = false;
+
+        if (mPlusClient.isConnected()) {
+            mPlusClient.clearDefaultAccount();
+            mPlusClient.disconnect();
+            mPlusClient.connect();
+        }
+    }
+
+    @Override
+    public int getID() {
+        return ID;
+    }
+
 //    @Override
 //    public void requestPerson() throws SocialNetworkException {
 //        Person person = mPlusClient.getCurrentPerson();
@@ -150,14 +139,14 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 //    public void requestRemoveFriend(String userID) throws SocialNetworkException {
 //        throw new SocialNetworkException("requestRemoveFriend isn't allowed for GooglePlusSocialNetwork");
 //    }
-//
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        mPlusClient = new PlusClient.Builder(mSocialNetworkManager.getActivity(), this, this)
-//                .setActions(MomentUtil.ACTIONS).build();
-//    }
-//
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPlusClient = new PlusClient.Builder(mSocialNetworkManager.getActivity(), this, this)
+                .setActions(MomentUtil.ACTIONS).build();
+    }
+
 //    @Override
 //    public void onStart() {
 //        mPlusClient.connect();
@@ -185,9 +174,9 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 //            }
 //        }
 //    }
-//
-//    @Override
-//    public void onConnected(Bundle bundle) {
+
+    @Override
+    public void onConnected(Bundle bundle) {
 //        if (mConnectRequested) {
 //            if (mPlusClient.getCurrentPerson() != null) {
 //                if (mOnLoginCompleteListener != null) {
@@ -203,15 +192,15 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 //        }
 //
 //        mConnectRequested = false;
-//    }
-//
-//    @Override
-//    public void onDisconnected() {
-//        mConnectRequested = false;
-//    }
-//
-//    @Override
-//    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
+
+    @Override
+    public void onDisconnected() {
+        mConnectRequested = false;
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 //        mConnectionResult = connectionResult;
 //
 //        if (mConnectRequested && mOnLoginCompleteListener != null) {
@@ -219,7 +208,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 //        }
 //
 //        mConnectRequested = false;
-//    }
+    }
 //
 //    /**
 //     * requestLogin is executing synchronously in GooglePlusSocialNetwork, so canceling

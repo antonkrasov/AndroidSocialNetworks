@@ -1,80 +1,69 @@
 package com.androidsocialnetworks.lib.impl;
 
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.google.code.linkedinapi.client.LinkedInApiClientFactory;
+import com.google.code.linkedinapi.client.enumeration.ProfileField;
+import com.google.code.linkedinapi.client.oauth.LinkedInOAuthService;
+import com.google.code.linkedinapi.client.oauth.LinkedInOAuthServiceFactory;
+
+import java.util.EnumSet;
+import java.util.UUID;
 
 public class LinkedInSocialNetwork extends SocialNetwork {
+    public static final int ID = 2;
 
-    public LinkedInSocialNetwork(Fragment fragment) {
-        super(fragment);
-    }
+    public static final String OAUTH_CALLBACK_SCHEME = "x-oauthflow-linkedin";
+    public static final String OAUTH_CALLBACK_HOST = "linkedinApiTestCallback";
+    public static final String OAUTH_CALLBACK_URL = String.format("%s://%s", OAUTH_CALLBACK_SCHEME, OAUTH_CALLBACK_HOST);
+    public static final String OAUTH_QUERY_TOKEN = "oauth_token";
+    public static final String OAUTH_QUERY_VERIFIER = "oauth_verifier";
+    public static final String OAUTH_QUERY_PROBLEM = "oauth_problem";
 
-    @Override
-    public boolean isConnected() {
-        return false;
-    }
+    private static final String TAG = LinkedInSocialNetwork.class.getSimpleName();
+    private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
+    private static final String SAVE_STATE_KEY_OAUTH_SECRET = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
 
-    @Override
-    public void logout() {
+    private static final EnumSet<ProfileField> PROFILE_PARAMETERS = EnumSet.allOf(ProfileField.class);
 
-    }
+    // max 16 bit to use in startActivityForResult
+    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
 
-    @Override
-    public int getID() {
-        return 0;
-    }
+    private final LinkedInOAuthService mOAuthService;
+    private final LinkedInApiClientFactory mLinkedInApiClientFactory;
 
-    //    public static final int ID = 2;
-//
-//    public static final String OAUTH_CALLBACK_SCHEME = "x-oauthflow-linkedin";
-//    public static final String OAUTH_CALLBACK_HOST = "linkedinApiTestCallback";
-//    public static final String OAUTH_CALLBACK_URL = String.format("%s://%s", OAUTH_CALLBACK_SCHEME, OAUTH_CALLBACK_HOST);
-//    public static final String OAUTH_QUERY_TOKEN = "oauth_token";
-//    public static final String OAUTH_QUERY_VERIFIER = "oauth_verifier";
-//    public static final String OAUTH_QUERY_PROBLEM = "oauth_problem";
-//
-//    private static final String TAG = LinkedInSocialNetwork.class.getSimpleName();
-//    private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
-//    private static final String SAVE_STATE_KEY_OAUTH_SECRET = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
-//
-//    private static final EnumSet<ProfileField> PROFILE_PARAMETERS = EnumSet.allOf(ProfileField.class);
-//
-//    // max 16 bit to use in startActivityForResult
-//    private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
-//
-//    private final LinkedInOAuthService mOAuthService;
-//    private final LinkedInApiClientFactory mLinkedInApiClientFactory;
-//
-//    private String mOAuthTokenSecret;
-//
+    private String mOAuthTokenSecret;
+
 //    private RequestLoginAsyncTask mRequestLoginAsyncTask;
 //    private RequestLogin2AsyncTask mRequestLogin2AsyncTask;
 //    private RequestGetPersonAsyncTask mRequestGetPersonAsyncTask;
 //    private RequestPostMessageAsyncTask mRequestPostMessageAsyncTask;
 //    private RequestCheckIsFriendAsyncTask mRequestCheckIsFriendAsyncTask;
 //    private RequestAddFriendAsyncTask mRequestAddFriendAsyncTask;
-//
-//    public LinkedInSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret, String permissions) {
-//        super(fragment);
-//        Log.d(TAG, "new LinkedInSocialNetwork: " + consumerKey + " : " + consumerSecret + " : " + permissions);
-//
-//        if (TextUtils.isEmpty(consumerKey) || TextUtils.isEmpty(consumerSecret) || TextUtils.isEmpty(permissions)) {
-//            throw new IllegalArgumentException("TextUtils.isEmpty(fConsumerKey) || TextUtils.isEmpty(fConsumerSecret) || TextUtils.isEmpty(fPermissions)");
-//        }
-//
-//        mOAuthService = LinkedInOAuthServiceFactory.getInstance()
-//                .createLinkedInOAuthService(consumerKey, consumerSecret, permissions);
-//        mLinkedInApiClientFactory = LinkedInApiClientFactory.newInstance(consumerKey, consumerSecret);
-//    }
-//
-//    @Override
-//    public boolean isConnected() {
-//        String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
-//        String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
-//        return accessToken != null && accessTokenSecret != null;
-//    }
-//
+
+    public LinkedInSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret, String permissions) {
+        super(fragment);
+        Log.d(TAG, "new LinkedInSocialNetwork: " + consumerKey + " : " + consumerSecret + " : " + permissions);
+
+        if (TextUtils.isEmpty(consumerKey) || TextUtils.isEmpty(consumerSecret) || TextUtils.isEmpty(permissions)) {
+            throw new IllegalArgumentException("TextUtils.isEmpty(fConsumerKey) || TextUtils.isEmpty(fConsumerSecret) || TextUtils.isEmpty(fPermissions)");
+        }
+
+        mOAuthService = LinkedInOAuthServiceFactory.getInstance()
+                .createLinkedInOAuthService(consumerKey, consumerSecret, permissions);
+        mLinkedInApiClientFactory = LinkedInApiClientFactory.newInstance(consumerKey, consumerSecret);
+    }
+
+    @Override
+    public boolean isConnected() {
+        String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
+        String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
+        return accessToken != null && accessTokenSecret != null;
+    }
+
 //    @Override
 //    public void requestLogin() throws SocialNetworkException {
 //        if (isConnected()) {
@@ -90,17 +79,17 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 //        mRequestLoginAsyncTask = new RequestLoginAsyncTask();
 //        mRequestLoginAsyncTask.execute();
 //    }
-//
-//    @Override
-//    public void logout() {
-//        fatalError();
-//    }
-//
-//    @Override
-//    public int getID() {
-//        return ID;
-//    }
-//
+
+    @Override
+    public void logout() {
+        fatalError();
+    }
+
+    @Override
+    public int getID() {
+        return ID;
+    }
+
 //    @Override
 //    public void requestPerson() throws SocialNetworkException {
 //        checkRequestState(mRequestGetPersonAsyncTask);
@@ -211,14 +200,14 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 //            mRequestAddFriendAsyncTask = null;
 //        }
 //    }
-//
-//    private void fatalError() {
-//        mSharedPreferences.edit()
-//                .remove(SAVE_STATE_KEY_OAUTH_TOKEN)
-//                .remove(SAVE_STATE_KEY_OAUTH_SECRET)
-//                .apply();
-//    }
-//
+
+    private void fatalError() {
+        mSharedPreferences.edit()
+                .remove(SAVE_STATE_KEY_OAUTH_TOKEN)
+                .remove(SAVE_STATE_KEY_OAUTH_SECRET)
+                .apply();
+    }
+
 //    @Override
 //    public void cancelLoginRequest() {
 //        if (mRequestLoginAsyncTask != null) {

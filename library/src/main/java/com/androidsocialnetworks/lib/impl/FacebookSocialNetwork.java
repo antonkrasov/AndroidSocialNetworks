@@ -1,60 +1,46 @@
 package com.androidsocialnetworks.lib.impl;
 
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
+import com.facebook.internal.SessionTracker;
 
 /**
  * TODO: think about canceling requests
  */
 public class FacebookSocialNetwork extends SocialNetwork {
+    public static final int ID = 4;
+
+    private static final String TAG = FacebookSocialNetwork.class.getSimpleName();
+    private static final String PERMISSION = "publish_actions";
+    private SessionTracker mSessionTracker;
+    private UiLifecycleHelper mUILifecycleHelper;
+    private String mApplicationId;
+    private SessionState mSessionState;
+    private String mPhotoPath;
+    private String mStatus;
+    private PendingAction mPendingAction = PendingAction.NONE;
+    private Session.StatusCallback mSessionStatusCallback = new Session.StatusCallback() {
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            onSessionStateChange(session, state, exception);
+        }
+    };
+
     public FacebookSocialNetwork(Fragment fragment) {
         super(fragment);
     }
 
     @Override
     public boolean isConnected() {
-        return false;
+        Session session = Session.getActiveSession();
+        return (session != null && session.isOpened());
     }
 
-    @Override
-    public void logout() {
-
-    }
-
-    @Override
-    public int getID() {
-        return 0;
-    }
-
-    //    public static final int ID = 4;
-//
-//    private static final String TAG = FacebookSocialNetwork.class.getSimpleName();
-//    private static final String PERMISSION = "publish_actions";
-//    private SessionTracker mSessionTracker;
-//    private UiLifecycleHelper mUILifecycleHelper;
-//    private String mApplicationId;
-//    private SessionState mSessionState;
-//    private String mPhotoPath;
-//    private String mStatus;
-//    private PendingAction mPendingAction = PendingAction.NONE;
-//    private Session.StatusCallback mSessionStatusCallback = new Session.StatusCallback() {
-//        @Override
-//        public void call(Session session, SessionState state, Exception exception) {
-//            onSessionStateChange(session, state, exception);
-//        }
-//    };
-//
-//    public FacebookSocialNetwork(Fragment fragment) {
-//        super(fragment);
-//    }
-//
-//    @Override
-//    public boolean isConnected() {
-//        Session session = Session.getActiveSession();
-//        return (session != null && session.isOpened());
-//    }
-//
 //    @Override
 //    public void requestLogin() throws SocialNetworkException {
 //        if (isConnected()) {
@@ -93,22 +79,22 @@ public class FacebookSocialNetwork extends SocialNetwork {
 //            currentSession.openForRead(openRequest);
 //        }
 //    }
-//
-//    @Override
-//    public void logout() {
-//        final Session openSession = mSessionTracker.getOpenSession();
-//
-//        if (openSession != null) {
-//            openSession.closeAndClearTokenInformation();
-//        }
-//    }
-//
-//    @Override
-//    public int getID() {
-//        return ID;
-//    }
-//
-//    @Override
+
+    @Override
+    public void logout() {
+        final Session openSession = mSessionTracker.getOpenSession();
+
+        if (openSession != null) {
+            openSession.closeAndClearTokenInformation();
+        }
+    }
+
+    @Override
+    public int getID() {
+        return ID;
+    }
+
+    //    @Override
 //    public void requestPerson() throws SocialNetworkException {
 //        final Session currentSession = mSessionTracker.getOpenSession();
 //
@@ -194,9 +180,9 @@ public class FacebookSocialNetwork extends SocialNetwork {
 //        throw new SocialNetworkException("requestRemoveFriend isn't allowed for FacebookSocialNetwork");
 //    }
 //
-//    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-//        Log.d(TAG, "onSessionStateChange: " + state + " : " + exception);
-//
+    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+        Log.d(TAG, "onSessionStateChange: " + state + " : " + exception);
+
 //        if (mSessionState == SessionState.OPENING && state == SessionState.OPENED) {
 //            if (mOnLoginCompleteListener != null) {
 //                mOnLoginCompleteListener.onLoginSuccess(getID());
@@ -225,8 +211,8 @@ public class FacebookSocialNetwork extends SocialNetwork {
 //                && state == SessionState.OPENED_TOKEN_UPDATED) {
 //            handlePendingAction();
 //        }
-//    }
-//
+    }
+
 //    @Override
 //    public void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -397,10 +383,10 @@ public class FacebookSocialNetwork extends SocialNetwork {
 //    public void cancenRemoveFriendRequest() {
 //
 //    }
-//
-//    private enum PendingAction {
-//        NONE,
-//        POST_PHOTO,
-//        POST_STATUS_UPDATE
-//    }
+
+    private enum PendingAction {
+        NONE,
+        POST_PHOTO,
+        POST_STATUS_UPDATE
+    }
 }
