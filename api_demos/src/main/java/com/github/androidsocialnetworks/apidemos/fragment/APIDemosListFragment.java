@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -24,6 +27,12 @@ public class APIDemosListFragment extends ListFragment {
 
     public static APIDemosListFragment newInstance() {
         return new APIDemosListFragment();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -67,6 +76,25 @@ public class APIDemosListFragment extends ListFragment {
                 .addToBackStack(null)
                 .commit();
         getMainActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.reset:
+                // small hack, just remove lib's shared prefs
+                getActivity().getSharedPreferences("social_networks", Context.MODE_PRIVATE)
+                        .edit()
+                        .clear()
+                        .commit();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public MainActivity getMainActivity() {

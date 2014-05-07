@@ -46,6 +46,9 @@ public class LoginUsingGlobalListenersFragment extends BaseLoginDemoFragment
 
     @Override
     public void onLoginSuccess(int socialNetworkID) {
+        // let's reset buttons, we need to disable buttons
+        onSocialNetworkManagerInitialized();
+
         hideProgress();
         handleSuccess("onLoginSuccess", "Now you can try other API Demos.");
     }
