@@ -172,4 +172,33 @@ public abstract class SocialNetwork {
         }
     }
 
+    //////////////////// SETTERS FOR GLOBAL LISTENERS ////////////////////
+
+    public void setOnLoginCompleteListener(OnLoginCompleteListener onLoginCompleteListener) {
+        mGlobalListeners.put(REQUEST_LOGIN, onLoginCompleteListener);
+    }
+
+    public void setOnRequestCurrentPersonCompleteListener(OnRequestSocialPersonCompleteListener onRequestCurrentPersonCompleteListener) {
+        mGlobalListeners.put(REQUEST_GET_CURRENT_PERSON, onRequestCurrentPersonCompleteListener);
+    }
+
+    public void setOnRequestSocialPersonCompleteListener(OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
+        mGlobalListeners.put(REQUEST_GET_PERSON, onRequestSocialPersonCompleteListener);
+    }
+
+    public void setOnCheckIsFriendListener(OnCheckIsFriendCompleteListener onCheckIsFriendListener) {
+        mGlobalListeners.put(REQUEST_CHECK_IS_FRIEND, onCheckIsFriendListener);
+    }
+
+    public void setOnPostingCompleteListener(OnPostingCompleteListener onPostingCompleteListener) {
+        mGlobalListeners.put(REQUEST_POST, onPostingCompleteListener);
+    }
+
+    public void setOnRequestAddFriendCompleteListener(OnRequestAddFriendCompleteListener onRequestAddFriendCompleteListener) {
+        mGlobalListeners.put(REQUEST_ADD_FRIEND, onRequestAddFriendCompleteListener);
+    }
+
+    public void setOnRequestRemoveFriendCompleteListener(OnRequestRemoveFriendCompleteListener onRequestRemoveFriendCompleteListener) {
+        mGlobalListeners.put(REQUEST_REMOVE_FRIEND, onRequestRemoveFriendCompleteListener);
+    }
 }
