@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,8 +36,16 @@ public class APIDemosListFragment extends ListFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        getMainActivity().getSupportActionBar().setTitle("ASN API Demos");
+        getMainActivity().getSupportActionBar().setSubtitle(null);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Object item = l.getAdapter().getItem(position);
+        Pair<String, String> item = (Pair<String, String>) l.getAdapter().getItem(position);
 
         Fragment fragment;
         if (item.equals(LOGIN_WITH_GLOBAL_LISTENERS)) {
@@ -49,11 +56,18 @@ public class APIDemosListFragment extends ListFragment {
             throw new IllegalStateException("Can't find fragment for item: " + item);
         }
 
-        getActivity().getSupportFragmentManager().beginTransaction()
+        getMainActivity().getSupportActionBar().setTitle(item.first);
+        getMainActivity().getSupportActionBar().setSubtitle(item.second);
+
+        getMainActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.root_container, fragment)
                 .addToBackStack(null)
                 .commit();
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getMainActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    public MainActivity getMainActivity() {
+        return (MainActivity) getActivity();
     }
 
     public static class APIDemosAdater extends ArrayAdapter<Pair<String, String>> {
