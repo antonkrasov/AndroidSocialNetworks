@@ -87,6 +87,14 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 
     @Override
     public void requestLogin() throws SocialNetworkException {
+        if (isConnected()) {
+            if (mOnLoginCompleteListener != null) {
+                mOnLoginCompleteListener.onLoginSuccess(getID());
+            }
+
+            return;
+        }
+
         checkRequestState(mRequestLoginAsyncTask);
 
         mRequestLoginAsyncTask = new RequestLoginAsyncTask();

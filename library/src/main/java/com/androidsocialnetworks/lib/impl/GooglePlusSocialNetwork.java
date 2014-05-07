@@ -46,6 +46,14 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 
     @Override
     public void requestLogin() throws SocialNetworkException {
+        if (isConnected()) {
+            if (mOnLoginCompleteListener != null) {
+                mOnLoginCompleteListener.onLoginSuccess(getID());
+            }
+
+            return;
+        }
+
         mConnectRequested = true;
 
         try {
