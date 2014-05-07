@@ -20,14 +20,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class SocialNetwork {
-    protected static final String REQUEST_LOGIN = "SocialNetwork.REQUEST_LOGIN";
-    protected static final String REQUEST_GET_CURRENT_PERSON = "SocialNetwork.REQUEST_GET_CURRENT_PERSON";
-    protected static final String REQUEST_GET_PERSON = "SocialNetwork.REQUEST_GET_PERSON";
-    protected static final String REQUEST_POST_MESSAGE = "SocialNetwork.REQUEST_POST_MESSAGE";
-    protected static final String REQUEST_POST_PHOTO = "SocialNetwork.REQUEST_POST_PHOTO";
-    protected static final String REQUEST_CHECK_IS_FRIEND = "SocialNetwork.REQUEST_CHECK_IS_FRIEND";
-    protected static final String REQUEST_ADD_FRIEND = "SocialNetwork.REQUEST_ADD_FRIEND";
-    protected static final String REQUEST_REMOVE_FRIEND = "SocialNetwork.REQUEST_REMOVE_FRIEND";
+
+    public static final String REQUEST_LOGIN = "SocialNetwork.REQUEST_LOGIN";
+    public static final String REQUEST_GET_CURRENT_PERSON = "SocialNetwork.REQUEST_GET_CURRENT_PERSON";
+    public static final String REQUEST_GET_PERSON = "SocialNetwork.REQUEST_GET_PERSON";
+    public static final String REQUEST_POST_MESSAGE = "SocialNetwork.REQUEST_POST_MESSAGE";
+    public static final String REQUEST_POST_PHOTO = "SocialNetwork.REQUEST_POST_PHOTO";
+    public static final String REQUEST_CHECK_IS_FRIEND = "SocialNetwork.REQUEST_CHECK_IS_FRIEND";
+    public static final String REQUEST_ADD_FRIEND = "SocialNetwork.REQUEST_ADD_FRIEND";
+    public static final String REQUEST_REMOVE_FRIEND = "SocialNetwork.REQUEST_REMOVE_FRIEND";
+
     private static final String TAG = SocialNetwork.class.getSimpleName();
     private static final String SHARED_PREFERENCES_NAME = "social_networks";
     protected Fragment mSocialNetworkManager;
