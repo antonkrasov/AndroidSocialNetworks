@@ -1,6 +1,7 @@
 package com.github.androidsocialnetworks.apidemos.fragment.base;
 
 import android.app.ProgressDialog;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.github.androidsocialnetworks.apidemos.fragment.dialog.AlertDialogFragment;
@@ -8,6 +9,12 @@ import com.github.androidsocialnetworks.apidemos.fragment.dialog.AlertDialogFrag
 public class BaseDemoFragment extends Fragment {
 
     private ProgressDialog mProgressDialog;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     protected void showProgress(String text) {
         hideProgress();

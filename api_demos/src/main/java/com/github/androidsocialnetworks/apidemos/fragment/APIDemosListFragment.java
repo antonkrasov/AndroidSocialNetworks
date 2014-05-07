@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.ActionBar;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +25,7 @@ public class APIDemosListFragment extends ListFragment {
 
     public static final Pair<String, String> LOGIN_WITH_GLOBAL_LISTENERS = new Pair<String, String>("Login", "Using global listeners");
     public static final Pair<String, String> LOGIN_WITH_LOCAL_LISTENERS = new Pair<String, String>("Login", "Using local listeners");
+    public static final Pair<String, String> CURRENT_PROFILE = new Pair<String, String>("Current Profile", "Load current user info");
 
     public static APIDemosListFragment newInstance() {
         return new APIDemosListFragment();
@@ -43,6 +45,7 @@ public class APIDemosListFragment extends ListFragment {
 
         items.add(LOGIN_WITH_GLOBAL_LISTENERS);
         items.add(LOGIN_WITH_LOCAL_LISTENERS);
+        items.add(CURRENT_PROFILE);
 
         setListAdapter(new APIDemosAdater(getActivity(), items));
     }
@@ -50,8 +53,14 @@ public class APIDemosListFragment extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
-        getMainActivity().getSupportActionBar().setTitle("ASN API Demos");
-        getMainActivity().getSupportActionBar().setSubtitle(null);
+
+        ActionBar actionBar = getMainActivity().getSupportActionBar();
+
+        actionBar.setTitle("ASN API Demos");
+        actionBar.setSubtitle(null);
+
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(false);
     }
 
     @SuppressWarnings("unchecked")
@@ -64,6 +73,8 @@ public class APIDemosListFragment extends ListFragment {
             fragment = LoginUsingGlobalListenersFragment.newInstance();
         } else if (item.equals(LOGIN_WITH_LOCAL_LISTENERS)) {
             fragment = LoginUsingLocalListenersFragment.newInstance();
+        } else if (item.equals(CURRENT_PROFILE)) {
+            fragment = CurrentUserProfileFragment.newInstance();
         } else {
             throw new IllegalStateException("Can't find fragment for item: " + item);
         }
