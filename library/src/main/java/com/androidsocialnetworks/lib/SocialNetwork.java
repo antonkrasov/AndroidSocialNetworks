@@ -6,25 +6,33 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+
+import com.androidsocialnetworks.lib.listener.OnCheckIsFriendCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnPostingCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnRequestAddFriendCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnRequestRemoveFriendCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
+import com.androidsocialnetworks.lib.listener.base.SocialNetworkListener;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class SocialNetwork {
+    protected static final String REQUEST_LOGIN = "SocialNetwork.REQUEST_LOGIN";
+    protected static final String REQUEST_GET_CURRENT_PERSON = "SocialNetwork.REQUEST_GET_CURRENT_PERSON";
+    protected static final String REQUEST_GET_PERSON = "SocialNetwork.REQUEST_GET_PERSON";
+    protected static final String REQUEST_POST = "SocialNetwork.REQUEST_POST";
+    protected static final String REQUEST_CHECK_IS_FRIEND = "SocialNetwork.REQUEST_CHECK_IS_FRIEND";
+    protected static final String REQUEST_ADD_FRIEND = "SocialNetwork.REQUEST_ADD_FRIEND";
+    protected static final String REQUEST_REMOVE_FRIEND = "SocialNetwork.REQUEST_REMOVE_FRIEND";
     private static final String TAG = SocialNetwork.class.getSimpleName();
-
     private static final String SHARED_PREFERENCES_NAME = "social_networks";
-
     protected Fragment mSocialNetworkManager;
     protected SharedPreferences mSharedPreferences;
-
-    protected OnLoginCompleteListener mOnLoginCompleteListener;
-    protected OnRequestSocialPersonListener mOnRequestSocialPersonListener;
-    protected OnPostingListener mOnPostingListener;
-
-    protected OnCheckingIsFriendListener mOnCheckingIsFriendListener;
-    protected OnAddFriendListener mOnAddFriendListener;
-    protected OnRemoveFriendListener mOnRemoveFriendListener;
+    protected Map<String, SocialNetworkListener> mGlobalListeners = new HashMap<String, SocialNetworkListener>();
+    protected Map<String, SocialNetworkListener> mLocalListeners = new HashMap<String, SocialNetworkListener>();
 
     /**
      * @param fragment ant not activity or context, as we will need to call startActivityForResult,
@@ -37,6 +45,8 @@ public abstract class SocialNetwork {
         mSharedPreferences = mSocialNetworkManager
                 .getActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
+
+    //////////////////// LIFECYCLE ////////////////////
 
     public void onCreate(Bundle savedInstanceState) {
 
@@ -67,109 +77,99 @@ public abstract class SocialNetwork {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onRestoreInstanceState: " + requestCode + " : " + resultCode + " : " + data);
+
     }
 
-    public void setOnLoginCompleteListener(OnLoginCompleteListener onLoginCompleteListener) {
-        mOnLoginCompleteListener = onLoginCompleteListener;
-    }
-
-    public void setOnRequestSocialPersonListener(OnRequestSocialPersonListener onRequestSocialPersonListener) {
-        mOnRequestSocialPersonListener = onRequestSocialPersonListener;
-    }
-
-    public void setOnPostingListener(OnPostingListener onPostingListener) {
-        mOnPostingListener = onPostingListener;
-    }
-
-    public void setOnCheckingIsFriendListener(OnCheckingIsFriendListener onCheckingIsFriendListener) {
-        mOnCheckingIsFriendListener = onCheckingIsFriendListener;
-    }
-
-    public void setOnAddFriendListener(OnAddFriendListener onAddFriendListener) {
-        mOnAddFriendListener = onAddFriendListener;
-    }
-
-    public void setOnRemoveFriendListener(OnRemoveFriendListener onRemoveFriendListener) {
-        mOnRemoveFriendListener = onRemoveFriendListener;
-    }
+    //////////////////// API ////////////////////
 
     public abstract boolean isConnected();
 
-    public abstract void requestLogin() throws SocialNetworkException;
+    public void requestLogin() {
+        requestLogin(null);
+    }
+
+    public abstract void requestLogin(OnLoginCompleteListener onLoginCompleteListener);
 
     public abstract void logout();
 
     public abstract int getID();
 
-    public abstract void requestPerson() throws SocialNetworkException;
+    public void requestCurrentPerson() {
+        requestCurrentPerson(null);
+    }
 
-    public abstract void requestPostMessage(String message) throws SocialNetworkException;
+    public abstract void requestCurrentPerson(OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener);
 
-    public abstract void requestPostPhoto(File photo, String message) throws SocialNetworkException;
+    public void requestSocialPerson(String userID) {
+        requestSocialPerson(userID, null);
+    }
 
-    public abstract void requestCheckIsFriend(String userID) throws SocialNetworkException;
+    public abstract void requestSocialPerson(String userID, OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener);
 
-    public abstract void requestAddFriend(String userID) throws SocialNetworkException;
+    public void requestPostMessage(String message) {
+        requestPostMessage(message, null);
+    }
 
-    public abstract void requestRemoveFriend(String userID) throws SocialNetworkException;
+    public abstract void requestPostMessage(String message, OnPostingCompleteListener onPostingCompleteListener);
 
-    // cancel login requests
+    public void requestPostPhoto(File photo, String message) {
+        requestPostPhoto(photo, message, null);
+    }
 
-    public abstract void cancelLoginRequest();
+    public abstract void requestPostPhoto(File photo, String message, OnPostingCompleteListener onPostingCompleteListener);
 
-    public abstract void cancelGetPersonRequest();
+    public void requestCheckIsFriend(String userID) {
+        requestCheckIsFriend(userID, null);
+    }
 
-    public abstract void cancelPostMessageRequest();
+    public abstract void requestCheckIsFriend(String userID, OnCheckIsFriendCompleteListener onCheckIsFriendCompleteListener);
 
-    public abstract void cancelPostPhotoRequest();
+    public void requestAddFriend(String userID) {
+        requestAddFriend(userID, null);
+    }
 
-    public abstract void cancenCheckIsFriendRequest();
+    public abstract void requestAddFriend(String userID, OnRequestAddFriendCompleteListener onRequestAddFriendCompleteListener);
 
-    public abstract void cancelAddFriendRequest();
+    public void requestRemoveFriend(String userID) {
+        requestRemoveFriend(userID, null);
+    }
 
-    public abstract void cancenRemoveFriendRequest();
+    public abstract void requestRemoveFriend(String userID, OnRequestRemoveFriendCompleteListener onRequestRemoveFriendCompleteListener);
+
+    public void cancelLoginRequest() {
+
+    }
+
+    public void cancelGetPersonRequest() {
+
+    }
+
+    public void cancelPostMessageRequest() {
+
+    }
+
+    public void cancelPostPhotoRequest() {
+
+    }
+
+    public void cancenCheckIsFriendRequest() {
+
+    }
+
+    public void cancelAddFriendRequest() {
+
+    }
+
+    public void cancenRemoveFriendRequest() {
+
+    }
+
+    //////////////////// UTIL METHODS ////////////////////
 
     protected void checkRequestState(AsyncTask request) throws SocialNetworkException {
         if (request != null) {
             throw new SocialNetworkException("Request is already running");
         }
-    }
-
-    public static interface OnLoginCompleteListener {
-        public void onLoginSuccess(int socialNetworkID);
-
-        public void onLoginFailed(int socialNetworkID, String reason);
-    }
-
-    public static interface OnRequestSocialPersonListener {
-        public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson);
-
-        public void onRequestSocialPersonFailed(int socialNetworkID, String reason);
-    }
-
-    public static interface OnPostingListener {
-        public void onPostSuccessfully(int socialNetworkID);
-
-        public void onPostFailed(int socialNetworkID, String reason);
-    }
-
-    public static interface OnCheckingIsFriendListener {
-        public void onCheckIsFriendSuccess(int socialNetworkID, String userID, boolean isFriend);
-
-        public void onCheckIsFriendFailed(int socialNetworkID, String userID, String error);
-    }
-
-    public static interface OnAddFriendListener {
-        public void onAddFriendSuccess(int socialNetworkID, String userID);
-
-        public void onAddFriendFailed(int socialNetworkID, String userID, String error);
-    }
-
-    public static interface OnRemoveFriendListener {
-        public void onRemoveFriendSuccess(int socialNetworkID, String userID);
-
-        public void onRemoveFriendFailed(int socialNetworkID, String userID, String error);
     }
 
 }
