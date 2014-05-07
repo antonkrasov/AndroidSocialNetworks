@@ -1,1 +1,1 @@
-include ':app', ':third_party:facebook', 'library'
+include ':app', ':third_party:facebook', ':api_demos', 'library'
