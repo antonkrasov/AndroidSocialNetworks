@@ -4,10 +4,14 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import com.androidsocialnetworks.lib.SocialNetworkManager;
 import com.github.androidsocialnetworks.apidemos.fragment.dialog.AlertDialogFragment;
 
 public class BaseDemoFragment extends Fragment {
 
+    public static final String SOCIAL_NETWORK_TAG = "BaseLoginDemoFragment.SOCIAL_NETWORK_TAG";
+    protected SocialNetworkManager mSocialNetworkManager;
+    protected boolean mSocialNetworkManagerInitialized = false;
     private ProgressDialog mProgressDialog;
 
     @Override

@@ -13,9 +13,6 @@ import com.github.androidsocialnetworks.apidemos.R;
 public abstract class BaseLoginDemoFragment extends BaseDemoFragment
         implements SocialNetworkManager.OnInitializationCompleteListener, View.OnClickListener {
 
-    public static final String SOCIAL_NETWORK_TAG = "BaseLoginDemoFragment.SOCIAL_NETWORK_TAG";
-    protected SocialNetworkManager mSocialNetworkManager;
-
     private Button mTwitterButton;
     private Button mLinkedInButton;
     private Button mFacebookButton;
@@ -35,9 +32,13 @@ public abstract class BaseLoginDemoFragment extends BaseDemoFragment
                     .googlePlus()
                     .build();
             getFragmentManager().beginTransaction().add(mSocialNetworkManager, SOCIAL_NETWORK_TAG).commit();
-        }
 
-        mSocialNetworkManager.setOnInitializationCompleteListener(this);
+            mSocialNetworkManager.setOnInitializationCompleteListener(this);
+        } else {
+            // we need to setup buttons correctly, mSocialNetworkManager isn't null, so
+            // we are sure that it was initialized
+            mSocialNetworkManagerInitialized = true;
+        }
     }
 
     @Override
@@ -53,13 +54,10 @@ public abstract class BaseLoginDemoFragment extends BaseDemoFragment
         mLinkedInButton = (Button) view.findViewById(R.id.linkedin_button);
         mFacebookButton = (Button) view.findViewById(R.id.facebook_button);
         mGooglePlusButton = (Button) view.findViewById(R.id.google_plus_button);
-    }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        getFragmentManager().beginTransaction().remove(mSocialNetworkManager).commit();
+        if (mSocialNetworkManagerInitialized) {
+            onSocialNetworkManagerInitialized();
+        }
     }
 
     @Override
