@@ -1,6 +1,20 @@
 package com.androidsocialnetworks.lib;
 
-public class SocialPerson {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class SocialPerson implements Parcelable {
+
+    public static final Parcelable.Creator<SocialPerson> CREATOR
+            = new Parcelable.Creator<SocialPerson>() {
+        public SocialPerson createFromParcel(Parcel in) {
+            return new SocialPerson(in);
+        }
+
+        public SocialPerson[] newArray(int size) {
+            return new SocialPerson[size];
+        }
+    };
 
     public String id;
     public String name;
@@ -8,10 +22,36 @@ public class SocialPerson {
     public String position;
     public String avatarURL;
 
+    public SocialPerson() {
+
+    }
+
+    private SocialPerson(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        company = in.readString();
+        position = in.readString();
+        avatarURL = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(company);
+        dest.writeString(position);
+        dest.writeString(avatarURL);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || !(o instanceof SocialPerson)) return false;
 
         SocialPerson that = (SocialPerson) o;
 

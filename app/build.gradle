@@ -23,9 +23,9 @@ dependencies {
         transitive = true
     }
 
-    compile 'com.squareup.picasso:picasso:2.2.0@jar'
     compile 'com.android.support:appcompat-v7:19.+'
 
+    compile 'com.squareup.picasso:picasso:2.2.0@jar'
     // to display facebook avatar: https://github.com/square/picasso/issues/166
     compile 'com.squareup.okhttp:okhttp:1.5.4@jar'
 

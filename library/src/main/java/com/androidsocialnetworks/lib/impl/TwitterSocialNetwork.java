@@ -10,7 +10,9 @@ import android.util.Log;
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialNetworkAsyncTask;
+import com.androidsocialnetworks.lib.SocialPerson;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.UUID;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import twitter4j.conf.ConfigurationBuilder;
@@ -109,7 +112,18 @@ public class TwitterSocialNetwork extends SocialNetwork {
         initTwitterClient();
     }
 
-//    @Override
+    @Override
+    public void requestCurrentPerson(OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
+        super.requestCurrentPerson(onRequestSocialPersonCompleteListener);
+
+        checkRequestState(mRequests.get(REQUEST_GET_CURRENT_PERSON));
+
+        RequestGetPersonAsyncTask requestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
+        mRequests.put(REQUEST_GET_CURRENT_PERSON, requestGetPersonAsyncTask);
+        requestGetPersonAsyncTask.execute(new Bundle());
+    }
+
+    //    @Override
 //    public void requestPerson() throws SocialNetworkException {
 //        checkRequestState(mRequestGetPersonAsyncTask);
 //
@@ -392,53 +406,85 @@ public class TwitterSocialNetwork extends SocialNetwork {
             mLocalListeners.remove(REQUEST_LOGIN);
         }
     }
-//
-//    private class RequestGetPersonAsyncTask extends AsyncTask<Long, Void, Bundle> {
-//        private static final String RESULT_ERROR = "RequestPersonAsyncTask.RESULT_ERROR";
-//        private static final String RESULT_ID = "RequestPersonAsyncTask.RESULT_ID";
-//        private static final String RESULT_NAME = "RequestPersonAsyncTask.RESULT_NAME";
-//        private static final String RESULT_AVATAR_URL = "RequestPersonAsyncTask.RESULT_AVATAR_URL";
-//
-//        @Override
-//        protected Bundle doInBackground(Long... params) {
-//            Bundle result = new Bundle();
-//
-//            try {
-//                long currentUserID = mSharedPreferences.getLong(SAVE_STATE_KEY_USER_ID, -1);
-//                User user = mTwitter.showUser(currentUserID);
-//
-//                result.putString(RESULT_ID, user.getId() + "");
-//                result.putString(RESULT_NAME, user.getName());
-//                result.putString(RESULT_AVATAR_URL, user.getBiggerProfileImageURL());
-//            } catch (TwitterException e) {
-//                Log.e(TAG, "ERROR", e);
-//                result.putString(RESULT_ERROR, e.getMessage());
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Bundle result) {
-//            mRequestGetPersonAsyncTask = null;
-//
-//            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
-//
-//            if (mOnRequestSocialPersonListener != null) {
-//                if (error == null) {
-//                    SocialPerson socialPerson = new SocialPerson();
-//                    socialPerson.id = result.getString(RESULT_ID);
-//                    socialPerson.name = result.getString(RESULT_NAME);
-//                    socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
-//
-//                    mOnRequestSocialPersonListener.onRequestSocialPersonSuccess(getID(), socialPerson);
-//                } else {
-//                    mOnRequestSocialPersonListener.onRequestSocialPersonFailed(getID(), error);
-//                }
-//            }
-//        }
-//    }
-//
+
+    private class RequestGetPersonAsyncTask extends SocialNetworkAsyncTask {
+        public static final String PARAM_USER_ID = "RequestGetPersonAsyncTask.PARAM_USER_ID";
+
+        private static final String RESULT_IS_CURRENT_PERSON = "RequestPersonAsyncTask.RESULT_IS_CURRENT_PERSON";
+        private static final String RESULT_ID = "RequestPersonAsyncTask.RESULT_ID";
+        private static final String RESULT_NAME = "RequestPersonAsyncTask.RESULT_NAME";
+        private static final String RESULT_AVATAR_URL = "RequestPersonAsyncTask.RESULT_AVATAR_URL";
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+            Bundle args = params[0];
+            Bundle result = new Bundle();
+            Long userID;
+
+            if (args.containsKey(PARAM_USER_ID)) {
+                userID = args.getLong(PARAM_USER_ID);
+                result.putBoolean(RESULT_IS_CURRENT_PERSON, false);
+            } else {
+                userID = mSharedPreferences.getLong(SAVE_STATE_KEY_USER_ID, -1);
+                result.putBoolean(RESULT_IS_CURRENT_PERSON, true);
+            }
+
+            try {
+                User user = mTwitter.showUser(userID);
+
+                result.putString(RESULT_ID, user.getId() + "");
+                result.putString(RESULT_NAME, user.getName());
+                result.putString(RESULT_AVATAR_URL, user.getBiggerProfileImageURL());
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
+
+            if (result.getBoolean(RESULT_IS_CURRENT_PERSON)) {
+                mRequests.remove(REQUEST_GET_CURRENT_PERSON);
+
+                if (mLocalListeners.get(REQUEST_GET_CURRENT_PERSON) != null) {
+                    if (error == null) {
+                        SocialPerson socialPerson = new SocialPerson();
+                        socialPerson.id = result.getString(RESULT_ID);
+                        socialPerson.name = result.getString(RESULT_NAME);
+                        socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+
+                        ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_CURRENT_PERSON))
+                                .onRequestSocialPersonSuccess(getID(), socialPerson);
+                    } else {
+                        mLocalListeners.get(REQUEST_GET_CURRENT_PERSON).onError(getID(), REQUEST_GET_CURRENT_PERSON, error, null);
+                    }
+                }
+
+            } else {
+                mRequests.remove(REQUEST_GET_PERSON);
+
+                if (mLocalListeners.get(REQUEST_GET_PERSON) != null) {
+                    if (error == null) {
+                        SocialPerson socialPerson = new SocialPerson();
+                        socialPerson.id = result.getString(RESULT_ID);
+                        socialPerson.name = result.getString(RESULT_NAME);
+                        socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+
+                        ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_PERSON))
+                                .onRequestSocialPersonSuccess(getID(), socialPerson);
+                    } else {
+                        mLocalListeners.get(REQUEST_GET_PERSON).onError(getID(), REQUEST_GET_PERSON, error, null);
+                    }
+                }
+            }
+
+        }
+    }
+
 //    private class RequestUpdateStatusAsyncTask extends AsyncTask<String, Void, Bundle> {
 //        private static final String RESULT_ERROR = "RequestUpdateStatus.RESULT_ERROR";
 //

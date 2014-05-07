@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.SocialNetworkManager;
+import com.androidsocialnetworks.lib.SocialPerson;
+import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
 import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
@@ -64,7 +66,24 @@ public class CurrentUserProfileFragment extends BaseDemoFragment implements View
         switch (v.getId()) {
             case R.id.twitter_button:
                 if (mSocialNetworkManager.getTwitterSocialNetwork().isConnected()) {
-                    Toast.makeText(getActivity(), "Load Twitter Profile", Toast.LENGTH_SHORT).show();
+                    showProgress("Loading profile");
+                    mSocialNetworkManager.getTwitterSocialNetwork().requestCurrentPerson(new OnRequestSocialPersonCompleteListener() {
+                        @Override
+                        public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
+                            hideProgress();
+
+                            getFragmentManager().beginTransaction()
+                                    .replace(R.id.root_container, ShowProfileFragment.newInstance(socialPerson))
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+
+                        @Override
+                        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+                            hideProgress();
+                            handleError(errorMessage);
+                        }
+                    });
                 } else {
                     handleError("This action request login, please go to Login demo, and login via Twitter first.");
                 }
