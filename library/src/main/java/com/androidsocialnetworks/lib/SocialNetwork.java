@@ -22,6 +22,7 @@ import java.util.Map;
 public abstract class SocialNetwork {
 
     public static final String REQUEST_LOGIN = "SocialNetwork.REQUEST_LOGIN";
+    public static final String REQUEST_LOGIN2 = "SocialNetwork.REQUEST_LOGIN2"; // used with OAuth in Twitter and LinekdIn
     public static final String REQUEST_GET_CURRENT_PERSON = "SocialNetwork.REQUEST_GET_CURRENT_PERSON";
     public static final String REQUEST_GET_PERSON = "SocialNetwork.REQUEST_GET_PERSON";
     public static final String REQUEST_POST_MESSAGE = "SocialNetwork.REQUEST_POST_MESSAGE";

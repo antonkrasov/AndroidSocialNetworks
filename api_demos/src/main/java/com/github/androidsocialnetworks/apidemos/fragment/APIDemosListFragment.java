@@ -1,4 +1,4 @@
-package com.github.androidsocialnetworks.apidemos;
+package com.github.androidsocialnetworks.apidemos.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.github.androidsocialnetworks.apidemos.R;
+import com.github.androidsocialnetworks.apidemos.activity.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;

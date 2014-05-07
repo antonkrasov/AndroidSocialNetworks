@@ -1,14 +1,23 @@
 package com.androidsocialnetworks.lib.impl;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
+import com.androidsocialnetworks.lib.SocialNetworkAsyncTask;
+import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
@@ -33,13 +42,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
     private Twitter mTwitter;
     private RequestToken mRequestToken;
 
-//    private RequestLoginAsyncTask mRequestLoginAsyncTask;
-//    private RequestLogin2AsyncTask mRequestLogin2AsyncTask;
-//    private RequestGetPersonAsyncTask mRequestGetPersonAsyncTask;
-//    private RequestUpdateStatusAsyncTask mRequestUpdateStatusAsyncTask;
-//    private RequestCheckIsFriendAsyncTask mRequestCheckIsFriendAsyncTask;
-//    private RequestAddFriendAsyncTask mRequestAddFriendAsyncTask;
-//    private RequestRemoveFriendAsyncTask mRequestRemoveFriendAsyncTask;
+    private Map<String, SocialNetworkAsyncTask> mRequests = new HashMap<String, SocialNetworkAsyncTask>();
 
     public TwitterSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret) {
         super(fragment);
@@ -84,21 +87,25 @@ public class TwitterSocialNetwork extends SocialNetwork {
         return accessToken != null && accessTokenSecret != null;
     }
 
-//    @Override
-//    public void requestLogin() throws SocialNetworkException {
-//        if (isConnected()) {
-//            if (mOnLoginCompleteListener != null) {
-//                mOnLoginCompleteListener.onLoginSuccess(getID());
-//            }
-//
-//            return;
-//        }
-//
-//        checkRequestState(mRequestLoginAsyncTask);
-//
-//        mRequestLoginAsyncTask = new RequestLoginAsyncTask();
-//        mRequestLoginAsyncTask.execute();
-//    }
+    @Override
+    public void requestLogin(OnLoginCompleteListener onLoginCompleteListener) {
+        super.requestLogin(onLoginCompleteListener);
+
+        if (isConnected()) {
+            if (mLocalListeners.get(REQUEST_LOGIN) != null) {
+                ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
+                mLocalListeners.remove(REQUEST_LOGIN);
+            }
+
+            return;
+        }
+
+        checkRequestState(mRequests.get(REQUEST_LOGIN));
+
+        RequestLoginAsyncTask requestLoginAsyncTask = new RequestLoginAsyncTask();
+        mRequests.put(REQUEST_LOGIN, requestLoginAsyncTask);
+        requestLoginAsyncTask.execute();
+    }
 
     @Override
     public void logout() {
@@ -200,28 +207,32 @@ public class TwitterSocialNetwork extends SocialNetwork {
 //            mRequestRemoveFriendAsyncTask = null;
 //        }
 //    }
-//
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode != REQUEST_AUTH) return;
-//
-//        super.onActivityResult(requestCode, resultCode, data);
-//        Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode + " : " + data);
-//
-//        Uri uri = data != null ? data.getData() : null;
-//
-//        if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
-//            String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
-//
-//            mRequestLogin2AsyncTask = new RequestLogin2AsyncTask();
-//            mRequestLogin2AsyncTask.execute(verifier);
-//        } else {
-//            if (mOnLoginCompleteListener != null) {
-//                mOnLoginCompleteListener.onLoginFailed(getID(), "incorrect URI returned: " + uri);
-//            }
-//        }
-//    }
-//
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != REQUEST_AUTH) return;
+
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode + " : " + data);
+
+        Uri uri = data != null ? data.getData() : null;
+
+        if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
+            String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
+
+            RequestLogin2AsyncTask requestLogin2AsyncTask = new RequestLogin2AsyncTask();
+            mRequests.put(REQUEST_LOGIN2, requestLogin2AsyncTask);
+            Bundle args = new Bundle();
+            args.putString(RequestLogin2AsyncTask.PARAM_VERIFIER, verifier);
+            requestLogin2AsyncTask.execute(args);
+        } else {
+            if (mLocalListeners.get(REQUEST_LOGIN) != null) {
+                mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, "incorrect URI returned: " + uri, null);
+                mLocalListeners.remove(REQUEST_LOGIN);
+            }
+        }
+    }
+
 //    @Override
 //    public void cancelLoginRequest() {
 //        if (mRequestLoginAsyncTask != null) {
@@ -282,109 +293,114 @@ public class TwitterSocialNetwork extends SocialNetwork {
 //            mRequestRemoveFriendAsyncTask = null;
 //        }
 //    }
-//
-//    private class RequestLoginAsyncTask extends AsyncTask<String, String, Bundle> {
-//        private static final String RESULT_ERROR = "LoginAsyncTask.RESULT_ERROR";
-//        private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
-//
-//        @Override
-//        protected void onPreExecute() {
-//            Log.d(TAG, "LoginAsyncTask.onPreExecute()");
-//        }
-//
-//        @Override
-//        protected Bundle doInBackground(String... params) {
-//            Bundle result = new Bundle();
-//
-//            Log.d(TAG, "LoginAsyncTask.doInBackground()");
-//
-//            try {
-//                mRequestToken = mTwitter.getOAuthRequestToken(TWITTER_CALLBACK_URL);
-//                Uri oauthLoginURL = Uri.parse(mRequestToken.getAuthenticationURL() + "&force_login=true");
-//
-//                Log.d(TAG, "oauthLoginURL: " + oauthLoginURL);
-//
-//                result.putString(RESULT_OAUTH_LOGIN, oauthLoginURL.toString());
-//            } catch (TwitterException e) {
-//                Log.e(TAG, "ERROR", e);
-//                result.putString(RESULT_ERROR, e.getMessage());
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Bundle result) {
-//            Log.d(TAG, "LoginAsyncTask.onPostExecute()");
-//
-//            mRequestLoginAsyncTask = null;
-//
-//            if (result.containsKey(RESULT_ERROR) && mOnLoginCompleteListener != null) {
-//                mOnLoginCompleteListener.onLoginFailed(getID(), result.getString(RESULT_ERROR));
-//            }
-//
-//            if (result.containsKey(RESULT_OAUTH_LOGIN)) {
-//                Intent intent = new Intent(mSocialNetworkManager.getActivity(), OAuthActivity.class)
-//                        .putExtra(OAuthActivity.PARAM_CALLBACK, TWITTER_CALLBACK_URL)
-//                        .putExtra(OAuthActivity.PARAM_URL_TO_LOAD, result.getString(RESULT_OAUTH_LOGIN));
-//
-//                mSocialNetworkManager.startActivityForResult(intent, REQUEST_AUTH);
-//            }
-//        }
-//    }
-//
-//    private class RequestLogin2AsyncTask extends AsyncTask<String, Void, Bundle> {
-//        private static final String RESULT_ERROR = "Login2AsyncTask.RESULT_ERROR";
-//        private static final String RESULT_TOKEN = "Login2AsyncTask.RESULT_TOKEN";
-//        private static final String RESULT_SECRET = "Login2AsyncTask.RESULT_SECRET";
-//        private static final String RESULT_USER_ID = "Login2AsyncTask.RESULT_USER_ID";
-//
-//        @Override
-//        protected Bundle doInBackground(String... params) {
-//            String verifier = params[0];
-//
-//            Bundle result = new Bundle();
-//
-//            try {
-//                AccessToken accessToken = mTwitter.getOAuthAccessToken(mRequestToken, verifier);
-//
-//                result.putString(RESULT_TOKEN, accessToken.getToken());
-//                result.putString(RESULT_SECRET, accessToken.getTokenSecret());
-//                result.putLong(RESULT_USER_ID, accessToken.getUserId());
-//            } catch (Exception e) {
-//                Log.e(TAG, "ERROR", e);
-//                result.putString(RESULT_ERROR, e.getMessage());
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Bundle result) {
-//            mRequestLogin2AsyncTask = null;
-//
-//            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
-//
-//            if (error == null) {
-//                // Shared Preferences
-//                mSharedPreferences.edit()
-//                        .putString(SAVE_STATE_KEY_OAUTH_TOKEN, result.getString(RESULT_TOKEN))
-//                        .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
-//                        .putLong(SAVE_STATE_KEY_USER_ID, result.getLong(RESULT_USER_ID))
-//                        .apply();
-//
-//                initTwitterClient();
-//            }
-//
-//            if (mOnLoginCompleteListener != null) {
-//                if (error == null) {
-//                    mOnLoginCompleteListener.onLoginSuccess(getID());
-//                } else {
-//                    mOnLoginCompleteListener.onLoginFailed(getID(), error);
-//                }
-//            }
-//        }
-//    }
+
+    private class RequestLoginAsyncTask extends SocialNetworkAsyncTask {
+        private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
+
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "LoginAsyncTask.onPreExecute()");
+        }
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+            Bundle result = new Bundle();
+
+            Log.d(TAG, "LoginAsyncTask.doInBackground()");
+
+            try {
+                mRequestToken = mTwitter.getOAuthRequestToken(TWITTER_CALLBACK_URL);
+                Uri oauthLoginURL = Uri.parse(mRequestToken.getAuthenticationURL() + "&force_login=true");
+
+                Log.d(TAG, "oauthLoginURL: " + oauthLoginURL);
+
+                result.putString(RESULT_OAUTH_LOGIN, oauthLoginURL.toString());
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            Log.d(TAG, "LoginAsyncTask.onPostExecute()");
+
+            mRequests.put(REQUEST_LOGIN, null);
+
+            if (result.containsKey(RESULT_ERROR) && mLocalListeners.get(REQUEST_LOGIN) != null) {
+                mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, result.getString(RESULT_ERROR), null);
+                mLocalListeners.remove(REQUEST_LOGIN);
+            }
+
+            if (result.containsKey(RESULT_OAUTH_LOGIN)) {
+                Intent intent = new Intent(mSocialNetworkManager.getActivity(), OAuthActivity.class)
+                        .putExtra(OAuthActivity.PARAM_CALLBACK, TWITTER_CALLBACK_URL)
+                        .putExtra(OAuthActivity.PARAM_URL_TO_LOAD, result.getString(RESULT_OAUTH_LOGIN));
+
+                mSocialNetworkManager.startActivityForResult(intent, REQUEST_AUTH);
+            }
+        }
+    }
+
+    private class RequestLogin2AsyncTask extends SocialNetworkAsyncTask {
+        public static final String PARAM_VERIFIER = "Login2AsyncTask.PARAM_VERIFIER";
+
+        private static final String RESULT_ERROR = "Login2AsyncTask.RESULT_ERROR";
+        private static final String RESULT_TOKEN = "Login2AsyncTask.RESULT_TOKEN";
+        private static final String RESULT_SECRET = "Login2AsyncTask.RESULT_SECRET";
+        private static final String RESULT_USER_ID = "Login2AsyncTask.RESULT_USER_ID";
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+            String verifier = params[0].getString(PARAM_VERIFIER);
+
+            Bundle result = new Bundle();
+
+            try {
+                AccessToken accessToken = mTwitter.getOAuthAccessToken(mRequestToken, verifier);
+
+                result.putString(RESULT_TOKEN, accessToken.getToken());
+                result.putString(RESULT_SECRET, accessToken.getTokenSecret());
+                result.putLong(RESULT_USER_ID, accessToken.getUserId());
+            } catch (Exception e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            mRequests.put(REQUEST_LOGIN2, null);
+
+            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
+
+            if (error == null) {
+                // Shared Preferences
+                mSharedPreferences.edit()
+                        .putString(SAVE_STATE_KEY_OAUTH_TOKEN, result.getString(RESULT_TOKEN))
+                        .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
+                        .putLong(SAVE_STATE_KEY_USER_ID, result.getLong(RESULT_USER_ID))
+                        .apply();
+
+                initTwitterClient();
+            }
+
+            if (mLocalListeners.get(REQUEST_LOGIN) != null) {
+                if (error == null) {
+                    ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
+
+                } else {
+                    mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, error, null);
+                }
+            }
+
+            mLocalListeners.remove(REQUEST_LOGIN);
+        }
+    }
 //
 //    private class RequestGetPersonAsyncTask extends AsyncTask<Long, Void, Bundle> {
 //        private static final String RESULT_ERROR = "RequestPersonAsyncTask.RESULT_ERROR";

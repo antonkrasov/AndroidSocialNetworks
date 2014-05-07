@@ -1,17 +1,17 @@
-package com.github.androidsocialnetworks.apidemos;
+package com.github.androidsocialnetworks.apidemos.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialNetworkManager;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
+import com.github.androidsocialnetworks.apidemos.R;
+import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
-public class LoginUsingGlobalListenersFragment extends Fragment
+public class LoginUsingGlobalListenersFragment extends BaseDemoFragment
         implements SocialNetworkManager.OnInitializationCompleteListener, OnLoginCompleteListener,
         View.OnClickListener {
 
@@ -62,17 +62,23 @@ public class LoginUsingGlobalListenersFragment extends Fragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.twitter_button:
-                Toast.makeText(getActivity(), "G twitter_button", Toast.LENGTH_SHORT).show();
+                showProgress("Authentificating... twitter");
+                mSocialNetworkManager.getTwitterSocialNetwork().requestLogin();
                 break;
             case R.id.linkedin_button:
-                Toast.makeText(getActivity(), "G linkedin_button", Toast.LENGTH_SHORT).show();
+                showProgress("Authentificating... linkedIn");
+                mSocialNetworkManager.getLinkedInSocialNetwork().requestLogin();
                 break;
             case R.id.facebook_button:
-                Toast.makeText(getActivity(), "G facebook_button", Toast.LENGTH_SHORT).show();
+                showProgress("Authentificating... facebook");
+                mSocialNetworkManager.getFacebookSocialNetwork().requestLogin();
                 break;
             case R.id.google_plus_button:
-                Toast.makeText(getActivity(), "G google_plus_button", Toast.LENGTH_SHORT).show();
+                showProgress("Authentificating... googlePlus");
+                mSocialNetworkManager.getGooglePlusSocialNetwork().requestLogin();
                 break;
+            default:
+                throw new IllegalArgumentException("Can't find click handler for: " + v);
         }
     }
 
@@ -85,12 +91,14 @@ public class LoginUsingGlobalListenersFragment extends Fragment
 
     @Override
     public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-
+        hideProgress();
+        handleError(errorMessage);
     }
 
     @Override
     public void onLoginSuccess(int socialNetworkID) {
-
+        hideProgress();
+        handleSuccess("onLoginSuccess", "Now you can try other API Demos.");
     }
 
 }

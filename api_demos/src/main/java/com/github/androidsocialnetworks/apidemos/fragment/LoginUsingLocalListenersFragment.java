@@ -1,15 +1,16 @@
-package com.github.androidsocialnetworks.apidemos;
+package com.github.androidsocialnetworks.apidemos.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.SocialNetworkManager;
+import com.github.androidsocialnetworks.apidemos.R;
+import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
-public class LoginUsingLocalListenersFragment extends Fragment implements View.OnClickListener {
+public class LoginUsingLocalListenersFragment extends BaseDemoFragment implements View.OnClickListener {
     public static final String SOCIAL_NETWORK_TAG = "LoginUsingGlobalListenersFragment.SOCIAL_NETWORK_TAG";
     private static final String TAG = LoginUsingLocalListenersFragment.class.getSimpleName();
     private SocialNetworkManager mSocialNetworkManager;

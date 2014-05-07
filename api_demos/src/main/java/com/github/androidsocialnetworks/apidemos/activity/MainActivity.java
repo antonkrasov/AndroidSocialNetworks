@@ -1,8 +1,11 @@
-package com.github.androidsocialnetworks.apidemos;
+package com.github.androidsocialnetworks.apidemos.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+
+import com.github.androidsocialnetworks.apidemos.R;
+import com.github.androidsocialnetworks.apidemos.fragment.APIDemosListFragment;
 
 
 public class MainActivity extends ActionBarActivity {
