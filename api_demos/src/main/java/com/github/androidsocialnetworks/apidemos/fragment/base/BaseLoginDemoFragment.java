@@ -1,93 +1,34 @@
 package com.github.androidsocialnetworks.apidemos.fragment.base;
 
 import android.graphics.Color;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 
-import com.androidsocialnetworks.lib.SocialNetworkManager;
-import com.github.androidsocialnetworks.apidemos.R;
-
-public abstract class BaseLoginDemoFragment extends BaseDemoFragment
-        implements SocialNetworkManager.OnInitializationCompleteListener, View.OnClickListener {
-
-    private Button mTwitterButton;
-    private Button mLinkedInButton;
-    private Button mFacebookButton;
-    private Button mGooglePlusButton;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mSocialNetworkManager = (SocialNetworkManager) getFragmentManager().findFragmentByTag(SOCIAL_NETWORK_TAG);
-
-        if (mSocialNetworkManager == null) {
-            mSocialNetworkManager = SocialNetworkManager.Builder.from(getActivity())
-                    .twitter("3IYEDC9Pq5SIjzENhgorlpera", "fawjHMhyzhrfcFKZVB6d5YfiWbWGmgX7vPfazi61xZY9pdD1aE")
-                    .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
-                    .facebook()
-                    .googlePlus()
-                    .build();
-            getFragmentManager().beginTransaction().add(mSocialNetworkManager, SOCIAL_NETWORK_TAG).commit();
-
-            mSocialNetworkManager.setOnInitializationCompleteListener(this);
-        } else {
-            // we need to setup buttons correctly, mSocialNetworkManager isn't null, so
-            // we are sure that it was initialized
-            mSocialNetworkManagerInitialized = true;
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_login, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        mTwitterButton = (Button) view.findViewById(R.id.twitter_button);
-        mLinkedInButton = (Button) view.findViewById(R.id.linkedin_button);
-        mFacebookButton = (Button) view.findViewById(R.id.facebook_button);
-        mGooglePlusButton = (Button) view.findViewById(R.id.google_plus_button);
-
-        if (mSocialNetworkManagerInitialized) {
-            onSocialNetworkManagerInitialized();
-        }
-    }
+public abstract class BaseLoginDemoFragment extends BaseDemoFragment implements View.OnClickListener {
 
     @Override
     public void onSocialNetworkManagerInitialized() {
         if (mSocialNetworkManager.getTwitterSocialNetwork().isConnected()) {
             mTwitterButton.setText("Twitter connected");
             mTwitterButton.setBackgroundColor(Color.LTGRAY);
-        } else {
-            mTwitterButton.setOnClickListener(this);
+            mTwitterButton.setOnClickListener(null);
         }
 
         if (mSocialNetworkManager.getLinkedInSocialNetwork().isConnected()) {
             mLinkedInButton.setText("LinkedIn connected");
             mLinkedInButton.setBackgroundColor(Color.LTGRAY);
-        } else {
-            mLinkedInButton.setOnClickListener(this);
+            mLinkedInButton.setOnClickListener(null);
         }
 
         if (mSocialNetworkManager.getFacebookSocialNetwork().isConnected()) {
             mFacebookButton.setText("Facebook connected");
             mFacebookButton.setBackgroundColor(Color.LTGRAY);
-        } else {
-            mFacebookButton.setOnClickListener(this);
+            mFacebookButton.setOnClickListener(null);
         }
 
         if (mSocialNetworkManager.getGooglePlusSocialNetwork().isConnected()) {
             mGooglePlusButton.setText("Google Plus connected");
             mGooglePlusButton.setBackgroundColor(Color.LTGRAY);
-        } else {
-            mGooglePlusButton.setOnClickListener(this);
+            mGooglePlusButton.setOnClickListener(null);
         }
     }
 

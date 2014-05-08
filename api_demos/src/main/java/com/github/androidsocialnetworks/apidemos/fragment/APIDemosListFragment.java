@@ -26,6 +26,7 @@ public class APIDemosListFragment extends ListFragment {
     public static final Pair<String, String> LOGIN_WITH_GLOBAL_LISTENERS = new Pair<String, String>("Login", "Using global listeners");
     public static final Pair<String, String> LOGIN_WITH_LOCAL_LISTENERS = new Pair<String, String>("Login", "Using local listeners");
     public static final Pair<String, String> CURRENT_PROFILE = new Pair<String, String>("Current Profile", "Load current user info");
+    public static final Pair<String, String> LOAD_PROFILE = new Pair<String, String>("Other User's Profile", "Load custom user profile");
 
     public static APIDemosListFragment newInstance() {
         return new APIDemosListFragment();

@@ -1,11 +1,9 @@
 package com.github.androidsocialnetworks.apidemos.fragment;
 
-import android.view.View;
 import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
-import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseLoginDemoFragment;
 
 public class LoginUsingGlobalListenersFragment extends BaseLoginDemoFragment
@@ -24,24 +22,24 @@ public class LoginUsingGlobalListenersFragment extends BaseLoginDemoFragment
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.twitter_button:
-                showProgress("Authentificating... twitter");
-                mSocialNetworkManager.getTwitterSocialNetwork().requestLogin();
-                break;
-            case R.id.linkedin_button:
-                Toast.makeText(getActivity(), "Global. LinkedIn Login", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.facebook_button:
-                Toast.makeText(getActivity(), "Global. Facebook Login", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.google_plus_button:
-                Toast.makeText(getActivity(), "Global. GooglePlus Login", Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                throw new IllegalArgumentException("Can't find click handler for: " + v);
-        }
+    protected void onTwitterAction() {
+        showProgress("Authentificating... twitter");
+        mSocialNetworkManager.getTwitterSocialNetwork().requestLogin();
+    }
+
+    @Override
+    protected void onLinkedInAction() {
+        Toast.makeText(getActivity(), "Global. LinkedIn Login", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onFacebookAction() {
+        Toast.makeText(getActivity(), "Global. Facebook Login", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onGooglePlusAction() {
+        Toast.makeText(getActivity(), "Global. GooglePlus Login", Toast.LENGTH_SHORT).show();
     }
 
     @Override
