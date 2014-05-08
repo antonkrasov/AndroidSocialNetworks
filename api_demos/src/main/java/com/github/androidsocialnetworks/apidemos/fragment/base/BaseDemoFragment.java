@@ -2,15 +2,19 @@ package com.github.androidsocialnetworks.apidemos.fragment.base;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialNetworkManager;
 import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.fragment.dialog.AlertDialogFragment;
 import com.github.androidsocialnetworks.apidemos.fragment.dialog.ProgressDialogFragment;
+
+import static com.github.androidsocialnetworks.apidemos.APIDemosApplication.TAG;
 
 public abstract class BaseDemoFragment extends Fragment
         implements SocialNetworkManager.OnInitializationCompleteListener, View.OnClickListener {
@@ -82,7 +86,9 @@ public abstract class BaseDemoFragment extends Fragment
     }
 
     protected void showProgress(String text) {
-        ProgressDialogFragment.newInstance(text).show(getFragmentManager(), PROGRESS_DIALOG_TAG);
+        ProgressDialogFragment progressDialogFragment = ProgressDialogFragment.newInstance(text);
+        progressDialogFragment.setTargetFragment(this, 0);
+        progressDialogFragment.show(getFragmentManager(), PROGRESS_DIALOG_TAG);
     }
 
     protected void hideProgress() {
@@ -133,5 +139,13 @@ public abstract class BaseDemoFragment extends Fragment
                 .show(getFragmentManager(), null);
 
         return false;
+    }
+
+    public void onRequestCancel() {
+        Log.d(TAG, "BaseDemoFragment.onRequestCancel");
+
+        for (SocialNetwork socialNetwork : mSocialNetworkManager.getInitializedSocialNetworks()) {
+            socialNetwork.cancelAll();
+        }
     }
 }

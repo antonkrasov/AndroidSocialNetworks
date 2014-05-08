@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.androidsocialnetworks.lib.listener.OnCheckIsFriendCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
@@ -19,6 +20,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.androidsocialnetworks.lib.Consts.TAG;
+
 public abstract class SocialNetwork {
 
     public static final String REQUEST_LOGIN = "SocialNetwork.REQUEST_LOGIN";
@@ -31,7 +34,6 @@ public abstract class SocialNetwork {
     public static final String REQUEST_ADD_FRIEND = "SocialNetwork.REQUEST_ADD_FRIEND";
     public static final String REQUEST_REMOVE_FRIEND = "SocialNetwork.REQUEST_REMOVE_FRIEND";
 
-    private static final String TAG = SocialNetwork.class.getSimpleName();
     private static final String SHARED_PREFERENCES_NAME = "social_networks";
     protected Fragment mSocialNetworkManager;
     protected SharedPreferences mSharedPreferences;
@@ -190,6 +192,22 @@ public abstract class SocialNetwork {
 
     public void cancenRemoveFriendRequest() {
         mLocalListeners.remove(REQUEST_REMOVE_FRIEND);
+    }
+
+    public void cancelAll() {
+        Log.d(TAG, this + ":SocialNetwork.cancelAll()");
+
+        // we need to call all, because in implementations we can possible do aditional work in specific methods
+        cancelLoginRequest();
+        cancelGetCurrentSocialPersonRequest();
+        cancelGetSocialPersonRequest();
+        cancelPostMessageRequest();
+        cancenCheckIsFriendRequest();
+        cancelAddFriendRequest();
+        cancenRemoveFriendRequest();
+
+        // remove all local listeners
+        mLocalListeners = new HashMap<String, SocialNetworkListener>();
     }
 
     //////////////////// UTIL METHODS ////////////////////

@@ -26,9 +26,10 @@ import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import twitter4j.conf.ConfigurationBuilder;
 
+import static com.androidsocialnetworks.lib.Consts.TAG;
+
 public class TwitterSocialNetwork extends SocialNetwork {
     public static final int ID = 1;
-    private static final String TAG = TwitterSocialNetwork.class.getSimpleName();
     private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "TwitterSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
     private static final String SAVE_STATE_KEY_USER_ID = "TwitterSocialNetwork.SAVE_STATE_KEY_USER_ID";
@@ -49,7 +50,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
     public TwitterSocialNetwork(Fragment fragment, String consumerKey, String consumerSecret) {
         super(fragment);
-        Log.d(TAG, "new TwitterSocialNetwork: " + consumerKey + " : " + consumerSecret);
 
         fConsumerKey = consumerKey;
         fConsumerSecret = consumerSecret;
@@ -58,6 +58,14 @@ public class TwitterSocialNetwork extends SocialNetwork {
             throw new IllegalArgumentException("consumerKey and consumerSecret are invalid");
         }
 
+        /*
+        *
+        * No authentication challenges found
+        * Relevant discussions can be found on the Internet at:
+        * http://www.google.co.jp/search?q=8e063946 or
+        * http://www.google.co.jp/search?q=ef59cf9f
+        *
+        * */
         initTwitterClient();
     }
 
@@ -218,7 +226,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
         if (requestCode != REQUEST_AUTH) return;
 
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: " + requestCode + " : " + resultCode + " : " + data);
 
         Uri uri = data != null ? data.getData() : null;
 
@@ -235,10 +242,41 @@ public class TwitterSocialNetwork extends SocialNetwork {
                 mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, "incorrect URI returned: " + uri, null);
                 mLocalListeners.remove(REQUEST_LOGIN);
             }
+
+            /*
+            *
+            * No authentication challenges found
+            * Relevant discussions can be found on the Internet at:
+            * http://www.google.co.jp/search?q=8e063946 or
+            * http://www.google.co.jp/search?q=ef59cf9f
+            *
+            * */
+            initTwitterClient();
         }
     }
 
-//    @Override
+    @Override
+    public void cancelLoginRequest() {
+        super.cancelLoginRequest();
+
+        SocialNetworkAsyncTask loginRequest = mRequests.get(REQUEST_LOGIN);
+        SocialNetworkAsyncTask login2Request = mRequests.get(REQUEST_LOGIN2);
+
+        if (loginRequest != null) {
+            loginRequest.cancel(true);
+        }
+
+        if (login2Request != null) {
+            login2Request.cancel(true);
+        }
+
+        mRequests.remove(REQUEST_LOGIN);
+        mRequests.remove(REQUEST_LOGIN2);
+
+        initTwitterClient();
+    }
+
+    //    @Override
 //    public void cancelLoginRequest() {
 //        if (mRequestLoginAsyncTask != null) {
 //            mRequestLoginAsyncTask.cancel(true);
@@ -303,21 +341,12 @@ public class TwitterSocialNetwork extends SocialNetwork {
         private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
 
         @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "LoginAsyncTask.onPreExecute()");
-        }
-
-        @Override
         protected Bundle doInBackground(Bundle... params) {
             Bundle result = new Bundle();
-
-            Log.d(TAG, "LoginAsyncTask.doInBackground()");
 
             try {
                 mRequestToken = mTwitter.getOAuthRequestToken(TWITTER_CALLBACK_URL);
                 Uri oauthLoginURL = Uri.parse(mRequestToken.getAuthenticationURL() + "&force_login=true");
-
-                Log.d(TAG, "oauthLoginURL: " + oauthLoginURL);
 
                 result.putString(RESULT_OAUTH_LOGIN, oauthLoginURL.toString());
             } catch (TwitterException e) {
@@ -337,6 +366,13 @@ public class TwitterSocialNetwork extends SocialNetwork {
             if (result.containsKey(RESULT_ERROR) && mLocalListeners.get(REQUEST_LOGIN) != null) {
                 mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, result.getString(RESULT_ERROR), null);
                 mLocalListeners.remove(REQUEST_LOGIN);
+            }
+
+            // 1: user didn't set login listener, or pass null, this doesn't have any sence
+            // 2: request was canceled...
+            if (mLocalListeners.get(REQUEST_LOGIN) == null) {
+                Log.e(TAG, "RequestLoginAsyncTask.onPostExecute: mLocalListeners.get(REQUEST_LOGIN) == null");
+                return;
             }
 
             if (result.containsKey(RESULT_OAUTH_LOGIN)) {
