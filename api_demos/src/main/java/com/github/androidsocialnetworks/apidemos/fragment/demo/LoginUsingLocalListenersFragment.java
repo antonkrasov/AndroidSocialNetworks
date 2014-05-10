@@ -1,7 +1,5 @@
 package com.github.androidsocialnetworks.apidemos.fragment.demo;
 
-import android.widget.Toast;
-
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseLoginDemoFragment;
 
@@ -12,13 +10,14 @@ public class LoginUsingLocalListenersFragment extends BaseLoginDemoFragment {
 
     @Override
     protected void onTwitterAction() {
-        showProgress("Authentificating... twitter");
+        showProgress("Authentificating... Twitter");
         mSocialNetworkManager.getTwitterSocialNetwork().requestLogin(new DemoOnLoginCompleteListener());
     }
 
     @Override
     protected void onLinkedInAction() {
-        Toast.makeText(getActivity(), "Local. LinkedIn Login", Toast.LENGTH_SHORT).show();
+        showProgress("Authentificating... LinkedIn");
+        mSocialNetworkManager.getLinkedInSocialNetwork().requestLogin(new DemoOnLoginCompleteListener());
     }
 
     @Override

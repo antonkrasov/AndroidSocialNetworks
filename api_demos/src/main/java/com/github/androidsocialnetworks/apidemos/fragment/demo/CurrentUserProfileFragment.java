@@ -2,7 +2,6 @@ package com.github.androidsocialnetworks.apidemos.fragment.demo;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.SocialPerson;
 import com.androidsocialnetworks.lib.impl.FacebookSocialNetwork;
@@ -43,7 +42,9 @@ public class CurrentUserProfileFragment extends BaseDemoFragment implements View
     protected void onLinkedInAction() {
         if (!checkIsLoginned(LinkedInSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "Load LinkedIn Profile", Toast.LENGTH_SHORT).show();
+        showProgress("Loading profile");
+        mSocialNetworkManager.getLinkedInSocialNetwork()
+                .requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
     }
 
     @Override
