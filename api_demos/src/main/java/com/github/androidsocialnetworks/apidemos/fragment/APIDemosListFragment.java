@@ -48,6 +48,7 @@ public class APIDemosListFragment extends ListFragment {
         items.add(LOGIN_WITH_GLOBAL_LISTENERS);
         items.add(LOGIN_WITH_LOCAL_LISTENERS);
         items.add(CURRENT_PROFILE);
+        items.add(LOAD_PROFILE);
 
         setListAdapter(new APIDemosAdater(getActivity(), items));
     }
@@ -77,6 +78,8 @@ public class APIDemosListFragment extends ListFragment {
             fragment = LoginUsingLocalListenersFragment.newInstance();
         } else if (item.equals(CURRENT_PROFILE)) {
             fragment = CurrentUserProfileFragment.newInstance();
+        } else if (item.equals(LOAD_PROFILE)) {
+            fragment = OtherUsersProfile.newInstance();
         } else {
             throw new IllegalStateException("Can't find fragment for item: " + item);
         }
