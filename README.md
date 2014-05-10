@@ -6,6 +6,7 @@ If you sometime tried to work with social networks on android you should remembe
 You should read documentation for every social network, download SDK or use some libraries for OAuth and make
 http calls by yourself. This library should makes your life easier, it contains common interface for
 Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and configure your AndroidManiferst and you can login users, or post messages or photos or add / remove friends.
+
 **Library is still in development so more features will be added soon**
 
   - [Features](#features)
@@ -13,6 +14,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
   - [Getting Started](#getting-started)
   - [Including in your project](#including-in-your-project)
   - [Dependencies](#dependencies)
+  - [Developed By](#developed-by)
   - [License](#license)
 
 ### Features
@@ -27,11 +29,19 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
 ### Sample Application
 
-  [Download](https://dl.dropboxusercontent.com/u/80518668/ASN%20Demo.apk)
+  [Download](https://dl.dropboxusercontent.com/u/80518668/asn_api_demos.apk)
 
 ### Getting started
 
-  First you need to initialize **mSocialNetworkManager**. Build it with SocialNetworkManager.Builder and
+  First of all, you need to register you application, please check this links:
+  - [Twitter](https://github.com/antonkrasov/AndroidSocialNetworks/wiki/Twitter)
+  - [LinkedIn](https://github.com/antonkrasov/AndroidSocialNetworks/wiki/LinkedIn)
+  - [Facebook](https://github.com/antonkrasov/AndroidSocialNetworks/wiki/Facebook)
+  - [Google Plus](https://github.com/antonkrasov/AndroidSocialNetworks/wiki/Google-Plus)
+
+
+
+  Next you need to initialize **mSocialNetworkManager**. Build it with **SocialNetworkManager.Builder** and
   add to fragment manager.
 
 ```java
@@ -48,61 +58,28 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
         getFragmentManager().beginTransaction().add(mSocialNetworkManager, SOCIAL_NETWORK_TAG).commit();
     }
 
-```
-
-  Then you need to implement SocialNetworkManager.OnInitializationCompleteListener callback
-  and pass it to your SocialNetworkManager instance.
-
-```java
-  public class MainFragment extends Fragment implements SocialNetworkManager.OnInitializationCompleteListener
-
-    ...
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        ...
-
-        mSocialNetworkManager.setOnInitializationCompleteListener(this);
-    }
-
-```
-
-  Add listeners for events you will use.
-  Don't forget to null them in onDetach to avoid memory leaks.
-
-```java
-    @Override
-    public void onSocialNetworkManagerInitialized() {
-        for (SocialNetwork socialNetwork : mSocialNetworkManager.getInitializedSocialNetworks()) {
-            socialNetwork.setOnLoginCompleteListener(this);
-            socialNetwork.setOnRequestSocialPersonListener(this);
-        }
-    }
-
-    ...
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mSocialNetworkManager.setOnInitializationCompleteListener(null);
-        for (SocialNetwork socialNetwork : mSocialNetworkManager.getInitializedSocialNetworks()) {
-            socialNetwork.setOnLoginCompleteListener(null);
-            socialNetwork.setOnRequestSocialPersonListener(null);
-        }
-    }
-
 ```  
 
-  Now you can execute requests, results you will receive in your listeners.
+  Now you can execute requests, for example login request:
+
 
 ```java
-  mSocialNetworkManager.getTwitterSocialNetwork().requestLogin();
+    mSocialNetworkManager.getTwitterSocialNetwork().requestLogin(new OnLoginCompleteListener() {
+        @Override
+        public void onLoginSuccess(int socialNetworkID) {
 
-  mSocialNetworkManager.getSocialNetwork(TwitterSocialNetwork.ID).requestPerson();
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+
+        }
+    });
 ```  
 
 ### Including in your project
+
+Library is still in development, so for now it's only available in staging repo.
 
 ```groovy
   repositories {
@@ -125,6 +102,10 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 - [linkedin-j-android](https://code.google.com/p/linkedin-j/)
 - [signpost-core](https://code.google.com/p/oauth-signpost/)
 - [signpost-commonshttp4](https://code.google.com/p/oauth-signpost/)
+
+##Developed By
+
+  Anton Krasov - <anton.krasov@gmail.com>
 
 ## License
 
