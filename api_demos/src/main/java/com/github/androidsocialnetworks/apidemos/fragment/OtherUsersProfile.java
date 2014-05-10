@@ -10,12 +10,12 @@ import com.androidsocialnetworks.lib.impl.GooglePlusSocialNetwork;
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
+import com.github.androidsocialnetworks.apidemos.APIDemosApplication;
 import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
 public class OtherUsersProfile extends BaseDemoFragment {
 
-    public static final String USER_ID_TWITTER = "2446056205";
 
     public static OtherUsersProfile newInstance() {
         return new OtherUsersProfile();
@@ -36,7 +36,8 @@ public class OtherUsersProfile extends BaseDemoFragment {
         if (!checkIsLoginned(TwitterSocialNetwork.ID)) return;
 
         showProgress("Loading profile");
-        mSocialNetworkManager.getTwitterSocialNetwork().requestSocialPerson(USER_ID_TWITTER, new OnRequestSocialPersonCompleteListener() {
+        mSocialNetworkManager.getTwitterSocialNetwork().requestSocialPerson(APIDemosApplication.USER_ID_TWITTER,
+                new OnRequestSocialPersonCompleteListener() {
             @Override
             public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
                 hideProgress();

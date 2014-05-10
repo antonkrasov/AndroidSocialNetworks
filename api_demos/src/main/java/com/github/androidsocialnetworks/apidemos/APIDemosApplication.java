@@ -6,4 +6,6 @@ public class APIDemosApplication extends Application {
 
     public static final String TAG = "AndroidSocialNetworks_API_Demos";
 
+    public static final String USER_ID_TWITTER = "2446056205";
+
 }
