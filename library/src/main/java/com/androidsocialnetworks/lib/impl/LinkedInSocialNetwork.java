@@ -246,7 +246,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 //    }
 //
 //    @Override
-//    public void cancenCheckIsFriendRequest() {
+//    public void cancelCheckIsFriendRequest() {
 //        if (mRequestCheckIsFriendAsyncTask != null) {
 //            mRequestCheckIsFriendAsyncTask.cancel(true);
 //            mRequestCheckIsFriendAsyncTask = null;
@@ -265,7 +265,7 @@ public class LinkedInSocialNetwork extends SocialNetwork {
 //     * requestRemoveFriend isn't allowed for LinkedInSocialNetwork
 //
 //    @Override
-//    public void cancenRemoveFriendRequest() {
+//    public void cancelRemoveFriendRequest() {
 //
 //    }
 //

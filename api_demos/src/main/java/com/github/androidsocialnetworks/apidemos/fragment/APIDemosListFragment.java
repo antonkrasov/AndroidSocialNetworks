@@ -29,6 +29,7 @@ public class APIDemosListFragment extends ListFragment {
     public static final Pair<String, String> CURRENT_PROFILE = new Pair<String, String>("Current Profile", "Load current user info");
     public static final Pair<String, String> LOAD_PROFILE = new Pair<String, String>("Other User's Profile", "Load custom user profile");
     public static final Pair<String, String> POST_MESSAGE = new Pair<String, String>("Post Message", "Post tweet or update status");
+    public static final Pair<String, String> POST_PHOTO = new Pair<String, String>("Post Photo", "Post tweet with photo");
 
     public static APIDemosListFragment newInstance() {
         return new APIDemosListFragment();
@@ -51,6 +52,7 @@ public class APIDemosListFragment extends ListFragment {
         items.add(CURRENT_PROFILE);
         items.add(LOAD_PROFILE);
         items.add(POST_MESSAGE);
+        items.add(POST_PHOTO);
 
         setListAdapter(new APIDemosAdater(getActivity(), items));
     }
@@ -84,6 +86,8 @@ public class APIDemosListFragment extends ListFragment {
             fragment = OtherUsersProfile.newInstance();
         } else if (item.equals(POST_MESSAGE)) {
             fragment = PostMessageFragment.newInstance();
+        } else if (item.equals(POST_PHOTO)) {
+            fragment = PostPhotoFragment.newInstance();
         } else {
             throw new IllegalStateException("Can't find fragment for item: " + item);
         }

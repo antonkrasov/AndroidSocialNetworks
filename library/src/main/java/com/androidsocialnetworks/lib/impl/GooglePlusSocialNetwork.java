@@ -248,7 +248,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 //     * requestCheckIsFriend isn't allowed for GooglePlusSocialNetwork
 //     */
 //    @Override
-//    public void cancenCheckIsFriendRequest() {
+//    public void cancelCheckIsFriendRequest() {
 //
 //    }
 //
@@ -264,7 +264,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 //     * requestRemoveFriend isn't allowed for GooglePlusSocialNetwork
 //     */
 //    @Override
-//    public void cancenRemoveFriendRequest() {
+//    public void cancelRemoveFriendRequest() {
 //
 //    }
 }

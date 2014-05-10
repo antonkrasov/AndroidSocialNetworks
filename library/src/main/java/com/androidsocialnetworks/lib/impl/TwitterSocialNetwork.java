@@ -174,7 +174,23 @@ public class TwitterSocialNetwork extends SocialNetwork {
         requestUpdateStatusAsyncTask.execute(args);
     }
 
-//    @Override
+    @Override
+    public void requestPostPhoto(File photo, String message, OnPostingCompleteListener onPostingCompleteListener) {
+        super.requestPostPhoto(photo, message, onPostingCompleteListener);
+
+        checkRequestState(mRequests.get(REQUEST_POST_PHOTO));
+
+        RequestUpdateStatusAsyncTask requestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
+        mRequests.put(REQUEST_POST_PHOTO, requestUpdateStatusAsyncTask);
+
+        Bundle args = new Bundle();
+        args.putString(RequestUpdateStatusAsyncTask.PARAM_MESSAGE, message);
+        args.putString(RequestUpdateStatusAsyncTask.PARAM_PHOTO_PATH, photo.getAbsolutePath());
+
+        requestUpdateStatusAsyncTask.execute(args);
+    }
+
+    //    @Override
 //    public void requestPostPhoto(File photo, String message) throws SocialNetworkException {
 //        checkRequestState(mRequestUpdateStatusAsyncTask);
 //
@@ -204,47 +220,6 @@ public class TwitterSocialNetwork extends SocialNetwork {
 //
 //        mRequestRemoveFriendAsyncTask = new RequestRemoveFriendAsyncTask();
 //        mRequestRemoveFriendAsyncTask.execute(userID);
-//    }
-//
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//
-//        stopAllRequests();
-//    }
-//
-//    private void stopAllRequests() {
-//        Log.d(TAG, "stopAllRequests()");
-//        final boolean mayInterruptIfRunning = true;
-//
-//        if (mRequestLoginAsyncTask != null) {
-//            mRequestLoginAsyncTask.cancel(mayInterruptIfRunning);
-//            mRequestLoginAsyncTask = null;
-//        }
-//        if (mRequestLogin2AsyncTask != null) {
-//            mRequestLogin2AsyncTask.cancel(mayInterruptIfRunning);
-//            mRequestLogin2AsyncTask = null;
-//        }
-//        if (mRequestGetPersonAsyncTask != null) {
-//            mRequestGetPersonAsyncTask.cancel(mayInterruptIfRunning);
-//            mRequestGetPersonAsyncTask = null;
-//        }
-//        if (mRequestUpdateStatusAsyncTask != null) {
-//            mRequestUpdateStatusAsyncTask.cancel(mayInterruptIfRunning);
-//            mRequestUpdateStatusAsyncTask = null;
-//        }
-//        if (mRequestCheckIsFriendAsyncTask != null) {
-//            mRequestCheckIsFriendAsyncTask.cancel(mayInterruptIfRunning);
-//            mRequestCheckIsFriendAsyncTask = null;
-//        }
-//        if (mRequestAddFriendAsyncTask != null) {
-//            mRequestAddFriendAsyncTask.cancel(mayInterruptIfRunning);
-//            mRequestAddFriendAsyncTask = null;
-//        }
-//        if (mRequestRemoveFriendAsyncTask != null) {
-//            mRequestRemoveFriendAsyncTask.cancel(mayInterruptIfRunning);
-//            mRequestRemoveFriendAsyncTask = null;
-//        }
 //    }
 
     @Override
@@ -281,102 +256,76 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
+    private void cancelRequest(String requestID) {
+        Log.d(TAG, "TwitterSocialNetwork.cancelRequest: " + requestID);
+
+        SocialNetworkAsyncTask request = mRequests.get(requestID);
+
+        if (request != null) {
+            request.cancel(true);
+        }
+
+        mRequests.remove(requestID);
+    }
+
     @Override
     public void cancelLoginRequest() {
         super.cancelLoginRequest();
 
-        SocialNetworkAsyncTask loginRequest = mRequests.get(REQUEST_LOGIN);
-        SocialNetworkAsyncTask login2Request = mRequests.get(REQUEST_LOGIN2);
-
-        if (loginRequest != null) {
-            loginRequest.cancel(true);
-        }
-
-        if (login2Request != null) {
-            login2Request.cancel(true);
-        }
-
-        mRequests.remove(REQUEST_LOGIN);
-        mRequests.remove(REQUEST_LOGIN2);
+        cancelRequest(REQUEST_LOGIN);
+        cancelRequest(REQUEST_LOGIN2);
 
         initTwitterClient();
     }
 
     @Override
     public void cancelGetCurrentSocialPersonRequest() {
-        Log.d(TAG, "TwitterSocialNetwork.cancelGetCurrentSocialPersonRequest()");
-
         super.cancelGetCurrentSocialPersonRequest();
 
-        SocialNetworkAsyncTask request = mRequests.get(REQUEST_GET_CURRENT_PERSON);
-
-        if (request != null) {
-            request.cancel(true);
-        }
-
-        mRequests.remove(REQUEST_GET_CURRENT_PERSON);
+        cancelRequest(REQUEST_GET_CURRENT_PERSON);
     }
 
     @Override
     public void cancelGetSocialPersonRequest() {
-        Log.d(TAG, "TwitterSocialNetwork.cancelGetSocialPersonRequest()");
-
         super.cancelGetSocialPersonRequest();
 
-        SocialNetworkAsyncTask request = mRequests.get(REQUEST_GET_PERSON);
-
-        if (request != null) {
-            request.cancel(true);
-        }
-
-        mRequests.remove(REQUEST_GET_PERSON);
+        cancelRequest(REQUEST_GET_PERSON);
     }
 
     @Override
     public void cancelPostMessageRequest() {
         super.cancelPostMessageRequest();
 
-        SocialNetworkAsyncTask request = mRequests.get(REQUEST_POST_MESSAGE);
-
-        if (request != null) {
-            boolean result = request.cancel(true);
-            Log.d(TAG, "cancelPostMessageRequest: " + result);
-        }
-
-        mRequests.remove(REQUEST_POST_MESSAGE);
+        cancelRequest(REQUEST_POST_MESSAGE);
     }
 
-//    @Override
-//    public void cancelPostPhotoRequest() {
-//        if (mRequestUpdateStatusAsyncTask != null) {
-//            mRequestUpdateStatusAsyncTask.cancel(true);
-//            mRequestUpdateStatusAsyncTask = null;
-//        }
-//    }
-//
-//    @Override
-//    public void cancenCheckIsFriendRequest() {
-//        if (mRequestCheckIsFriendAsyncTask != null) {
-//            mRequestCheckIsFriendAsyncTask.cancel(true);
-//            mRequestCheckIsFriendAsyncTask = null;
-//        }
-//    }
-//
-//    @Override
-//    public void cancelAddFriendRequest() {
-//        if (mRequestAddFriendAsyncTask != null) {
-//            mRequestAddFriendAsyncTask.cancel(true);
-//            mRequestAddFriendAsyncTask = null;
-//        }
-//    }
-//
-//    @Override
-//    public void cancenRemoveFriendRequest() {
-//        if (mRequestRemoveFriendAsyncTask != null) {
-//            mRequestRemoveFriendAsyncTask.cancel(true);
-//            mRequestRemoveFriendAsyncTask = null;
-//        }
-//    }
+    @Override
+    public void cancelPostPhotoRequest() {
+        super.cancelPostPhotoRequest();
+
+        cancelRequest(REQUEST_POST_PHOTO);
+    }
+
+    @Override
+    public void cancelCheckIsFriendRequest() {
+        super.cancelCheckIsFriendRequest();
+
+        cancelRequest(REQUEST_CHECK_IS_FRIEND);
+    }
+
+    @Override
+    public void cancelAddFriendRequest() {
+        super.cancelAddFriendRequest();
+
+        cancelRequest(REQUEST_ADD_FRIEND);
+    }
+
+    @Override
+    public void cancelRemoveFriendRequest() {
+        super.cancelRemoveFriendRequest();
+
+        cancelRequest(REQUEST_REMOVE_FRIEND);
+    }
 
     private class RequestLoginAsyncTask extends SocialNetworkAsyncTask {
         private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
@@ -566,6 +515,8 @@ public class TwitterSocialNetwork extends SocialNetwork {
         public static final String PARAM_MESSAGE = "RequestUpdateStatusAsyncTask.PARAM_MESSAGE";
         public static final String PARAM_PHOTO_PATH = "RequestUpdateStatusAsyncTask.PARAM_PHOTO_PATH";
 
+        private static final String RESULT_POST_PHOTO = "RequestUpdateStatusAsyncTask.RESULT_POST_PHOTO";
+
         @Override
         protected Bundle doInBackground(Bundle... params) {
             Bundle args = params[0];
@@ -579,6 +530,10 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
             if (args.containsKey(PARAM_PHOTO_PATH)) {
                 paramPhotoPath = args.getString(PARAM_PHOTO_PATH);
+
+                result.putBoolean(RESULT_POST_PHOTO, true);
+            } else {
+                result.putBoolean(RESULT_POST_PHOTO, false);
             }
 
             try {
@@ -600,19 +555,21 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            mRequests.remove(REQUEST_POST_MESSAGE);
+            String requestID = result.getBoolean(RESULT_POST_PHOTO) ? REQUEST_POST_PHOTO : REQUEST_POST_MESSAGE;
+
+            mRequests.remove(requestID);
 
             String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
 
-            if (mLocalListeners.get(REQUEST_POST_MESSAGE) != null) {
+            if (mLocalListeners.get(requestID) != null) {
                 if (error == null) {
-                    ((OnPostingCompleteListener) mLocalListeners.get(REQUEST_POST_MESSAGE)).onPostSuccessfully(getID());
+                    ((OnPostingCompleteListener) mLocalListeners.get(requestID)).onPostSuccessfully(getID());
                 } else {
-                    mLocalListeners.get(REQUEST_POST_MESSAGE).onError(getID(), REQUEST_POST_MESSAGE, error, null);
+                    mLocalListeners.get(requestID).onError(getID(), requestID, error, null);
                 }
             }
 
-            mLocalListeners.remove(REQUEST_POST_MESSAGE);
+            mLocalListeners.remove(requestID);
         }
 
         @Override

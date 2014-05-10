@@ -75,7 +75,7 @@ public abstract class SocialNetwork {
     }
 
     public void onDestroy() {
-
+        cancelAll();
     }
 
     public void onSaveInstanceState(Bundle outState) {
@@ -182,7 +182,7 @@ public abstract class SocialNetwork {
         mLocalListeners.remove(REQUEST_POST_PHOTO);
     }
 
-    public void cancenCheckIsFriendRequest() {
+    public void cancelCheckIsFriendRequest() {
         mLocalListeners.remove(REQUEST_CHECK_IS_FRIEND);
     }
 
@@ -190,7 +190,7 @@ public abstract class SocialNetwork {
         mLocalListeners.remove(REQUEST_ADD_FRIEND);
     }
 
-    public void cancenRemoveFriendRequest() {
+    public void cancelRemoveFriendRequest() {
         mLocalListeners.remove(REQUEST_REMOVE_FRIEND);
     }
 
@@ -202,9 +202,9 @@ public abstract class SocialNetwork {
         cancelGetCurrentSocialPersonRequest();
         cancelGetSocialPersonRequest();
         cancelPostMessageRequest();
-        cancenCheckIsFriendRequest();
+        cancelCheckIsFriendRequest();
         cancelAddFriendRequest();
-        cancenRemoveFriendRequest();
+        cancelRemoveFriendRequest();
 
         // remove all local listeners
         mLocalListeners = new HashMap<String, SocialNetworkListener>();

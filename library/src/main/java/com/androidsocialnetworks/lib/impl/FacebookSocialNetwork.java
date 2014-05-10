@@ -370,7 +370,7 @@ public class FacebookSocialNetwork extends SocialNetwork {
 //    }
 //
 //    @Override
-//    public void cancenCheckIsFriendRequest() {
+//    public void cancelCheckIsFriendRequest() {
 //
 //    }
 //
@@ -380,7 +380,7 @@ public class FacebookSocialNetwork extends SocialNetwork {
 //    }
 //
 //    @Override
-//    public void cancenRemoveFriendRequest() {
+//    public void cancelRemoveFriendRequest() {
 //
 //    }
 

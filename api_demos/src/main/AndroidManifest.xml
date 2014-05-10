@@ -3,6 +3,9 @@
     package="com.github.androidsocialnetworks.apidemos"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- for posting photo demo -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:name=".APIDemosApplication"
         android:allowBackup="true"
