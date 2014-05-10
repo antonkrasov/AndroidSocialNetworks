@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.activity.MainActivity;
+import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,14 @@ public class APIDemosListFragment extends ListFragment {
                 getActivity().getSharedPreferences("social_networks", Context.MODE_PRIVATE)
                         .edit()
                         .clear()
+                        .commit();
+
+                getFragmentManager().beginTransaction().remove(
+                        getFragmentManager().findFragmentByTag(BaseDemoFragment.SOCIAL_NETWORK_TAG)
+                ).commit();
+
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.root_container, newInstance())
                         .commit();
                 break;
         }
