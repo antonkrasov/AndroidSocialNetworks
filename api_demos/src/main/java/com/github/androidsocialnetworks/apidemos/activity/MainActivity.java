@@ -1,11 +1,14 @@
 package com.github.androidsocialnetworks.apidemos.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.fragment.APIDemosListFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -45,5 +48,19 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        /**
+         * This is required only if you are using Google Plus, the issue is that there SDK
+         * require Activity to laucnh Auth, so library can't receive onActivityResult in fragment
+         */
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(BaseDemoFragment.SOCIAL_NETWORK_TAG);
+        if (fragment != null) {
+            fragment.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

@@ -28,7 +28,7 @@ public class OtherUsersProfile extends BaseDemoFragment {
         mTwitterButton.setText("Load Twitter Profile");
         mLinkedInButton.setText("Load LinkedIn Profile");
         mFacebookButton.setText("Load Facebook Profile");
-        mGooglePlusButton.setText("Load Google Plus Profile");
+        mGooglePlusButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -38,22 +38,23 @@ public class OtherUsersProfile extends BaseDemoFragment {
         showProgress("Loading profile");
         mSocialNetworkManager.getTwitterSocialNetwork().requestSocialPerson(APIDemosApplication.USER_ID_TWITTER,
                 new OnRequestSocialPersonCompleteListener() {
-            @Override
-            public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
-                hideProgress();
+                    @Override
+                    public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
+                        hideProgress();
 
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.root_container, ShowProfileFragment.newInstance(socialPerson))
-                        .addToBackStack(null)
-                        .commit();
-            }
+                        getFragmentManager().beginTransaction()
+                                .replace(R.id.root_container, ShowProfileFragment.newInstance(socialPerson))
+                                .addToBackStack(null)
+                                .commit();
+                    }
 
-            @Override
-            public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-                hideProgress();
-                handleError(errorMessage);
-            }
-        });
+                    @Override
+                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+                        hideProgress();
+                        handleError(errorMessage);
+                    }
+                }
+        );
     }
 
     @Override

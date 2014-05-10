@@ -34,23 +34,7 @@ public class CurrentUserProfileFragment extends BaseDemoFragment implements View
         if (!checkIsLoginned(TwitterSocialNetwork.ID)) return;
 
         showProgress("Loading profile");
-        mSocialNetworkManager.getTwitterSocialNetwork().requestCurrentPerson(new OnRequestSocialPersonCompleteListener() {
-            @Override
-            public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
-                hideProgress();
-
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.root_container, ShowProfileFragment.newInstance(socialPerson))
-                        .addToBackStack(null)
-                        .commit();
-            }
-
-            @Override
-            public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-                hideProgress();
-                handleError(errorMessage);
-            }
-        });
+        mSocialNetworkManager.getTwitterSocialNetwork().requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
 
     }
 
@@ -72,6 +56,24 @@ public class CurrentUserProfileFragment extends BaseDemoFragment implements View
     protected void onGooglePlusAction() {
         if (!checkIsLoginned(GooglePlusSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "Load Google Plus Profile", Toast.LENGTH_SHORT).show();
+        mSocialNetworkManager.getGooglePlusSocialNetwork().requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
+    }
+
+    private class DemoOnRequestSocialPersonCompleteListener implements OnRequestSocialPersonCompleteListener {
+        @Override
+        public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
+            hideProgress();
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.root_container, ShowProfileFragment.newInstance(socialPerson))
+                    .addToBackStack(null)
+                    .commit();
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
+        }
     }
 }

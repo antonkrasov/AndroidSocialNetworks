@@ -39,7 +39,7 @@ public class LoginUsingGlobalListenersFragment extends BaseLoginDemoFragment
 
     @Override
     protected void onGooglePlusAction() {
-        Toast.makeText(getActivity(), "Global. GooglePlus Login", Toast.LENGTH_SHORT).show();
+        mSocialNetworkManager.getGooglePlusSocialNetwork().requestLogin();
     }
 
     @Override

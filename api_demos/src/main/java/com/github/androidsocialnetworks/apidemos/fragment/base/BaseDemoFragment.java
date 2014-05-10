@@ -92,8 +92,11 @@ public abstract class BaseDemoFragment extends Fragment
     }
 
     protected void hideProgress() {
-        getFragmentManager().beginTransaction()
-                .remove(getFragmentManager().findFragmentByTag(PROGRESS_DIALOG_TAG)).commit();
+        Fragment fragment = getFragmentManager().findFragmentByTag(PROGRESS_DIALOG_TAG);
+
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
     }
 
     protected void handleError(String text) {
