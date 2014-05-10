@@ -2,7 +2,6 @@ package com.github.androidsocialnetworks.apidemos.fragment.demo;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
@@ -32,24 +31,7 @@ public class CheckIsFriendFragment extends BaseDemoFragment {
         showProgress("Checking do you follow Anton Krasov");
         mSocialNetworkManager.getTwitterSocialNetwork().requestCheckIsFriend(
                 APIDemosApplication.USER_ID_TWITTER,
-                new OnCheckIsFriendCompleteListener() {
-                    @Override
-                    public void onCheckIsFriendComplete(int socialNetworkID, String userID, boolean isFriend) {
-                        hideProgress();
-
-                        if (isFriend) {
-                            handleSuccess("Is Friend?", "You follow Anton Krasov!");
-                        } else {
-                            handleSuccess("Is Friend?", "You don't follow Anton Krasov!");
-                        }
-                    }
-
-                    @Override
-                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-                        hideProgress();
-                        handleError(errorMessage);
-                    }
-                }
+                new DemoTwitterOnCheckIsFriendCompleteListener()
         );
 
     }
@@ -58,7 +40,11 @@ public class CheckIsFriendFragment extends BaseDemoFragment {
     protected void onLinkedInAction() {
         if (!checkIsLoginned(LinkedInSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "LinkedIn check is friend", Toast.LENGTH_SHORT).show();
+        showProgress("Checking is Anton Krasov in your connections");
+        mSocialNetworkManager.getLinkedInSocialNetwork().requestCheckIsFriend(
+                APIDemosApplication.USER_ID_LINKED_IN,
+                new DemoLinkedInOnCheckIsFriendCompleteListener()
+        );
     }
 
     @Override
@@ -70,4 +56,43 @@ public class CheckIsFriendFragment extends BaseDemoFragment {
     protected void onGooglePlusAction() {
         throw new IllegalStateException("Unsupported");
     }
+
+    private class DemoTwitterOnCheckIsFriendCompleteListener implements OnCheckIsFriendCompleteListener {
+        @Override
+        public void onCheckIsFriendComplete(int socialNetworkID, String userID, boolean isFriend) {
+            hideProgress();
+
+            if (isFriend) {
+                handleSuccess("Is Friend?", "You follow Anton Krasov!");
+            } else {
+                handleSuccess("Is Friend?", "You don't follow Anton Krasov!");
+            }
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
+        }
+    }
+
+    private class DemoLinkedInOnCheckIsFriendCompleteListener implements OnCheckIsFriendCompleteListener {
+        @Override
+        public void onCheckIsFriendComplete(int socialNetworkID, String userID, boolean isFriend) {
+            hideProgress();
+
+            if (isFriend) {
+                handleSuccess("Is Friend?", "Anton Krasov is in your connection list");
+            } else {
+                handleSuccess("Is Friend?", "You don't have Anton Krasov in your connection list");
+            }
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
+        }
+    }
+
 }

@@ -2,7 +2,6 @@ package com.github.androidsocialnetworks.apidemos.fragment.demo;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.impl.FacebookSocialNetwork;
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
@@ -44,7 +43,12 @@ public class PostMessageFragment extends BaseDemoFragment {
     protected void onLinkedInAction() {
         if (!checkIsLoginned(LinkedInSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "LinkedIn post message", Toast.LENGTH_SHORT).show();
+        final String message = "ASN Test: " + UUID.randomUUID();
+
+        showProgress("Posting message");
+        mSocialNetworkManager.getLinkedInSocialNetwork().requestPostMessage(message,
+                new DemoOnPostingCompleteListener(message)
+        );
     }
 
     @Override

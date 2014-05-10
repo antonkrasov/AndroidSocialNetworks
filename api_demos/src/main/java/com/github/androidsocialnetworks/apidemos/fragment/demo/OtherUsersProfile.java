@@ -37,23 +37,7 @@ public class OtherUsersProfile extends BaseDemoFragment {
 
         showProgress("Loading profile");
         mSocialNetworkManager.getTwitterSocialNetwork().requestSocialPerson(APIDemosApplication.USER_ID_TWITTER,
-                new OnRequestSocialPersonCompleteListener() {
-                    @Override
-                    public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
-                        hideProgress();
-
-                        getFragmentManager().beginTransaction()
-                                .replace(R.id.root_container, ShowProfileFragment.newInstance(socialPerson))
-                                .addToBackStack(null)
-                                .commit();
-                    }
-
-                    @Override
-                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-                        hideProgress();
-                        handleError(errorMessage);
-                    }
-                }
+                new DemoOnRequestSocialPersonCompleteListener()
         );
     }
 
@@ -61,7 +45,10 @@ public class OtherUsersProfile extends BaseDemoFragment {
     protected void onLinkedInAction() {
         if (!checkIsLoginned(LinkedInSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "Load LinkedIn Profile", Toast.LENGTH_SHORT).show();
+        showProgress("Loading profile");
+        mSocialNetworkManager.getLinkedInSocialNetwork().requestSocialPerson(APIDemosApplication.USER_ID_LINKED_IN,
+                new DemoOnRequestSocialPersonCompleteListener()
+        );
     }
 
     @Override
@@ -76,6 +63,24 @@ public class OtherUsersProfile extends BaseDemoFragment {
         if (!checkIsLoginned(GooglePlusSocialNetwork.ID)) return;
 
         Toast.makeText(getActivity(), "Load Google Plus Profile", Toast.LENGTH_SHORT).show();
+    }
+
+    private class DemoOnRequestSocialPersonCompleteListener implements OnRequestSocialPersonCompleteListener {
+        @Override
+        public void onRequestSocialPersonSuccess(int socialNetworkID, SocialPerson socialPerson) {
+            hideProgress();
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.root_container, ShowProfileFragment.newInstance(socialPerson))
+                    .addToBackStack(null)
+                    .commit();
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
+        }
     }
 
 }

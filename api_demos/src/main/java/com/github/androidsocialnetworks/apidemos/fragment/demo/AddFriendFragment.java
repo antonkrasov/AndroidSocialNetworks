@@ -2,7 +2,6 @@ package com.github.androidsocialnetworks.apidemos.fragment.demo;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
@@ -32,20 +31,7 @@ public class AddFriendFragment extends BaseDemoFragment {
         showProgress("Following Anton Krasov");
         mSocialNetworkManager.getTwitterSocialNetwork().requestAddFriend(
                 APIDemosApplication.USER_ID_TWITTER,
-                new OnRequestAddFriendCompleteListener() {
-                    @Override
-                    public void onRequestAddFriendComplete(int socialNetworkID, String userID) {
-                        hideProgress();
-
-                        handleSuccess("Add friend", "Now you follow Anton Krasov!");
-                    }
-
-                    @Override
-                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-                        hideProgress();
-                        handleError(errorMessage);
-                    }
-                }
+                new DemoTwitterOnRequestAddFriendCompleteListener()
         );
     }
 
@@ -53,7 +39,11 @@ public class AddFriendFragment extends BaseDemoFragment {
     protected void onLinkedInAction() {
         if (!checkIsLoginned(LinkedInSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "LinkedIn add friend", Toast.LENGTH_SHORT).show();
+        showProgress("Following Anton Krasov");
+        mSocialNetworkManager.getLinkedInSocialNetwork().requestAddFriend(
+                APIDemosApplication.USER_ID_LINKED_IN,
+                new DemoLinkedInOnRequestAddFriendCompleteListener()
+        );
     }
 
     @Override
@@ -64,5 +54,35 @@ public class AddFriendFragment extends BaseDemoFragment {
     @Override
     protected void onGooglePlusAction() {
         throw new IllegalStateException("Unsupported");
+    }
+
+    private class DemoTwitterOnRequestAddFriendCompleteListener implements OnRequestAddFriendCompleteListener {
+        @Override
+        public void onRequestAddFriendComplete(int socialNetworkID, String userID) {
+            hideProgress();
+
+            handleSuccess("Add friend", "Now you follow Anton Krasov!");
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
+        }
+    }
+
+    private class DemoLinkedInOnRequestAddFriendCompleteListener implements OnRequestAddFriendCompleteListener {
+        @Override
+        public void onRequestAddFriendComplete(int socialNetworkID, String userID) {
+            hideProgress();
+
+            handleSuccess("Add friend", "Invite was successfully sent to Anton Krasov!");
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
+        }
     }
 }
