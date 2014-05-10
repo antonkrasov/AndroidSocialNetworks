@@ -102,15 +102,18 @@ public class TwitterSocialNetwork extends SocialNetwork {
         return accessToken != null && accessTokenSecret != null;
     }
 
+    private void executeRequest(SocialNetworkAsyncTask request, Bundle params, String requestID) {
+        checkRequestState(mRequests.get(requestID));
+
+        mRequests.put(requestID, request);
+        request.execute(params == null ? new Bundle() : params);
+    }
+
     @Override
     public void requestLogin(OnLoginCompleteListener onLoginCompleteListener) {
         super.requestLogin(onLoginCompleteListener);
 
-        checkRequestState(mRequests.get(REQUEST_LOGIN));
-
-        RequestLoginAsyncTask requestLoginAsyncTask = new RequestLoginAsyncTask();
-        mRequests.put(REQUEST_LOGIN, requestLoginAsyncTask);
-        requestLoginAsyncTask.execute();
+        executeRequest(new RequestLoginAsyncTask(), null, REQUEST_LOGIN);
     }
 
     @Override
@@ -128,21 +131,12 @@ public class TwitterSocialNetwork extends SocialNetwork {
     public void requestCurrentPerson(OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
         super.requestCurrentPerson(onRequestSocialPersonCompleteListener);
 
-        checkRequestState(mRequests.get(REQUEST_GET_CURRENT_PERSON));
-
-        RequestGetPersonAsyncTask requestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
-        mRequests.put(REQUEST_GET_CURRENT_PERSON, requestGetPersonAsyncTask);
-        requestGetPersonAsyncTask.execute(new Bundle());
+        executeRequest(new RequestGetPersonAsyncTask(), null, REQUEST_GET_CURRENT_PERSON);
     }
 
     @Override
     public void requestSocialPerson(String userID, OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
         super.requestSocialPerson(userID, onRequestSocialPersonCompleteListener);
-
-        checkRequestState(mRequests.get(REQUEST_GET_PERSON));
-
-        RequestGetPersonAsyncTask requestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
-        mRequests.put(REQUEST_GET_PERSON, requestGetPersonAsyncTask);
 
         if (TextUtils.isEmpty(userID)) {
             throw new SocialNetworkException("userID can't be null or empty");
@@ -156,48 +150,30 @@ public class TwitterSocialNetwork extends SocialNetwork {
             throw new SocialNetworkException("userID should be long number");
         }
 
-        requestGetPersonAsyncTask.execute(args);
+        executeRequest(new RequestGetPersonAsyncTask(), args, REQUEST_GET_PERSON);
     }
 
     @Override
     public void requestPostMessage(String message, OnPostingCompleteListener onPostingCompleteListener) {
         super.requestPostMessage(message, onPostingCompleteListener);
 
-        checkRequestState(mRequests.get(REQUEST_POST_MESSAGE));
-
-        RequestUpdateStatusAsyncTask requestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
-        mRequests.put(REQUEST_POST_MESSAGE, requestUpdateStatusAsyncTask);
-
         Bundle args = new Bundle();
         args.putString(RequestUpdateStatusAsyncTask.PARAM_MESSAGE, message);
 
-        requestUpdateStatusAsyncTask.execute(args);
+        executeRequest(new RequestUpdateStatusAsyncTask(), args, REQUEST_POST_MESSAGE);
     }
 
     @Override
     public void requestPostPhoto(File photo, String message, OnPostingCompleteListener onPostingCompleteListener) {
         super.requestPostPhoto(photo, message, onPostingCompleteListener);
 
-        checkRequestState(mRequests.get(REQUEST_POST_PHOTO));
-
-        RequestUpdateStatusAsyncTask requestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
-        mRequests.put(REQUEST_POST_PHOTO, requestUpdateStatusAsyncTask);
-
         Bundle args = new Bundle();
         args.putString(RequestUpdateStatusAsyncTask.PARAM_MESSAGE, message);
         args.putString(RequestUpdateStatusAsyncTask.PARAM_PHOTO_PATH, photo.getAbsolutePath());
 
-        requestUpdateStatusAsyncTask.execute(args);
+        executeRequest(new RequestUpdateStatusAsyncTask(), args, REQUEST_POST_PHOTO);
     }
 
-    //    @Override
-//    public void requestPostPhoto(File photo, String message) throws SocialNetworkException {
-//        checkRequestState(mRequestUpdateStatusAsyncTask);
-//
-//        mRequestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
-//        mRequestUpdateStatusAsyncTask.execute(message, photo.getAbsolutePath());
-//    }
-//
 //    @Override
 //    public void requestCheckIsFriend(String userID) throws SocialNetworkException {
 //        checkRequestState(mRequestCheckIsFriendAsyncTask);
