@@ -112,7 +112,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
       }
   }
   
-  compile('com.github.androidsocialnetworks:library:0.1.8-SNAPSHOT@aar') {
+  compile('com.github.androidsocialnetworks:library:0.2.0-SNAPSHOT@aar') {
       transitive = true
   }
 ```
