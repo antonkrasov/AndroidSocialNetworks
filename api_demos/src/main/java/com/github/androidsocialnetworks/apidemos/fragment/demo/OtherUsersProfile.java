@@ -27,7 +27,7 @@ public class OtherUsersProfile extends BaseDemoFragment {
 
         mTwitterButton.setText("Load Twitter Profile");
         mLinkedInButton.setText("Load LinkedIn Profile");
-        mFacebookButton.setText("Load Facebook Profile");
+        mFacebookButton.setVisibility(View.GONE);
         mGooglePlusButton.setVisibility(View.GONE);
     }
 
