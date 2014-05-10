@@ -202,6 +202,7 @@ public abstract class SocialNetwork {
         cancelGetCurrentSocialPersonRequest();
         cancelGetSocialPersonRequest();
         cancelPostMessageRequest();
+        cancelPostPhotoRequest();
         cancelCheckIsFriendRequest();
         cancelAddFriendRequest();
         cancelRemoveFriendRequest();

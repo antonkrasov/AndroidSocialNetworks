@@ -34,7 +34,7 @@ public class LoginUsingGlobalListenersFragment extends BaseLoginDemoFragment
 
     @Override
     protected void onFacebookAction() {
-        Toast.makeText(getActivity(), "Global. Facebook Login", Toast.LENGTH_SHORT).show();
+        mSocialNetworkManager.getFacebookSocialNetwork().requestLogin();
     }
 
     @Override

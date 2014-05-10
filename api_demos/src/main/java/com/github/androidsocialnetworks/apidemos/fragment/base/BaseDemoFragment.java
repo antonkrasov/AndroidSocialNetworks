@@ -85,6 +85,13 @@ public abstract class BaseDemoFragment extends Fragment
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        onRequestCancel();
+    }
+
     protected void showProgress(String text) {
         ProgressDialogFragment progressDialogFragment = ProgressDialogFragment.newInstance(text);
         progressDialogFragment.setTargetFragment(this, 0);

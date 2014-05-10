@@ -36,20 +36,7 @@ public class PostMessageFragment extends BaseDemoFragment {
 
         showProgress("Posting message");
         mSocialNetworkManager.getTwitterSocialNetwork().requestPostMessage(message,
-                new OnPostingCompleteListener() {
-                    @Override
-                    public void onPostSuccessfully(int socialNetworkID) {
-                        hideProgress();
-
-                        handleSuccess("Success", "Message: '" + message + "' successfully posted.");
-                    }
-
-                    @Override
-                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-                        hideProgress();
-                        handleError(errorMessage);
-                    }
-                }
+                new DemoOnPostingCompleteListener(message)
         );
     }
 
@@ -64,11 +51,37 @@ public class PostMessageFragment extends BaseDemoFragment {
     protected void onFacebookAction() {
         if (!checkIsLoginned(FacebookSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "Facebook post message", Toast.LENGTH_SHORT).show();
+        final String message = "ASN Test: " + UUID.randomUUID();
+
+        showProgress("Posting message");
+        mSocialNetworkManager.getFacebookSocialNetwork().requestPostMessage(message,
+                new DemoOnPostingCompleteListener(message)
+        );
     }
 
     @Override
     protected void onGooglePlusAction() {
         throw new IllegalStateException("Unsupported");
+    }
+
+    private class DemoOnPostingCompleteListener implements OnPostingCompleteListener {
+        private String mmMessage;
+
+        private DemoOnPostingCompleteListener(String message) {
+            mmMessage = message;
+        }
+
+        @Override
+        public void onPostSuccessfully(int socialNetworkID) {
+            hideProgress();
+
+            handleSuccess("Success", "Message: '" + mmMessage + "' successfully posted.");
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
+        }
     }
 }

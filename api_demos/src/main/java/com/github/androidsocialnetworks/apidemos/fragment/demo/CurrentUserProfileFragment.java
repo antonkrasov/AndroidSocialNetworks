@@ -34,7 +34,8 @@ public class CurrentUserProfileFragment extends BaseDemoFragment implements View
         if (!checkIsLoginned(TwitterSocialNetwork.ID)) return;
 
         showProgress("Loading profile");
-        mSocialNetworkManager.getTwitterSocialNetwork().requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
+        mSocialNetworkManager.getTwitterSocialNetwork()
+                .requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
 
     }
 
@@ -49,14 +50,17 @@ public class CurrentUserProfileFragment extends BaseDemoFragment implements View
     protected void onFacebookAction() {
         if (!checkIsLoginned(FacebookSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "Load Facebook Profile", Toast.LENGTH_SHORT).show();
+        showProgress("Loading profile");
+        mSocialNetworkManager.getFacebookSocialNetwork()
+                .requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
     }
 
     @Override
     protected void onGooglePlusAction() {
         if (!checkIsLoginned(GooglePlusSocialNetwork.ID)) return;
 
-        mSocialNetworkManager.getGooglePlusSocialNetwork().requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
+        mSocialNetworkManager.getGooglePlusSocialNetwork()
+                .requestCurrentPerson(new DemoOnRequestSocialPersonCompleteListener());
     }
 
     private class DemoOnRequestSocialPersonCompleteListener implements OnRequestSocialPersonCompleteListener {

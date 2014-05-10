@@ -13,7 +13,7 @@ public class LoginUsingLocalListenersFragment extends BaseLoginDemoFragment {
     @Override
     protected void onTwitterAction() {
         showProgress("Authentificating... twitter");
-        mSocialNetworkManager.getTwitterSocialNetwork().requestLogin(new LocalOnLoginCompleteListener());
+        mSocialNetworkManager.getTwitterSocialNetwork().requestLogin(new DemoOnLoginCompleteListener());
     }
 
     @Override
@@ -23,15 +23,15 @@ public class LoginUsingLocalListenersFragment extends BaseLoginDemoFragment {
 
     @Override
     protected void onFacebookAction() {
-        Toast.makeText(getActivity(), "Local. Facebook Login", Toast.LENGTH_SHORT).show();
+        mSocialNetworkManager.getFacebookSocialNetwork().requestLogin(new DemoOnLoginCompleteListener());
     }
 
     @Override
     protected void onGooglePlusAction() {
-        mSocialNetworkManager.getGooglePlusSocialNetwork().requestLogin(new LocalOnLoginCompleteListener());
+        mSocialNetworkManager.getGooglePlusSocialNetwork().requestLogin(new DemoOnLoginCompleteListener());
     }
 
-    private class LocalOnLoginCompleteListener implements OnLoginCompleteListener {
+    private class DemoOnLoginCompleteListener implements OnLoginCompleteListener {
         @Override
         public void onLoginSuccess(int socialNetworkID) {
             // let's reset buttons, we need to disable buttons

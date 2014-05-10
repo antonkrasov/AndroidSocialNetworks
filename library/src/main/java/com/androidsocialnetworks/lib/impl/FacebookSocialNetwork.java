@@ -386,13 +386,14 @@ public class FacebookSocialNetwork extends SocialNetwork {
     }
 
     private void publishSuccess(String requestID, String error) {
+        if (mLocalListeners.get(requestID) == null) return;
+
         if (error != null) {
             mLocalListeners.get(requestID).onError(getID(), requestID, error, null);
             return;
         }
 
         ((OnPostingCompleteListener) mLocalListeners.get(requestID)).onPostSuccessfully(getID());
-
         mLocalListeners.remove(requestID);
     }
 

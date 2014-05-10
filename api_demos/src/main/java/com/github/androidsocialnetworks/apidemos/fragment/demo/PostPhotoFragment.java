@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.impl.FacebookSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
@@ -50,20 +49,7 @@ public class PostPhotoFragment extends BaseDemoFragment {
 
         showProgress("Posting photo");
         mSocialNetworkManager.getTwitterSocialNetwork().requestPostPhoto(ANDROID_ASSET_FILE, message,
-                new OnPostingCompleteListener() {
-                    @Override
-                    public void onPostSuccessfully(int socialNetworkID) {
-                        hideProgress();
-
-                        handleSuccess("Success", "Message: '" + message + "' successfully posted.");
-                    }
-
-                    @Override
-                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-                        hideProgress();
-                        handleError(errorMessage);
-                    }
-                }
+                new DemoOnPostingCompleteListener(message)
         );
     }
 
@@ -76,7 +62,12 @@ public class PostPhotoFragment extends BaseDemoFragment {
     protected void onFacebookAction() {
         if (!checkIsLoginned(FacebookSocialNetwork.ID)) return;
 
-        Toast.makeText(getActivity(), "Facebook post message", Toast.LENGTH_SHORT).show();
+        final String message = "ASN Test: " + UUID.randomUUID();
+
+        showProgress("Posting photo");
+        mSocialNetworkManager.getFacebookSocialNetwork().requestPostPhoto(ANDROID_ASSET_FILE, message,
+                new DemoOnPostingCompleteListener(message)
+        );
     }
 
     @Override
@@ -119,6 +110,27 @@ public class PostPhotoFragment extends BaseDemoFragment {
         int read;
         while ((read = in.read(buffer)) != -1) {
             out.write(buffer, 0, read);
+        }
+    }
+
+    private class DemoOnPostingCompleteListener implements OnPostingCompleteListener {
+        private String mmMessage;
+
+        private DemoOnPostingCompleteListener(String message) {
+            mmMessage = message;
+        }
+
+        @Override
+        public void onPostSuccessfully(int socialNetworkID) {
+            hideProgress();
+
+            handleSuccess("Success", "Message: '" + mmMessage + "' with PHOTO successfully posted.");
+        }
+
+        @Override
+        public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+            hideProgress();
+            handleError(errorMessage);
         }
     }
 }
