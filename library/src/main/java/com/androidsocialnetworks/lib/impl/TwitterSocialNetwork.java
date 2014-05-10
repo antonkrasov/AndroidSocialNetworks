@@ -15,6 +15,7 @@ import com.androidsocialnetworks.lib.SocialPerson;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnPostingCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
+import com.androidsocialnetworks.lib.listener.base.SocialNetworkListener;
 
 import java.io.File;
 import java.util.HashMap;
@@ -303,6 +304,35 @@ public class TwitterSocialNetwork extends SocialNetwork {
         cancelRequest(REQUEST_REMOVE_FRIEND);
     }
 
+    private boolean handleRequestResult(Bundle result, String requestID) {
+        return handleRequestResult(result, requestID, null);
+    }
+
+    private boolean handleRequestResult(Bundle result, String requestID, Object data) {
+        Log.d(TAG, "TwitterSocialNetwork.handleRequestResult: " + result + " : " + requestID);
+
+        mRequests.remove(requestID);
+
+        SocialNetworkListener socialNetworkListener = mLocalListeners.get(requestID);
+
+        // 1: user didn't set listener, or pass null, this doesn't have any sence
+        // 2: request was canceled...
+        if (socialNetworkListener == null) {
+            Log.e(TAG, "TwitterSocialNetwork.handleRequestResult socialNetworkListener == null");
+            return false;
+        }
+
+        String error = result.getString(SocialNetworkAsyncTask.RESULT_ERROR);
+
+        if (error != null) {
+            socialNetworkListener.onError(getID(), requestID, error, data);
+            mLocalListeners.remove(requestID);
+            return false;
+        }
+
+        return true;
+    }
+
     private class RequestLoginAsyncTask extends SocialNetworkAsyncTask {
         private static final String RESULT_OAUTH_LOGIN = "LoginAsyncTask.RESULT_OAUTH_LOGIN";
 
@@ -325,21 +355,7 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            Log.d(TAG, "LoginAsyncTask.onPostExecute()");
-
-            mRequests.put(REQUEST_LOGIN, null);
-
-            if (result.containsKey(RESULT_ERROR) && mLocalListeners.get(REQUEST_LOGIN) != null) {
-                mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, result.getString(RESULT_ERROR), null);
-                mLocalListeners.remove(REQUEST_LOGIN);
-            }
-
-            // 1: user didn't set login listener, or pass null, this doesn't have any sence
-            // 2: request was canceled...
-            if (mLocalListeners.get(REQUEST_LOGIN) == null) {
-                Log.e(TAG, "RequestLoginAsyncTask.onPostExecute: mLocalListeners.get(REQUEST_LOGIN) == null");
-                return;
-            }
+            if (!handleRequestResult(result, REQUEST_LOGIN)) return;
 
             if (result.containsKey(RESULT_OAUTH_LOGIN)) {
                 Intent intent = new Intent(mSocialNetworkManager.getActivity(), OAuthActivity.class)
@@ -381,28 +397,20 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            mRequests.put(REQUEST_LOGIN2, null);
+            mRequests.remove(REQUEST_LOGIN2);
+            if (!handleRequestResult(result, REQUEST_LOGIN)) return;
 
-            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
+            // Shared Preferences
+            mSharedPreferences.edit()
+                    .putString(SAVE_STATE_KEY_OAUTH_TOKEN, result.getString(RESULT_TOKEN))
+                    .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
+                    .putLong(SAVE_STATE_KEY_USER_ID, result.getLong(RESULT_USER_ID))
+                    .apply();
 
-            if (error == null) {
-                // Shared Preferences
-                mSharedPreferences.edit()
-                        .putString(SAVE_STATE_KEY_OAUTH_TOKEN, result.getString(RESULT_TOKEN))
-                        .putString(SAVE_STATE_KEY_OAUTH_SECRET, result.getString(RESULT_SECRET))
-                        .putLong(SAVE_STATE_KEY_USER_ID, result.getLong(RESULT_USER_ID))
-                        .apply();
-
-                initTwitterClient();
-            }
+            initTwitterClient();
 
             if (mLocalListeners.get(REQUEST_LOGIN) != null) {
-                if (error == null) {
-                    ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
-
-                } else {
-                    mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN, error, null);
-                }
+                ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
             }
 
             mLocalListeners.remove(REQUEST_LOGIN);
@@ -447,41 +455,30 @@ public class TwitterSocialNetwork extends SocialNetwork {
 
         @Override
         protected void onPostExecute(Bundle result) {
-            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
-
             if (result.getBoolean(RESULT_IS_CURRENT_PERSON)) {
-                mRequests.remove(REQUEST_GET_CURRENT_PERSON);
+                if (!handleRequestResult(result, REQUEST_GET_CURRENT_PERSON)) return;
 
-                if (mLocalListeners.get(REQUEST_GET_CURRENT_PERSON) != null) {
-                    if (error == null) {
-                        SocialPerson socialPerson = new SocialPerson();
-                        socialPerson.id = result.getString(RESULT_ID);
-                        socialPerson.name = result.getString(RESULT_NAME);
-                        socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+                SocialPerson socialPerson = new SocialPerson();
+                socialPerson.id = result.getString(RESULT_ID);
+                socialPerson.name = result.getString(RESULT_NAME);
+                socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
 
-                        ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_CURRENT_PERSON))
-                                .onRequestSocialPersonSuccess(getID(), socialPerson);
-                    } else {
-                        mLocalListeners.get(REQUEST_GET_CURRENT_PERSON).onError(getID(), REQUEST_GET_CURRENT_PERSON, error, null);
-                    }
-                }
+                ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_CURRENT_PERSON))
+                        .onRequestSocialPersonSuccess(getID(), socialPerson);
 
+                mLocalListeners.remove(REQUEST_GET_CURRENT_PERSON);
             } else {
-                mRequests.remove(REQUEST_GET_PERSON);
+                if (!handleRequestResult(result, REQUEST_GET_PERSON)) return;
 
-                if (mLocalListeners.get(REQUEST_GET_PERSON) != null) {
-                    if (error == null) {
-                        SocialPerson socialPerson = new SocialPerson();
-                        socialPerson.id = result.getString(RESULT_ID);
-                        socialPerson.name = result.getString(RESULT_NAME);
-                        socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+                SocialPerson socialPerson = new SocialPerson();
+                socialPerson.id = result.getString(RESULT_ID);
+                socialPerson.name = result.getString(RESULT_NAME);
+                socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
 
-                        ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_PERSON))
-                                .onRequestSocialPersonSuccess(getID(), socialPerson);
-                    } else {
-                        mLocalListeners.get(REQUEST_GET_PERSON).onError(getID(), REQUEST_GET_PERSON, error, null);
-                    }
-                }
+                ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_PERSON))
+                        .onRequestSocialPersonSuccess(getID(), socialPerson);
+
+                mLocalListeners.remove(REQUEST_GET_PERSON);
             }
 
         }
