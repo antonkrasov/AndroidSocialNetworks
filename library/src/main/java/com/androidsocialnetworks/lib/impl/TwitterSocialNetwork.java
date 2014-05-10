@@ -15,6 +15,8 @@ import com.androidsocialnetworks.lib.SocialPerson;
 import com.androidsocialnetworks.lib.listener.OnCheckIsFriendCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnPostingCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnRequestAddFriendCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnRequestRemoveFriendCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
 import com.androidsocialnetworks.lib.listener.base.SocialNetworkListener;
 
@@ -192,29 +194,35 @@ public class TwitterSocialNetwork extends SocialNetwork {
         executeRequest(new RequestCheckIsFriendAsyncTask(), args, REQUEST_CHECK_IS_FRIEND);
     }
 
-    //    @Override
-//    public void requestCheckIsFriend(String userID) throws SocialNetworkException {
-//        checkRequestState(mRequestCheckIsFriendAsyncTask);
-//
-//        mRequestCheckIsFriendAsyncTask = new RequestCheckIsFriendAsyncTask();
-//        mRequestCheckIsFriendAsyncTask.execute(userID);
-//    }
-//
-//    @Override
-//    public void requestAddFriend(String userID) throws SocialNetworkException {
-//        checkRequestState(mRequestAddFriendAsyncTask);
-//
-//        mRequestAddFriendAsyncTask = new RequestAddFriendAsyncTask();
-//        mRequestAddFriendAsyncTask.execute(userID);
-//    }
-//
-//    @Override
-//    public void requestRemoveFriend(String userID) throws SocialNetworkException {
-//        checkRequestState(mRequestRemoveFriendAsyncTask);
-//
-//        mRequestRemoveFriendAsyncTask = new RequestRemoveFriendAsyncTask();
-//        mRequestRemoveFriendAsyncTask.execute(userID);
-//    }
+    @Override
+    public void requestAddFriend(String userID, OnRequestAddFriendCompleteListener onRequestAddFriendCompleteListener) {
+        super.requestAddFriend(userID, onRequestAddFriendCompleteListener);
+
+        Bundle args = new Bundle();
+        try {
+            args.putLong(RequestAddFriendAsyncTask.PARAM_USER_ID, Long.parseLong(userID));
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "ERROR", e);
+            throw new SocialNetworkException("userID should be long number");
+        }
+
+        executeRequest(new RequestAddFriendAsyncTask(), args, REQUEST_ADD_FRIEND);
+    }
+
+    @Override
+    public void requestRemoveFriend(String userID, OnRequestRemoveFriendCompleteListener onRequestRemoveFriendCompleteListener) {
+        super.requestRemoveFriend(userID, onRequestRemoveFriendCompleteListener);
+
+        Bundle args = new Bundle();
+        try {
+            args.putLong(RequestRemoveFriendAsyncTask.PARAM_USER_ID, Long.parseLong(userID));
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "ERROR", e);
+            throw new SocialNetworkException("userID should be long number");
+        }
+
+        executeRequest(new RequestRemoveFriendAsyncTask(), args, REQUEST_REMOVE_FRIEND);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -607,131 +615,72 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-//    private class RequestCheckIsFriendAsyncTask extends AsyncTask<String, Void, Bundle> {
-//        private static final String RESULT_ERROR = "RequestCheckIsFriendAsyncTask.RESULT_ERROR";
-//        private static final String RESULT_REQUESTED_ID = "RequestCheckIsFriendAsyncTask.RESULT_REQUESTED_ID";
-//        private static final String RESULT_IS_FRIEND = "RequestCheckIsFriendAsyncTask.RESULT_IS_FRIEND";
-//
-//        @Override
-//        protected Bundle doInBackground(String... params) {
-//            Bundle result = new Bundle();
-//
-//            final String requestedID = params[0];
-//            result.putString(RESULT_REQUESTED_ID, requestedID);
-//
-//            try {
-//                long currentUserID = mSharedPreferences.getLong(SAVE_STATE_KEY_USER_ID, -1);
-//                long userID = Long.valueOf(requestedID);
-//
-//                Relationship relationship = mTwitter.showFriendship(currentUserID, userID);
-//                result.putBoolean(RESULT_IS_FRIEND, relationship.isSourceFollowingTarget());
-//            } catch (Exception e) {
-//                Log.e(TAG, "ERROR", e);
-//                result.putString(RESULT_ERROR, e.getMessage());
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Bundle bundle) {
-//            mRequestCheckIsFriendAsyncTask = null;
-//
-//            String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
-//
-//            if (mOnCheckingIsFriendListener != null) {
-//                if (error != null) {
-//                    mOnCheckingIsFriendListener.onCheckIsFriendFailed(getID(), bundle.getString(RESULT_REQUESTED_ID), error);
-//                } else {
-//                    mOnCheckingIsFriendListener.onCheckIsFriendSuccess(
-//                            getID(),
-//                            bundle.getString(RESULT_REQUESTED_ID),
-//                            bundle.getBoolean(RESULT_IS_FRIEND)
-//                    );
-//                }
-//            }
-//        }
-//    }
-//
-//    private class RequestAddFriendAsyncTask extends AsyncTask<String, Void, Bundle> {
-//        private static final String RESULT_ERROR = "RequestAddFriendAsyncTask.RESULT_ERROR";
-//        private static final String RESULT_REQUESTED_ID = "RequestAddFriendAsyncTask.RESULT_REQUESTED_ID";
-//
-//        @Override
-//        protected Bundle doInBackground(String... params) {
-//            Bundle result = new Bundle();
-//
-//            final String requestedID = params[0];
-//            result.putString(RESULT_REQUESTED_ID, requestedID);
-//
-//            try {
-//                long id = Long.valueOf(requestedID);
-//                mTwitter.createFriendship(id);
-//            } catch (Exception e) {
-//                Log.e(TAG, "ERROR", e);
-//                result.putString(RESULT_ERROR, e.getMessage());
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Bundle bundle) {
-//            mRequestAddFriendAsyncTask = null;
-//
-//            String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
-//
-//            if (mOnAddFriendListener != null) {
-//                if (error != null) {
-//                    mOnAddFriendListener.onAddFriendFailed(getID(), bundle.getString(RESULT_REQUESTED_ID), error);
-//                } else {
-//                    mOnAddFriendListener.onAddFriendSuccess(
-//                            getID(),
-//                            bundle.getString(RESULT_REQUESTED_ID)
-//                    );
-//                }
-//            }
-//        }
-//    }
-//
-//    private class RequestRemoveFriendAsyncTask extends AsyncTask<String, Void, Bundle> {
-//        private static final String RESULT_ERROR = "RequestRemoveFriendAsyncTask.RESULT_ERROR";
-//        private static final String RESULT_REQUESTED_ID = "RequestRemoveFriendAsyncTask.RESULT_REQUESTED_ID";
-//
-//        @Override
-//        protected Bundle doInBackground(String... params) {
-//            Bundle result = new Bundle();
-//
-//            final String requestedID = params[0];
-//            result.putString(RESULT_REQUESTED_ID, requestedID);
-//
-//            try {
-//                long id = Long.valueOf(requestedID);
-//                mTwitter.destroyFriendship(id);
-//            } catch (Exception e) {
-//                Log.e(TAG, "ERROR", e);
-//                result.putString(RESULT_ERROR, e.getMessage());
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Bundle bundle) {
-//            mRequestRemoveFriendAsyncTask = null;
-//
-//            String error = bundle.containsKey(RESULT_ERROR) ? bundle.getString(RESULT_ERROR) : null;
-//
-//            if (mOnRemoveFriendListener != null) {
-//                if (error != null) {
-//                    mOnRemoveFriendListener.onRemoveFriendFailed(getID(), bundle.getString(RESULT_REQUESTED_ID), error);
-//                } else {
-//                    mOnRemoveFriendListener.onRemoveFriendSuccess(
-//                            getID(),
-//                            bundle.getString(RESULT_REQUESTED_ID)
-//                    );
-//                }
-//            }
-//        }
-//    }
+    private class RequestAddFriendAsyncTask extends SocialNetworkAsyncTask {
+        public static final String PARAM_USER_ID = "PARAM_USER_ID";
+
+        public static final String RESULT_REQUESTED_ID = "RESULT_REQUESTED_ID";
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+            Bundle args = params[0];
+            Bundle result = new Bundle();
+            Long userID = args.getLong(PARAM_USER_ID);
+
+            result.putLong(RESULT_REQUESTED_ID, userID);
+            try {
+                mTwitter.createFriendship(userID);
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            if (!handleRequestResult(result, REQUEST_ADD_FRIEND,
+                    result.getLong(RESULT_REQUESTED_ID))) return;
+
+            ((OnRequestAddFriendCompleteListener) mLocalListeners.get(REQUEST_ADD_FRIEND))
+                    .onRequestAddFriendComplete(getID(),
+                            "" + result.getLong(RESULT_REQUESTED_ID)
+                    );
+        }
+    }
+
+    private class RequestRemoveFriendAsyncTask extends SocialNetworkAsyncTask {
+        public static final String PARAM_USER_ID = "PARAM_USER_ID";
+
+        public static final String RESULT_REQUESTED_ID = "RESULT_REQUESTED_ID";
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+            Bundle args = params[0];
+            Bundle result = new Bundle();
+            Long userID = args.getLong(PARAM_USER_ID);
+
+            result.putLong(RESULT_REQUESTED_ID, userID);
+            try {
+                mTwitter.destroyFriendship(userID);
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            if (!handleRequestResult(result, REQUEST_REMOVE_FRIEND,
+                    result.getLong(RESULT_REQUESTED_ID))) return;
+
+            ((OnRequestRemoveFriendCompleteListener) mLocalListeners.get(REQUEST_REMOVE_FRIEND))
+                    .onRequestRemoveFriendComplete(getID(),
+                            "" + result.getLong(RESULT_REQUESTED_ID)
+                    );
+        }
+    }
+
 }

@@ -52,25 +52,6 @@ public class CheckIsFriendFragment extends BaseDemoFragment {
                 }
         );
 
-//        final String message = "ASN Test: " + UUID.randomUUID();
-//
-//        showProgress("Posting message");
-//        mSocialNetworkManager.getTwitterSocialNetwork().requestPostMessage(message,
-//                new OnPostingCompleteListener() {
-//                    @Override
-//                    public void onPostSuccessfully(int socialNetworkID) {
-//                        hideProgress();
-//
-//                        handleSuccess("Success", "Message: '" + message + "' successfully posted.");
-//                    }
-//
-//                    @Override
-//                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-//                        hideProgress();
-//                        handleError(errorMessage);
-//                    }
-//                }
-//        );
     }
 
     @Override

@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
+import com.androidsocialnetworks.lib.listener.OnRequestRemoveFriendCompleteListener;
+import com.github.androidsocialnetworks.apidemos.APIDemosApplication;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
 public class RemoveFriendFragment extends BaseDemoFragment {
@@ -25,25 +27,24 @@ public class RemoveFriendFragment extends BaseDemoFragment {
     protected void onTwitterAction() {
         if (!checkIsLoginned(TwitterSocialNetwork.ID)) return;
 
-//        final String message = "ASN Test: " + UUID.randomUUID();
-//
-//        showProgress("Posting message");
-//        mSocialNetworkManager.getTwitterSocialNetwork().requestPostMessage(message,
-//                new OnPostingCompleteListener() {
-//                    @Override
-//                    public void onPostSuccessfully(int socialNetworkID) {
-//                        hideProgress();
-//
-//                        handleSuccess("Success", "Message: '" + message + "' successfully posted.");
-//                    }
-//
-//                    @Override
-//                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
-//                        hideProgress();
-//                        handleError(errorMessage);
-//                    }
-//                }
-//        );
+        showProgress("Unfollowing Anton Krasov");
+        mSocialNetworkManager.getTwitterSocialNetwork().requestRemoveFriend(
+                APIDemosApplication.USER_ID_TWITTER,
+                new OnRequestRemoveFriendCompleteListener() {
+                    @Override
+                    public void onRequestRemoveFriendComplete(int socialNetworkID, String userID) {
+                        hideProgress();
+
+                        handleSuccess("Remove friend", "Now you don't follow Anton Krasov!");
+                    }
+
+                    @Override
+                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+                        hideProgress();
+                        handleError(errorMessage);
+                    }
+                }
+        );
     }
 
     @Override
