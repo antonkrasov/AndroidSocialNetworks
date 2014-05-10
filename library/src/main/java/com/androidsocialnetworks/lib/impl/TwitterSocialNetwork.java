@@ -276,20 +276,22 @@ public class TwitterSocialNetwork extends SocialNetwork {
         initTwitterClient();
     }
 
+    @Override
+    public void cancelGetCurrentSocialPersonRequest() {
+        Log.d(TAG, "TwitterSocialNetwork.cancelGetCurrentSocialPersonRequest()");
+
+        super.cancelGetCurrentSocialPersonRequest();
+
+        SocialNetworkAsyncTask request = mRequests.get(REQUEST_GET_CURRENT_PERSON);
+
+        if (request != null) {
+            request.cancel(true);
+        }
+
+        mRequests.remove(REQUEST_GET_CURRENT_PERSON);
+    }
+
     //    @Override
-//    public void cancelLoginRequest() {
-//        if (mRequestLoginAsyncTask != null) {
-//            mRequestLoginAsyncTask.cancel(true);
-//            mRequestLoginAsyncTask = null;
-//        }
-//
-//        if (mRequestLogin2AsyncTask != null) {
-//            mRequestLogin2AsyncTask.cancel(true);
-//            mRequestLogin2AsyncTask = null;
-//        }
-//    }
-//
-//    @Override
 //    public void cancelGetPersonRequest() {
 //        if (mRequestGetPersonAsyncTask != null) {
 //            mRequestGetPersonAsyncTask.cancel(true);
