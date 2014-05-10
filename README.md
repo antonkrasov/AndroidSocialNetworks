@@ -1,12 +1,11 @@
-[![Stories in Ready](https://badge.waffle.io/antonkrasov/androidsocialnetworks.png?label=ready&title=Ready)](https://waffle.io/antonkrasov/androidsocialnetworks)
 Android Social Networks
 =====================
 
 Android Social Networks is library which makes working with social networks easier.
 If you sometime tried to work with social networks on android you should remember that this is a hell.
 You should read documentation for every social network, download SDK or use some libraries for OAuth and make
-http calls by yourself. This library should makes your life easier, it contains common interface for 
-Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and configure your AndroidManiferst and you can login users, or post messages or photos or add / remove friends. 
+http calls by yourself. This library should makes your life easier, it contains common interface for
+Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and configure your AndroidManiferst and you can login users, or post messages or photos or add / remove friends.
 **Library is still in development so more features will be added soon**
 
   - [Features](#features)
@@ -34,7 +33,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
   First you need to initialize **mSocialNetworkManager**. Build it with SocialNetworkManager.Builder and
   add to fragment manager.
-  
+
 ```java
 
     mSocialNetworkManager = (SocialNetworkManager) getFragmentManager().findFragmentByTag(SOCIAL_NETWORK_TAG);
@@ -51,21 +50,21 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
 ```
 
-  Then you need to implement SocialNetworkManager.OnInitializationCompleteListener callback 
+  Then you need to implement SocialNetworkManager.OnInitializationCompleteListener callback
   and pass it to your SocialNetworkManager instance.
-  
+
 ```java
   public class MainFragment extends Fragment implements SocialNetworkManager.OnInitializationCompleteListener
-  
+
     ...
-  
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         ...
 
         mSocialNetworkManager.setOnInitializationCompleteListener(this);
     }
-  
+
 ```
 
   Add listeners for events you will use.
@@ -79,9 +78,9 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
             socialNetwork.setOnRequestSocialPersonListener(this);
         }
     }
-    
+
     ...
-    
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -92,14 +91,14 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
             socialNetwork.setOnRequestSocialPersonListener(null);
         }
     }
-    
+
 ```  
 
   Now you can execute requests, results you will receive in your listeners.
- 
+
 ```java
   mSocialNetworkManager.getTwitterSocialNetwork().requestLogin();
-  
+
   mSocialNetworkManager.getSocialNetwork(TwitterSocialNetwork.ID).requestPerson();
 ```  
 
@@ -111,7 +110,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
           url "https://oss.sonatype.org/content/repositories/snapshots"
       }
   }
-  
+
   compile('com.github.androidsocialnetworks:library:0.2.0-SNAPSHOT@aar') {
       transitive = true
   }
@@ -154,4 +153,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 </pre>
-
