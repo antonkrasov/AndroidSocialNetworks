@@ -10,6 +10,7 @@ import android.util.Log;
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialNetworkAsyncTask;
+import com.androidsocialnetworks.lib.SocialNetworkException;
 import com.androidsocialnetworks.lib.SocialPerson;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
@@ -129,6 +130,30 @@ public class TwitterSocialNetwork extends SocialNetwork {
         RequestGetPersonAsyncTask requestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
         mRequests.put(REQUEST_GET_CURRENT_PERSON, requestGetPersonAsyncTask);
         requestGetPersonAsyncTask.execute(new Bundle());
+    }
+
+    @Override
+    public void requestSocialPerson(String userID, OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
+        super.requestSocialPerson(userID, onRequestSocialPersonCompleteListener);
+
+        checkRequestState(mRequests.get(REQUEST_GET_PERSON));
+
+        RequestGetPersonAsyncTask requestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
+        mRequests.put(REQUEST_GET_PERSON, requestGetPersonAsyncTask);
+
+        if (TextUtils.isEmpty(userID)) {
+            throw new SocialNetworkException("userID can't be null or empty");
+        }
+
+        Bundle args = new Bundle();
+        try {
+            args.putLong(RequestGetPersonAsyncTask.PARAM_USER_ID, Long.parseLong(userID));
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "ERROR", e);
+            throw new SocialNetworkException("userID should be long number");
+        }
+
+        requestGetPersonAsyncTask.execute(args);
     }
 
     //    @Override
@@ -289,6 +314,21 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
 
         mRequests.remove(REQUEST_GET_CURRENT_PERSON);
+    }
+
+    @Override
+    public void cancelGetSocialPersonRequest() {
+        Log.d(TAG, "TwitterSocialNetwork.cancelGetSocialPersonRequest()");
+
+        super.cancelGetSocialPersonRequest();
+
+        SocialNetworkAsyncTask request = mRequests.get(REQUEST_GET_PERSON);
+
+        if (request != null) {
+            request.cancel(true);
+        }
+
+        mRequests.remove(REQUEST_GET_PERSON);
     }
 
     //    @Override
