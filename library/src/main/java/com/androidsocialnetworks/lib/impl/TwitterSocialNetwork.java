@@ -13,12 +13,15 @@ import com.androidsocialnetworks.lib.SocialNetworkAsyncTask;
 import com.androidsocialnetworks.lib.SocialNetworkException;
 import com.androidsocialnetworks.lib.SocialPerson;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
+import com.androidsocialnetworks.lib.listener.OnPostingCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -156,23 +159,21 @@ public class TwitterSocialNetwork extends SocialNetwork {
         requestGetPersonAsyncTask.execute(args);
     }
 
-    //    @Override
-//    public void requestPerson() throws SocialNetworkException {
-//        checkRequestState(mRequestGetPersonAsyncTask);
-//
-//        mRequestGetPersonAsyncTask = new RequestGetPersonAsyncTask();
-//        mRequestGetPersonAsyncTask.execute();
-//    }
-//
-//
-//    @Override
-//    public void requestPostMessage(String message) throws SocialNetworkException {
-//        checkRequestState(mRequestUpdateStatusAsyncTask);
-//
-//        mRequestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
-//        mRequestUpdateStatusAsyncTask.execute(message);
-//    }
-//
+    @Override
+    public void requestPostMessage(String message, OnPostingCompleteListener onPostingCompleteListener) {
+        super.requestPostMessage(message, onPostingCompleteListener);
+
+        checkRequestState(mRequests.get(REQUEST_POST_MESSAGE));
+
+        RequestUpdateStatusAsyncTask requestUpdateStatusAsyncTask = new RequestUpdateStatusAsyncTask();
+        mRequests.put(REQUEST_POST_MESSAGE, requestUpdateStatusAsyncTask);
+
+        Bundle args = new Bundle();
+        args.putString(RequestUpdateStatusAsyncTask.PARAM_MESSAGE, message);
+
+        requestUpdateStatusAsyncTask.execute(args);
+    }
+
 //    @Override
 //    public void requestPostPhoto(File photo, String message) throws SocialNetworkException {
 //        checkRequestState(mRequestUpdateStatusAsyncTask);
@@ -331,22 +332,20 @@ public class TwitterSocialNetwork extends SocialNetwork {
         mRequests.remove(REQUEST_GET_PERSON);
     }
 
-    //    @Override
-//    public void cancelGetPersonRequest() {
-//        if (mRequestGetPersonAsyncTask != null) {
-//            mRequestGetPersonAsyncTask.cancel(true);
-//            mRequestGetPersonAsyncTask = null;
-//        }
-//    }
-//
-//    @Override
-//    public void cancelPostMessageRequest() {
-//        if (mRequestUpdateStatusAsyncTask != null) {
-//            mRequestUpdateStatusAsyncTask.cancel(true);
-//            mRequestUpdateStatusAsyncTask = null;
-//        }
-//    }
-//
+    @Override
+    public void cancelPostMessageRequest() {
+        super.cancelPostMessageRequest();
+
+        SocialNetworkAsyncTask request = mRequests.get(REQUEST_POST_MESSAGE);
+
+        if (request != null) {
+            boolean result = request.cancel(true);
+            Log.d(TAG, "cancelPostMessageRequest: " + result);
+        }
+
+        mRequests.remove(REQUEST_POST_MESSAGE);
+    }
+
 //    @Override
 //    public void cancelPostPhotoRequest() {
 //        if (mRequestUpdateStatusAsyncTask != null) {
@@ -560,6 +559,65 @@ public class TwitterSocialNetwork extends SocialNetwork {
                 }
             }
 
+        }
+    }
+
+    private class RequestUpdateStatusAsyncTask extends SocialNetworkAsyncTask {
+        public static final String PARAM_MESSAGE = "RequestUpdateStatusAsyncTask.PARAM_MESSAGE";
+        public static final String PARAM_PHOTO_PATH = "RequestUpdateStatusAsyncTask.PARAM_PHOTO_PATH";
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+            Bundle args = params[0];
+            Bundle result = new Bundle();
+            String paramMessage = "";
+            String paramPhotoPath = null;
+
+            if (args.containsKey(PARAM_MESSAGE)) {
+                paramMessage = args.getString(PARAM_MESSAGE);
+            }
+
+            if (args.containsKey(PARAM_PHOTO_PATH)) {
+                paramPhotoPath = args.getString(PARAM_PHOTO_PATH);
+            }
+
+            try {
+                StatusUpdate status = new StatusUpdate(paramMessage);
+
+                if (paramPhotoPath != null) {
+                    status.setMedia(new File(paramPhotoPath));
+                }
+
+                Log.d(TAG, "RequestUpdateStatusAsyncTask.mTwitter.updateStatus");
+                mTwitter.updateStatus(status);
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            mRequests.remove(REQUEST_POST_MESSAGE);
+
+            String error = result.containsKey(RESULT_ERROR) ? result.getString(RESULT_ERROR) : null;
+
+            if (mLocalListeners.get(REQUEST_POST_MESSAGE) != null) {
+                if (error == null) {
+                    ((OnPostingCompleteListener) mLocalListeners.get(REQUEST_POST_MESSAGE)).onPostSuccessfully(getID());
+                } else {
+                    mLocalListeners.get(REQUEST_POST_MESSAGE).onError(getID(), REQUEST_POST_MESSAGE, error, null);
+                }
+            }
+
+            mLocalListeners.remove(REQUEST_POST_MESSAGE);
+        }
+
+        @Override
+        protected void onCancelled() {
+            Log.d(TAG, "RequestUpdateStatusAsyncTask.onCancelled");
         }
     }
 
