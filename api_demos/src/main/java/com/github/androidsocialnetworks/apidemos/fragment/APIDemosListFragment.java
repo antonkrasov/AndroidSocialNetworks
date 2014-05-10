@@ -18,6 +18,15 @@ import android.widget.TextView;
 import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.activity.MainActivity;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.AddFriendFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.CheckIsFriendFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.CurrentUserProfileFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.LoginUsingGlobalListenersFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.LoginUsingLocalListenersFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.OtherUsersProfile;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.PostMessageFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.PostPhotoFragment;
+import com.github.androidsocialnetworks.apidemos.fragment.demo.RemoveFriendFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +39,9 @@ public class APIDemosListFragment extends ListFragment {
     public static final Pair<String, String> LOAD_PROFILE = new Pair<String, String>("Other User's Profile", "Load custom user profile");
     public static final Pair<String, String> POST_MESSAGE = new Pair<String, String>("Post Message", "Post tweet or update status");
     public static final Pair<String, String> POST_PHOTO = new Pair<String, String>("Post Photo", "Post tweet with photo");
+    public static final Pair<String, String> CHECK_IS_FRIEND = new Pair<String, String>("Check is friend", "Is other user in your friend list");
+    public static final Pair<String, String> ADD_FRIEND = new Pair<String, String>("Add friend", "Add other user to your friends list");
+    public static final Pair<String, String> REMOVE_FRIEND = new Pair<String, String>("Remove friend", "Remove other user from your friends list");
 
     public static APIDemosListFragment newInstance() {
         return new APIDemosListFragment();
@@ -53,6 +65,9 @@ public class APIDemosListFragment extends ListFragment {
         items.add(LOAD_PROFILE);
         items.add(POST_MESSAGE);
         items.add(POST_PHOTO);
+        items.add(CHECK_IS_FRIEND);
+        items.add(ADD_FRIEND);
+        items.add(REMOVE_FRIEND);
 
         setListAdapter(new APIDemosAdater(getActivity(), items));
     }
@@ -88,6 +103,12 @@ public class APIDemosListFragment extends ListFragment {
             fragment = PostMessageFragment.newInstance();
         } else if (item.equals(POST_PHOTO)) {
             fragment = PostPhotoFragment.newInstance();
+        } else if (item.equals(CHECK_IS_FRIEND)) {
+            fragment = CheckIsFriendFragment.newInstance();
+        } else if (item.equals(ADD_FRIEND)) {
+            fragment = AddFriendFragment.newInstance();
+        } else if (item.equals(REMOVE_FRIEND)) {
+            fragment = RemoveFriendFragment.newInstance();
         } else {
             throw new IllegalStateException("Can't find fragment for item: " + item);
         }

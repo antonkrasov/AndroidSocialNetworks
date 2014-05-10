@@ -1,4 +1,4 @@
-package com.github.androidsocialnetworks.apidemos.fragment;
+package com.github.androidsocialnetworks.apidemos.fragment.demo;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
