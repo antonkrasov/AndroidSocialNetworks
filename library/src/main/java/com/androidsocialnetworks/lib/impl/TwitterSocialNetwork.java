@@ -12,6 +12,7 @@ import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialNetworkAsyncTask;
 import com.androidsocialnetworks.lib.SocialNetworkException;
 import com.androidsocialnetworks.lib.SocialPerson;
+import com.androidsocialnetworks.lib.listener.OnCheckIsFriendCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnLoginCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnPostingCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import twitter4j.Relationship;
 import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -175,7 +177,22 @@ public class TwitterSocialNetwork extends SocialNetwork {
         executeRequest(new RequestUpdateStatusAsyncTask(), args, REQUEST_POST_PHOTO);
     }
 
-//    @Override
+    @Override
+    public void requestCheckIsFriend(String userID, OnCheckIsFriendCompleteListener onCheckIsFriendCompleteListener) {
+        super.requestCheckIsFriend(userID, onCheckIsFriendCompleteListener);
+
+        Bundle args = new Bundle();
+        try {
+            args.putLong(RequestCheckIsFriendAsyncTask.PARAM_USER_ID, Long.parseLong(userID));
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "ERROR", e);
+            throw new SocialNetworkException("userID should be long number");
+        }
+
+        executeRequest(new RequestCheckIsFriendAsyncTask(), args, REQUEST_CHECK_IS_FRIEND);
+    }
+
+    //    @Override
 //    public void requestCheckIsFriend(String userID) throws SocialNetworkException {
 //        checkRequestState(mRequestCheckIsFriendAsyncTask);
 //
@@ -551,52 +568,45 @@ public class TwitterSocialNetwork extends SocialNetwork {
         }
     }
 
-//    private class RequestUpdateStatusAsyncTask extends AsyncTask<String, Void, Bundle> {
-//        private static final String RESULT_ERROR = "RequestUpdateStatus.RESULT_ERROR";
-//
-//        @Override
-//        protected Bundle doInBackground(String... params) {
-//            Log.d(TAG, "RequestUpdateStatus.doInBackground");
-//
-//            Bundle result = new Bundle();
-//
-//            try {
-//                StatusUpdate status = new StatusUpdate(params[0]);
-//
-//                if (params.length == 2) {
-//                    status.setMedia(new File(params[1]));
-//                }
-//
-//                Log.d(TAG, "RequestUpdateStatus.updateStatus start");
-//                mTwitter.updateStatus(status);
-//                Log.d(TAG, "RequestUpdateStatus.updateStatus complete");
-//            } catch (TwitterException e) {
-//                Log.e(TAG, "ERROR", e);
-//                result.putString(RESULT_ERROR, e.getMessage());
-//            }
-//
-//            return result;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Bundle bundle) {
-//            Log.d(TAG, "RequestUpdateStatus.onPostExecute");
-//            mRequestUpdateStatusAsyncTask = null;
-//
-//            if (bundle.containsKey(RESULT_ERROR)) {
-//                if (mOnPostingListener != null) {
-//                    mOnPostingListener.onPostFailed(getID(), bundle.getString(RESULT_ERROR));
-//                }
-//
-//                return;
-//            }
-//
-//            if (mOnPostingListener != null) {
-//                mOnPostingListener.onPostSuccessfully(getID());
-//            }
-//        }
-//    }
-//
+    private class RequestCheckIsFriendAsyncTask extends SocialNetworkAsyncTask {
+        public static final String PARAM_USER_ID = "PARAM_USER_ID";
+
+        public static final String RESULT_IS_FRIEND = "RESULT_IS_FRIEND";
+        public static final String RESULT_REQUESTED_ID = "RESULT_REQUESTED_ID";
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+            Bundle args = params[0];
+            Bundle result = new Bundle();
+            Long userID = args.getLong(PARAM_USER_ID);
+
+            result.putLong(RESULT_REQUESTED_ID, userID);
+            try {
+                long currentUserID = mSharedPreferences.getLong(SAVE_STATE_KEY_USER_ID, -1);
+
+                Relationship relationship = mTwitter.showFriendship(currentUserID, userID);
+                result.putBoolean(RESULT_IS_FRIEND, relationship.isSourceFollowingTarget());
+            } catch (TwitterException e) {
+                Log.e(TAG, "ERROR", e);
+                result.putString(RESULT_ERROR, e.getMessage());
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            if (!handleRequestResult(result, REQUEST_CHECK_IS_FRIEND,
+                    result.getLong(RESULT_REQUESTED_ID))) return;
+
+            ((OnCheckIsFriendCompleteListener) mLocalListeners.get(REQUEST_CHECK_IS_FRIEND))
+                    .onCheckIsFriendComplete(getID(),
+                            "" + result.getLong(RESULT_REQUESTED_ID),
+                            result.getBoolean(RESULT_IS_FRIEND)
+                    );
+        }
+    }
+
 //    private class RequestCheckIsFriendAsyncTask extends AsyncTask<String, Void, Bundle> {
 //        private static final String RESULT_ERROR = "RequestCheckIsFriendAsyncTask.RESULT_ERROR";
 //        private static final String RESULT_REQUESTED_ID = "RequestCheckIsFriendAsyncTask.RESULT_REQUESTED_ID";

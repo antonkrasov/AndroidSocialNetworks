@@ -6,6 +6,8 @@ import android.widget.Toast;
 
 import com.androidsocialnetworks.lib.impl.LinkedInSocialNetwork;
 import com.androidsocialnetworks.lib.impl.TwitterSocialNetwork;
+import com.androidsocialnetworks.lib.listener.OnCheckIsFriendCompleteListener;
+import com.github.androidsocialnetworks.apidemos.APIDemosApplication;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
 
 public class CheckIsFriendFragment extends BaseDemoFragment {
@@ -26,6 +28,29 @@ public class CheckIsFriendFragment extends BaseDemoFragment {
     @Override
     protected void onTwitterAction() {
         if (!checkIsLoginned(TwitterSocialNetwork.ID)) return;
+
+        showProgress("Checking do you follow Anton Krasov");
+        mSocialNetworkManager.getTwitterSocialNetwork().requestCheckIsFriend(
+                APIDemosApplication.USER_ID_TWITTER,
+                new OnCheckIsFriendCompleteListener() {
+                    @Override
+                    public void onCheckIsFriendComplete(int socialNetworkID, String userID, boolean isFriend) {
+                        hideProgress();
+
+                        if (isFriend) {
+                            handleSuccess("Is Friend?", "You follow Anton Krasov!");
+                        } else {
+                            handleSuccess("Is Friend?", "You don't follow Anton Krasov!");
+                        }
+                    }
+
+                    @Override
+                    public void onError(int socialNetworkID, String requestID, String errorMessage, Object data) {
+                        hideProgress();
+                        handleError(errorMessage);
+                    }
+                }
+        );
 
 //        final String message = "ASN Test: " + UUID.randomUUID();
 //
