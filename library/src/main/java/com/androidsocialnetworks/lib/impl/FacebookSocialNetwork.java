@@ -82,6 +82,8 @@ public class FacebookSocialNetwork extends SocialNetwork {
 
     @Override
     public void logout() {
+        if (mSessionTracker == null) return;
+
         final Session openSession = mSessionTracker.getOpenSession();
 
         if (openSession != null) {

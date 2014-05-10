@@ -15,6 +15,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.androidsocialnetworks.lib.SocialNetwork;
+import com.androidsocialnetworks.lib.SocialNetworkManager;
 import com.github.androidsocialnetworks.apidemos.R;
 import com.github.androidsocialnetworks.apidemos.activity.MainActivity;
 import com.github.androidsocialnetworks.apidemos.fragment.base.BaseDemoFragment;
@@ -132,19 +134,14 @@ public class APIDemosListFragment extends ListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.reset:
-                // small hack, just remove lib's shared prefs
-                getActivity().getSharedPreferences("social_networks", Context.MODE_PRIVATE)
-                        .edit()
-                        .clear()
-                        .commit();
+                SocialNetworkManager socialNetworkManager =
+                        (SocialNetworkManager) getFragmentManager().findFragmentByTag(BaseDemoFragment.SOCIAL_NETWORK_TAG);
 
-                getFragmentManager().beginTransaction().remove(
-                        getFragmentManager().findFragmentByTag(BaseDemoFragment.SOCIAL_NETWORK_TAG)
-                ).commit();
+                for (SocialNetwork socialNetwork : socialNetworkManager.getInitializedSocialNetworks()) {
+                    socialNetwork.logout();
+                }
 
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.root_container, newInstance())
-                        .commit();
+                getFragmentManager().beginTransaction().remove(socialNetworkManager).commit();
                 break;
         }
         return super.onOptionsItemSelected(item);
