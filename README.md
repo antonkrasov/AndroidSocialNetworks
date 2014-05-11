@@ -16,6 +16,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
   - [Sample Application](#sample-application)
   - [Getting Started](#getting-started)
   - [Including in your project](#including-in-your-project)
+  - [Important](#important)
   - [Dependencies](#dependencies)
   - [Developed By](#developed-by)
   - [License](#license)
@@ -89,6 +90,26 @@ Library is still in development, so for now it's only available in staging repo.
   compile('com.github.androidsocialnetworks:library:0.2.0-SNAPSHOT@aar') {
       transitive = true
   }
+```
+
+### Important
+
+- **Library don't manage state, you need to do it yourself.**
+- If you use Google Plus login, please add this in your Activity:
+```java
+@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        /**
+         * This is required only if you are using Google Plus, the issue is that there SDK
+         * require Activity to launch Auth, so library can't receive onActivityResult in fragment
+         */
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(BaseDemoFragment.SOCIAL_NETWORK_TAG);
+        if (fragment != null) {
+            fragment.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 ```
 
 ### Dependencies
