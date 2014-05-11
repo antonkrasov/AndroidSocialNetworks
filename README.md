@@ -126,7 +126,7 @@ Library is still in development, so for now it's only available in staging repo.
 
   Anton Krasov - <anton.krasov@gmail.com>
 
-<a href="https://twitter.com/ntnkrsv"><img src="https://raw.githubusercontent.com/antonkrasov/AndroidSocialNetworks/master/other/sn_icons/twitter.png" width="100px" height="81px" align="left" hspace="15px" /></a>
+<a href="https://twitter.com/ntnkrsv"><img src="https://raw.githubusercontent.com/antonkrasov/AndroidSocialNetworks/master/other/sn_icons/twitter.png" width="100px" height="81px" /></a><br/>
 
 ## License
 
