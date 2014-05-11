@@ -87,7 +87,7 @@ Library is still in development, so for now it's only available in staging repo.
       }
   }
 
-  compile('com.github.androidsocialnetworks:library:0.2.0-SNAPSHOT@aar') {
+  compile('com.github.androidsocialnetworks:library:0.2.1-SNAPSHOT@aar') {
       transitive = true
   }
 ```
@@ -125,6 +125,8 @@ Library is still in development, so for now it's only available in staging repo.
 ##Developed By
 
   Anton Krasov - <anton.krasov@gmail.com>
+
+<a href="https://twitter.com/ntnkrsv"><img src="https://raw.githubusercontent.com/antonkrasov/AndroidSocialNetworks/master/other/sn_icons/twitter.png" width="100px" height="81px" align="left" hspace="15px" /></a>
 
 ## License
 
