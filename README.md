@@ -49,8 +49,8 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
     if (mSocialNetworkManager == null) {
         mSocialNetworkManager = SocialNetworkManager.Builder.from(getActivity())
-                .twitter("3IYEDC9Pq5SIjzENhgorlpera", "fawjHMhyzhrfcFKZVB6d5YfiWbWGmgX7vPfazi61xZY9pdD1aE")
-                .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
+                .twitter(<< TWITTER  API TOKEN  >>, << TWITTER  API SECRET  >>)
+                .linkedIn(<< LINKED_IN  API TOKEN  >>, << LINKED_IN API TOKEN  >>, "r_basicprofile+rw_nus+r_network+w_messages")
                 .facebook()
                 .googlePlus()
                 .build();
@@ -87,7 +87,7 @@ Library is still in development, so for now it's only available in staging repo.
       }
   }
 
-  compile('com.github.androidsocialnetworks:library:0.2.0-SNAPSHOT@aar') {
+  compile('com.github.androidsocialnetworks:library:0.2.1-SNAPSHOT@aar') {
       transitive = true
   }
 ```
@@ -125,6 +125,8 @@ Library is still in development, so for now it's only available in staging repo.
 ##Developed By
 
   Anton Krasov - <anton.krasov@gmail.com>
+
+<a href="https://twitter.com/ntnkrsv"><img src="https://raw.githubusercontent.com/antonkrasov/AndroidSocialNetworks/master/other/sn_icons/twitter.png" width="100px" height="81px" /></a><br/>
 
 ## License
 
