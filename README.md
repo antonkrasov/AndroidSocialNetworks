@@ -1,11 +1,14 @@
 Android Social Networks
 =====================
 
+<p>
+<img src="https://raw.githubusercontent.com/antonkrasov/AndroidSocialNetworks/master/other/asn.png" width="200px" height="200px" align="left" hspace="15px" />
 Android Social Networks is library which makes working with social networks easier.
 If you sometime tried to work with social networks on android you should remember that this is a hell.
 You should read documentation for every social network, download SDK or use some libraries for OAuth and make
 http calls by yourself. This library should makes your life easier, it contains common interface for
 Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and configure your AndroidManiferst and you can login users, or post messages or photos or add / remove friends.
+</p>
 
 **Library is still in development so more features will be added soon**
 
