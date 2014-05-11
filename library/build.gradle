@@ -47,6 +47,17 @@ signing {
     sign configurations.archives
 }
 
+task packageSources(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+artifacts {
+    archives packageSources {
+        type = 'sources'
+    }
+}
+
 uploadArchives {
     configuration = configurations.archives
     repositories.mavenDeployer {
