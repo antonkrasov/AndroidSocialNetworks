@@ -49,8 +49,8 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
     if (mSocialNetworkManager == null) {
         mSocialNetworkManager = SocialNetworkManager.Builder.from(getActivity())
-                .twitter("3IYEDC9Pq5SIjzENhgorlpera", "fawjHMhyzhrfcFKZVB6d5YfiWbWGmgX7vPfazi61xZY9pdD1aE")
-                .linkedIn("77ieoe71pon7wq", "pp5E8hkdY9voGC9y", "r_basicprofile+rw_nus+r_network+w_messages")
+                .twitter(<< TWITTER  API TOKEN  >>, << TWITTER  API SECRET  >>)
+                .linkedIn(<< LINKED_IN  API TOKEN  >>, << LINKED_IN API TOKEN  >>, "r_basicprofile+rw_nus+r_network+w_messages")
                 .facebook()
                 .googlePlus()
                 .build();
