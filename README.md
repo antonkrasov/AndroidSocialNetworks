@@ -33,7 +33,10 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 
 ### Sample Application
 
-  [Download](https://dl.dropboxusercontent.com/u/80518668/asn_api_demos.apk)
+<a href="https://play.google.com/store/apps/details?id=com.github.androidsocialnetworks.apidemos">
+  <img alt="Android app on Google Play"
+       src="https://developer.android.com/images/brand/en_app_rgb_wo_45.png" />
+</a>
 
 ### Getting started
 
