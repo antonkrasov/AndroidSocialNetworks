@@ -22,6 +22,14 @@ import java.util.Map;
 
 import static com.androidsocialnetworks.lib.Consts.TAG;
 
+/**
+ * Ids:
+ * <p/>
+ * 1 - Twitter
+ * 2 - LinkedIn
+ * 3 - Google Plus
+ * 4 - Facebook
+ */
 public abstract class SocialNetwork {
 
     public static final String REQUEST_LOGIN = "SocialNetwork.REQUEST_LOGIN";

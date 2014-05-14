@@ -29,11 +29,8 @@ public class SocialNetworkManager extends Fragment {
     private static final String PARAM_LINKEDIN_PERMISSIONS = "SocialNetworkManager.PARAM_LINKEDIN_PERMISSIONS";
     private static final String PARAM_FACEBOOK = "SocialNetworkManager.PARAM_FACEBOOK";
     private static final String PARAM_GOOGLE_PLUS = "SocialNetworkManager.PARAM_GOOGLE_PLUS";
-    private static final String KEY_SOCIAL_NETWORK_TWITTER = "KEY_SOCIAL_NETWORK_TWITTER";
-    private static final String KEY_SOCIAL_NETWORK_LINKED_IN = "KEY_SOCIAL_NETWORK_LINKED_IN";
-    private static final String KEY_SOCIAL_NETWORK_FACEBOOK = "KEY_SOCIAL_NETWORK_FACEBOOK";
-    private static final String KEY_SOCIAL_NETWORK_GOOGLE_PLUS = "KEY_SOCIAL_NETWORK_GOOGLE_PLUS";
-    private Map<String, SocialNetwork> mSocialNetworksMap = new HashMap<String, SocialNetwork>();
+
+    private Map<Integer, SocialNetwork> mSocialNetworksMap = new HashMap<Integer, SocialNetwork>();
     private OnInitializationCompleteListener mOnInitializationCompleteListener;
 
     @Override
@@ -56,21 +53,21 @@ public class SocialNetworkManager extends Fragment {
         final boolean paramGooglePlus = args.getBoolean(PARAM_GOOGLE_PLUS, false);
 
         if (!TextUtils.isEmpty(paramTwitterKey) || !TextUtils.isEmpty(paramTwitterKey)) {
-            mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_TWITTER,
+            mSocialNetworksMap.put(TwitterSocialNetwork.ID,
                     new TwitterSocialNetwork(this, paramTwitterKey, paramTwitterSecret));
         }
 
         if (!TextUtils.isEmpty(paramLinkedInKey) || !TextUtils.isEmpty(paramLinkedInSecret)) {
-            mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_LINKED_IN,
+            mSocialNetworksMap.put(LinkedInSocialNetwork.ID,
                     new LinkedInSocialNetwork(this, paramLinkedInKey, paramLinkedInSecret, paramLinkedInPermissions));
         }
 
         if (paramFacebook) {
-            mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_FACEBOOK, new FacebookSocialNetwork(this));
+            mSocialNetworksMap.put(FacebookSocialNetwork.ID, new FacebookSocialNetwork(this));
         }
 
         if (paramGooglePlus) {
-            mSocialNetworksMap.put(KEY_SOCIAL_NETWORK_GOOGLE_PLUS, new GooglePlusSocialNetwork(this));
+            mSocialNetworksMap.put(GooglePlusSocialNetwork.ID, new GooglePlusSocialNetwork(this));
         }
 
         for (SocialNetwork socialNetwork : mSocialNetworksMap.values()) {
@@ -154,49 +151,51 @@ public class SocialNetworkManager extends Fragment {
     }
 
     public TwitterSocialNetwork getTwitterSocialNetwork() throws SocialNetworkException {
-        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_TWITTER)) {
+        if (!mSocialNetworksMap.containsKey(TwitterSocialNetwork.ID)) {
             throw new SocialNetworkException("Twitter wasn't initialized...");
         }
 
-        return (TwitterSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_TWITTER);
+        return (TwitterSocialNetwork) mSocialNetworksMap.get(TwitterSocialNetwork.ID);
     }
 
     public LinkedInSocialNetwork getLinkedInSocialNetwork() throws SocialNetworkException {
-        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_LINKED_IN)) {
+        if (!mSocialNetworksMap.containsKey(LinkedInSocialNetwork.ID)) {
             throw new SocialNetworkException("LinkedIn wasn't initialized...");
         }
 
-        return (LinkedInSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_LINKED_IN);
+        return (LinkedInSocialNetwork) mSocialNetworksMap.get(LinkedInSocialNetwork.ID);
     }
 
     public FacebookSocialNetwork getFacebookSocialNetwork() throws SocialNetworkException {
-        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_FACEBOOK)) {
+        if (!mSocialNetworksMap.containsKey(FacebookSocialNetwork.ID)) {
             throw new IllegalStateException("Facebook wasn't initialized...");
         }
 
-        return (FacebookSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_FACEBOOK);
+        return (FacebookSocialNetwork) mSocialNetworksMap.get(FacebookSocialNetwork.ID);
     }
 
     public GooglePlusSocialNetwork getGooglePlusSocialNetwork() {
-        if (!mSocialNetworksMap.containsKey(KEY_SOCIAL_NETWORK_GOOGLE_PLUS)) {
+        if (!mSocialNetworksMap.containsKey(GooglePlusSocialNetwork.ID)) {
             throw new IllegalStateException("Facebook wasn't initialized...");
         }
 
-        return (GooglePlusSocialNetwork) mSocialNetworksMap.get(KEY_SOCIAL_NETWORK_GOOGLE_PLUS);
+        return (GooglePlusSocialNetwork) mSocialNetworksMap.get(GooglePlusSocialNetwork.ID);
     }
 
     public SocialNetwork getSocialNetwork(int id) throws SocialNetworkException {
-        if (id == TwitterSocialNetwork.ID) {
-            return getTwitterSocialNetwork();
-        } else if (id == FacebookSocialNetwork.ID) {
-            return getFacebookSocialNetwork();
-        } else if (id == LinkedInSocialNetwork.ID) {
-            return getLinkedInSocialNetwork();
-        } else if (id == GooglePlusSocialNetwork.ID) {
-            return getGooglePlusSocialNetwork();
-        } else {
+        if (!mSocialNetworksMap.containsKey(id)) {
             throw new SocialNetworkException("Social network with id = " + id + " not found");
         }
+
+        return mSocialNetworksMap.get(id);
+    }
+
+    public void addSocialNetwork(SocialNetwork socialNetwork) {
+        if (mSocialNetworksMap.get(socialNetwork.getID()) != null) {
+            throw new SocialNetworkException("Social network with id = " + socialNetwork.getID() + " already exists");
+        }
+
+        mSocialNetworksMap.put(socialNetwork.getID(), socialNetwork);
     }
 
     public List<SocialNetwork> getInitializedSocialNetworks() {
