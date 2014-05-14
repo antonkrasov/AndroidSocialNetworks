@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/normal_padding"
         android:background="#55acee"
+        android:padding="@dimen/small_padding"
         android:text="Login with Twitter"
         android:textColor="@android:color/white"
         />
@@ -25,6 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/normal_padding"
         android:background="#0e7cb7"
+        android:padding="@dimen/small_padding"
         android:text="Login with LinkedIn"
         android:textColor="@android:color/white"
         />
@@ -35,6 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/normal_padding"
         android:background="#3b5998"
+        android:padding="@dimen/small_padding"
         android:text="Login with Facebook"
         android:textColor="@android:color/white"
         />
@@ -45,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/normal_padding"
         android:background="#c83929"
+        android:padding="@dimen/small_padding"
         android:text="Login with Google Plus"
         android:textColor="@android:color/white"
         />
