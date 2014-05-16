@@ -186,9 +186,7 @@ public class FacebookSocialNetwork extends SocialNetwork {
                 return;
             } else if (session.isOpened()) {
                 // We need to get new permissions, then complete the action when we get called back.
-                Session.NewPermissionsRequest newPermissionsRequest =
-                        new Session.NewPermissionsRequest(mSocialNetworkManager, PERMISSION);
-                session.requestNewPublishPermissions(newPermissionsRequest);
+                session.requestNewPublishPermissions(new Session.NewPermissionsRequest(mSocialNetworkManager.getActivity(), PERMISSION));
                 return;
             }
         }
@@ -324,11 +322,6 @@ public class FacebookSocialNetwork extends SocialNetwork {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mUILifecycleHelper.onActivityResult(requestCode, resultCode, data, null);
-
-        Session session = mSessionTracker.getOpenSession();
-        if (session != null) {
-            session.onActivityResult(mSocialNetworkManager.getActivity(), requestCode, resultCode, data);
-        }
     }
 
     private boolean hasPublishPermission() {
