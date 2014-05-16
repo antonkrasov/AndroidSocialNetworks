@@ -24,9 +24,11 @@ class WorkQueue {
     public static final int DEFAULT_MAX_CONCURRENT = 8;
 
     private final Object workLock = new Object();
+    private WorkNode pendingJobs;
+
     private final int maxConcurrent;
     private final Executor executor;
-    private WorkNode pendingJobs;
+
     private WorkNode runningJobs = null;
     private int runningCount = 0;
 
@@ -121,14 +123,6 @@ class WorkQueue {
         });
     }
 
-    interface WorkItem {
-        boolean cancel();
-
-        boolean isRunning();
-
-        void moveToFront();
-    }
-
     private class WorkNode implements WorkItem {
         private final Runnable callback;
         private WorkNode next;
@@ -217,5 +211,11 @@ class WorkQueue {
             assert next.prev == this;
             assert isRunning() == shouldBeRunning;
         }
+    }
+
+    interface WorkItem {
+        boolean cancel();
+        boolean isRunning();
+        void moveToFront();
     }
 }

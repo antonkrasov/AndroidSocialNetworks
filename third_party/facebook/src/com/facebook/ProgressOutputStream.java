@@ -62,7 +62,8 @@ class ProgressOutputStream extends FilterOutputStream implements RequestOutputSt
                     final RequestBatch.OnProgressCallback progressCallback = (RequestBatch.OnProgressCallback) callback;
                     if (callbackHandler == null) {
                         progressCallback.onBatchProgress(requests, batchProgress, maxProgress);
-                    } else {
+                    }
+                    else {
                         callbackHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -78,7 +79,7 @@ class ProgressOutputStream extends FilterOutputStream implements RequestOutputSt
     }
 
     public void setCurrentRequest(Request request) {
-        currentRequestProgress = request != null ? progressMap.get(request) : null;
+        currentRequestProgress = request != null? progressMap.get(request) : null;
     }
 
     long getBatchProgress() {

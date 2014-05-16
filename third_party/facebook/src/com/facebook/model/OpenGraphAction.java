@@ -24,105 +24,91 @@ import java.util.List;
 /**
  * Provides a strongly-typed representation of an Open Graph Action.
  * For more documentation of OG Actions, see: https://developers.facebook.com/docs/opengraph/actions/
- * <p/>
+ *
  * Note that this interface is intended to be used with GraphObject.Factory or OpenGraphAction.Factory
  * and not implemented directly.
  */
 public interface OpenGraphAction extends GraphObject {
     /**
      * Gets the ID of the action.
-     *
      * @return the ID
      */
     String getId();
 
     /**
      * Sets the ID of the action.
-     *
      * @param id the ID
      */
     void setId(String id);
 
     /**
      * Gets the type of the action, which is a string in the form "mynamespace:mytype".
-     *
      * @return the type
      */
     String getType();
 
     /**
      * Sets the type of the action, which is a string in the form "mynamespace:mytype".
-     *
      * @param type the type
      */
     void setType(String type);
 
     /**
      * Gets the start time of the action.
-     *
      * @return the start time
      */
     Date getStartTime();
 
     /**
      * Sets the start time of the action.
-     *
      * @param startTime the start time
      */
     void setStartTime(Date startTime);
 
     /**
      * Gets the end time of the action.
-     *
      * @return the end time
      */
     Date getEndTime();
 
     /**
      * Sets the end time of the action.
-     *
      * @param endTime the end time
      */
     void setEndTime(Date endTime);
 
     /**
      * Gets the time the action was published, if any.
-     *
      * @return the publish time
      */
     Date getPublishTime();
 
     /**
      * Sets the time the action was published.
-     *
      * @param publishTime the publish time
      */
     void setPublishTime(Date publishTime);
 
     /**
      * Gets the time the action was created.
-     *
      * @return the creation time
      */
     public Date getCreatedTime();
 
     /**
      * Sets the time the action was created.
-     *
      * @param createdTime the creation time
      */
     public void setCreatedTime(Date createdTime);
 
     /**
      * Gets the time the action expires at.
-     *
      * @return the expiration time
      */
     public Date getExpiresTime();
 
     /**
      * Sets the time the action expires at.
-     *
      * @param expiresTime the expiration time
      */
     public void setExpiresTime(Date expiresTime);
@@ -130,7 +116,6 @@ public interface OpenGraphAction extends GraphObject {
     /**
      * Gets the unique string which will be passed to the OG Action owner's website
      * when a user clicks through this action on Facebook.
-     *
      * @return the ref string
      */
     String getRef();
@@ -138,63 +123,54 @@ public interface OpenGraphAction extends GraphObject {
     /**
      * Sets the unique string which will be passed to the OG Action owner's website
      * when a user clicks through this action on Facebook.
-     *
      * @param ref the ref string
      */
     void setRef(String ref);
 
     /**
      * Gets the message assoicated with the action.
-     *
      * @return the message
      */
     String getMessage();
 
     /**
      * Sets the message associated with the action.
-     *
      * @param message the message
      */
     void setMessage(String message);
 
     /**
      * Gets the place where the action took place.
-     *
      * @return the place
      */
     GraphPlace getPlace();
 
     /**
      * Sets the place where the action took place.
-     *
      * @param place the place
      */
     void setPlace(GraphPlace place);
 
     /**
      * Gets the list of profiles that were tagged in the action.
-     *
      * @return the profiles that were tagged in the action
      */
     GraphObjectList<GraphObject> getTags();
 
     /**
      * Sets the list of profiles that were tagged in the action.
-     *
      * @param tags the profiles that were tagged in the action
      */
     void setTags(List<? extends GraphObject> tags);
 
     /**
      * Gets the images that were associated with the action.
-     *
      * @return the images
      */
     List<JSONObject> getImage();
 
     /**
      * Sets the images that were associated with the action.
-     *
      * @param image the images
      */
     void setImage(List<JSONObject> image);
@@ -202,7 +178,6 @@ public interface OpenGraphAction extends GraphObject {
     /**
      * Sets the images associated with the Open Graph action by specifying their URLs. This is a helper
      * that will create GraphObjects with the correct URLs and populate the property with those objects.
-     *
      * @param urls the URLs
      */
     @CreateGraphObject("url")
@@ -211,56 +186,48 @@ public interface OpenGraphAction extends GraphObject {
 
     /**
      * Gets the from-user associated with the action.
-     *
      * @return the user
      */
     GraphUser getFrom();
 
     /**
      * Sets the from-user associated with the action.
-     *
      * @param from the from-user
      */
     void setFrom(GraphUser from);
 
     /**
      * Gets the 'likes' that have been performed on this action.
-     *
      * @return the likes
      */
     public JSONObject getLikes();
 
     /**
      * Sets the 'likes' that have been performed on this action.
-     *
      * @param likes the likes
      */
     public void setLikes(JSONObject likes);
 
     /**
      * Gets the application that created this action.
-     *
      * @return the application
      */
     GraphObject getApplication();
 
     /**
      * Sets the application that created this action.
-     *
      * @param application the application
      */
     void setApplication(GraphObject application);
 
     /**
      * Gets the comments that have been made on this action.
-     *
      * @return the comments
      */
     public JSONObject getComments();
 
     /**
      * Sets the comments that have been made on this action.
-     *
      * @param comments the comments
      */
     void setComments(JSONObject comments);
@@ -268,14 +235,12 @@ public interface OpenGraphAction extends GraphObject {
     /**
      * Gets the type-specific data for this action; for instance, any properties
      * referencing Open Graph objects will appear under here.
-     *
      * @return a GraphObject representing the type-specific data
      */
     GraphObject getData();
 
     /**
      * Sets the type-specific data for this action.
-     *
      * @param data a GraphObject representing the type-specific data
      */
     void setData(GraphObject data);
@@ -285,7 +250,6 @@ public interface OpenGraphAction extends GraphObject {
      * Gets whether the action has been explicitly shared by the user. See
      * <a href="https://developers.facebook.com/docs/opengraph/guides/explicit-sharing/">Explicit Sharing</a> for
      * more information.
-     *
      * @return true if this action was explicitly shared
      */
     @PropertyName("fb:explicitly_shared")
@@ -296,7 +260,6 @@ public interface OpenGraphAction extends GraphObject {
      * <a href="https://developers.facebook.com/docs/opengraph/guides/explicit-sharing/">Explicit Sharing</a> for
      * more information. You should only specify this property if explicit sharing has been enabled for an
      * Open Graph action type.
-     *
      * @param explicitlyShared true if this action was explicitly shared
      */
     @PropertyName("fb:explicitly_shared")
@@ -308,7 +271,6 @@ public interface OpenGraphAction extends GraphObject {
     final class Factory {
         /**
          * Creates an OpenGraphAction suitable for posting via, e.g., a native Share dialog.
-         *
          * @return an OpenGraphAction
          */
         @Deprecated
@@ -318,7 +280,6 @@ public interface OpenGraphAction extends GraphObject {
 
         /**
          * Creates an OpenGraphAction suitable for posting via, e.g., a native Share dialog.
-         *
          * @param type the Open Graph action type for the action, or null if it will be specified later
          * @return an OpenGraphAction
          */
@@ -328,8 +289,7 @@ public interface OpenGraphAction extends GraphObject {
 
         /**
          * Creates an OpenGraphAction suitable for posting via, e.g., a native Share dialog.
-         *
-         * @param type             the Open Graph action type for the action, or null if it will be specified later
+         * @param type the Open Graph action type for the action, or null if it will be specified later
          * @param graphObjectClass the OpenGraphAction-derived type to return
          * @return an OpenGraphAction
          */

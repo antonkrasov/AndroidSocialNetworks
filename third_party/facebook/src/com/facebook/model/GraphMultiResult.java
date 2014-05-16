@@ -19,14 +19,13 @@ package com.facebook.model;
 /**
  * Defines a GraphObject that represents the result of a query that returns multiple GraphObjects
  * nested under a "data" property.
- * <p/>
+ *
  * Note that this interface is intended to be used with GraphObject.Factory
  * and not implemented directly.
  */
 public interface GraphMultiResult extends GraphObject {
     /**
      * Provides access to the GraphObjects that make up the result set.
-     *
      * @return a list of GraphObjects
      */
     public GraphObjectList<GraphObject> getData();

@@ -17,7 +17,6 @@
 package com.facebook.internal;
 
 import android.util.Log;
-
 import com.facebook.LoggingBehavior;
 import com.facebook.Settings;
 
@@ -37,14 +36,6 @@ public class Logger {
     private final String tag;
     private StringBuilder contents;
     private int priority = Log.DEBUG;
-
-    public Logger(LoggingBehavior behavior, String tag) {
-        Validate.notNullOrEmpty(tag, "tag");
-
-        this.behavior = behavior;
-        this.tag = LOG_TAG_BASE + tag;
-        this.contents = new StringBuilder();
-    }
 
     // Note that the mapping of replaced strings is never emptied, so it should be used only for things that
     // are not expected to be too numerous, such as access tokens.
@@ -90,6 +81,14 @@ public class Logger {
             string = string.replace(entry.getKey(), entry.getValue());
         }
         return string;
+    }
+
+    public Logger(LoggingBehavior behavior, String tag) {
+        Validate.notNullOrEmpty(tag, "tag");
+
+        this.behavior = behavior;
+        this.tag = LOG_TAG_BASE + tag;
+        this.contents = new StringBuilder();
     }
 
     public int getPriority() {

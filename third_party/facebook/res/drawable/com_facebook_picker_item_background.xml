@@ -17,10 +17,10 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Even though these two point to the same resource, have two states so the drawable will invalidate itself when coming out of pressed state. -->
-    <item android:drawable="@drawable/com_facebook_picker_list_selector_disabled" android:state_enabled="false" android:state_focused="true" android:state_pressed="true"/>
-    <item android:drawable="@drawable/com_facebook_picker_list_selector_disabled" android:state_enabled="false" android:state_focused="true"/>
-    <item android:drawable="@drawable/com_facebook_picker_list_selector_background_transition" android:state_focused="true" android:state_pressed="true"/>
-    <item android:drawable="@drawable/com_facebook_picker_list_selector_background_transition" android:state_focused="false" android:state_pressed="true"/>
-    <item android:drawable="@drawable/com_facebook_picker_list_focused" android:state_focused="true"/>
-    <item android:drawable="@android:color/transparent"/>
+    <item android:state_focused="true"  android:state_enabled="false" android:state_pressed="true" android:drawable="@drawable/com_facebook_picker_list_selector_disabled" />
+    <item android:state_focused="true"  android:state_enabled="false"                              android:drawable="@drawable/com_facebook_picker_list_selector_disabled" />
+    <item android:state_focused="true"                                android:state_pressed="true" android:drawable="@drawable/com_facebook_picker_list_selector_background_transition" />
+    <item android:state_focused="false"                               android:state_pressed="true" android:drawable="@drawable/com_facebook_picker_list_selector_background_transition" />
+    <item android:state_focused="true"                                                             android:drawable="@drawable/com_facebook_picker_list_focused" />
+    <item                                                                                          android:drawable="@android:color/transparent" />
 </selector>

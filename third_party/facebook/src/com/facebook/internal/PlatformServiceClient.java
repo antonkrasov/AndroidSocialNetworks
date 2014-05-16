@@ -20,12 +20,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
+import android.os.*;
 
 /**
  * com.facebook.internal is solely for the use of other packages within the Facebook SDK for Android. Use of
@@ -35,16 +30,16 @@ import android.os.RemoteException;
 abstract public class PlatformServiceClient implements ServiceConnection {
     private final Context context;
     private final Handler handler;
-    private final String applicationId;
-    private final int protocolVersion;
     private CompletedListener listener;
     private boolean running;
     private Messenger sender;
     private int requestMessage;
     private int replyMessage;
+    private final String applicationId;
+    private final int protocolVersion;
 
     public PlatformServiceClient(Context context, int requestMessage, int replyMessage, int protocolVersion,
-                                 String applicationId) {
+            String applicationId) {
         Context applicationContext = context.getApplicationContext();
 
         this.context = (applicationContext != null) ? applicationContext : context;

@@ -24,21 +24,20 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.util.Pair;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 
 /**
  * <p>Implements a <a href="http://developer.android.com/reference/android/content/ContentProvider.html">
  * ContentProvider</a> that can be used to provide binary attachments (e.g., images) to calls made
  * via @link FacebookDialog}. The {@link NativeAppCallAttachmentStore} class provides methods to attach
  * and clean up the attachments.
- * <p/>
+ *
  * <p>Note that this ContentProvider is only necessary if an application wishes to attach images, etc., that are
  * stored in memory and do not have another way to be referenced by a content URI. For images obtained from,
  * e.g., the Camera or Gallery, that already have a content URI associated with them, use of this class is not
  * necessary.</p>
- * <p/>
+ *
  * <p>If an application wishes to attach images that are stored in-memory within the application, this content
  * provider must be listed in the application's AndroidManifest.xml, and it should be named according to the
  * pattern <code>"com.facebook.app.NativeAppCallContentProvider{FACEBOOK_APP_ID}"</code>. See the
@@ -58,9 +57,12 @@ public class NativeAppCallContentProvider extends ContentProvider {
         this.dataSource = dataSource;
     }
 
+    interface AttachmentDataSource {
+        File openAttachment(UUID callId, String attachmentName) throws FileNotFoundException;
+    }
+
     /**
      * Returns the name of the content provider formatted correctly for constructing URLs.
-     *
      * @param applicationId the Facebook application ID of the application
      * @return the String to use as the authority portion of a content URI.
      */
@@ -123,7 +125,7 @@ public class NativeAppCallContentProvider extends ContentProvider {
             // array bounds exceptions, which we'll catch and return null. All of these will result in a
             // FileNotFoundException being thrown in openFile.
             String callIdAndAttachmentName = uri.getPath().substring(1);
-            String[] parts = callIdAndAttachmentName.split("/");
+            String [] parts = callIdAndAttachmentName.split("/");
 
             String callIdString = parts[0];
             String attachmentName = parts[1];
@@ -133,9 +135,5 @@ public class NativeAppCallContentProvider extends ContentProvider {
         } catch (Exception exception) {
             return null;
         }
-    }
-
-    interface AttachmentDataSource {
-        File openAttachment(UUID callId, String attachmentName) throws FileNotFoundException;
     }
 }

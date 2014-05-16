@@ -31,20 +31,16 @@ import java.util.List;
  */
 public interface GraphObjectList<T> extends List<T> {
     // cast method is only supported if T extends GraphObject
-
     /**
      * If T is derived from GraphObject, returns a new GraphObjectList exposing the same underlying data as a new
      * GraphObject-derived type.
-     *
      * @param graphObjectClass the GraphObject-derived type to return a list of
      * @return a list representing the same underlying data, exposed as the new GraphObject-derived type
      * @throws com.facebook.FacebookGraphObjectException if T does not derive from GraphObject
      */
     public <U extends GraphObject> GraphObjectList<U> castToListOf(Class<U> graphObjectClass);
-
     /**
      * Gets the underlying JSONArray representation of the data.
-     *
      * @return the underlying JSONArray representation of the data
      */
     public JSONArray getInnerJSONArray();

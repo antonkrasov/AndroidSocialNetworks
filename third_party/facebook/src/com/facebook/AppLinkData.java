@@ -21,13 +21,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-
-import com.facebook.internal.AttributionIdentifiers;
-import com.facebook.internal.Utility;
-import com.facebook.internal.Validate;
+import com.facebook.internal.*;
 import com.facebook.model.GraphObject;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,14 +80,10 @@ public class AppLinkData {
     private JSONObject arguments;
     private Bundle argumentBundle;
 
-    private AppLinkData() {
-    }
-
     /**
      * Asynchronously fetches app link information that might have been stored for use
      * after installation of the app
-     *
-     * @param context           The context
+     * @param context The context
      * @param completionHandler CompletionHandler to be notified with the AppLinkData object or null if none is
      *                          available.  Must not be null.
      */
@@ -100,9 +94,8 @@ public class AppLinkData {
     /**
      * Asynchronously fetches app link information that might have been stored for use
      * after installation of the app
-     *
-     * @param context           The context
-     * @param applicationId     Facebook application Id. If null, it is taken from the manifest
+     * @param context The context
+     * @param applicationId Facebook application Id. If null, it is taken from the manifest
      * @param completionHandler CompletionHandler to be notified with the AppLinkData object or null if none is
      *                          available.  Must not be null.
      */
@@ -209,7 +202,6 @@ public class AppLinkData {
 
     /**
      * Parses out any app link data from the Intent of the Activity passed in.
-     *
      * @param activity Activity that was started because of an app link
      * @return AppLinkData if found. null if not.
      */
@@ -258,7 +250,7 @@ public class AppLinkData {
     }
 
     private static AppLinkData createFromJson(String jsonString) {
-        if (jsonString == null) {
+        if (jsonString  == null) {
             return null;
         }
 
@@ -353,9 +345,12 @@ public class AppLinkData {
         return bundle;
     }
 
+
+    private AppLinkData() {
+    }
+
     /**
      * Returns the target uri for this App Link.
-     *
      * @return target uri
      */
     public Uri getTargetUri() {
@@ -364,7 +359,6 @@ public class AppLinkData {
 
     /**
      * Returns the ref for this App Link.
-     *
      * @return ref
      */
     public String getRef() {
@@ -373,7 +367,6 @@ public class AppLinkData {
 
     /**
      * This method has been deprecated. Please use {@link com.facebook.AppLinkData#getArgumentBundle()} instead.
-     *
      * @return JSONObject property bag.
      */
     @Deprecated
@@ -384,7 +377,6 @@ public class AppLinkData {
     /**
      * The full set of arguments for this app link. Properties like target uri & ref are typically
      * picked out of this set of arguments.
-     *
      * @return App link related arguments as a bundle.
      */
     public Bundle getArgumentBundle() {
@@ -394,7 +386,6 @@ public class AppLinkData {
     /**
      * The referer data associated with the app link. This will contain Facebook specific information like
      * fb_access_token, fb_expires_in, and fb_ref.
-     *
      * @return the referer data.
      */
     public Bundle getRefererData() {
@@ -411,7 +402,6 @@ public class AppLinkData {
         /**
          * This method is called when deferred app link data has been fetched. If no app link data was found,
          * this method is called with null
-         *
          * @param appLinkData The app link data that was fetched. Null if none was found.
          */
         void onDeferredAppLinkDataFetched(AppLinkData appLinkData);

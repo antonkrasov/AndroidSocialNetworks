@@ -27,15 +27,10 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
 import com.facebook.FacebookException;
 import com.facebook.LoggingBehavior;
 import com.facebook.android.R;
-import com.facebook.internal.ImageDownloader;
-import com.facebook.internal.ImageRequest;
-import com.facebook.internal.ImageResponse;
-import com.facebook.internal.Logger;
-import com.facebook.internal.Utility;
+import com.facebook.internal.*;
 
 import java.net.URISyntaxException;
 
@@ -46,9 +41,22 @@ import java.net.URISyntaxException;
 public class ProfilePictureView extends FrameLayout {
 
     /**
+     * Callback interface that will be called when a network or other error is encountered
+     * while retrieving profile pictures.
+     */
+    public interface OnErrorListener {
+        /**
+         * Called when a network or other error is encountered.
+         * @param error     a FacebookException representing the error that was encountered.
+         */
+        void onError(FacebookException error);
+    }
+
+    /**
      * Tag used when logging calls are made by ProfilePictureView
      */
     public static final String TAG = ProfilePictureView.class.getSimpleName();
+
     /**
      * Indicates that the specific size of the View will be set via layout params.
      * ProfilePictureView will default to NORMAL X NORMAL, if the layout params set on
@@ -57,7 +65,7 @@ public class ProfilePictureView extends FrameLayout {
      * Corresponds with the preset_size Xml attribute that can be set on ProfilePictureView.
      */
     public static final int CUSTOM = -1;
-    private int presetSizeType = CUSTOM;
+
     /**
      * Indicates that the profile image should fit in a SMALL X SMALL space, regardless
      * of whether the cropped or un-cropped version is chosen.
@@ -84,7 +92,6 @@ public class ProfilePictureView extends FrameLayout {
 
     private static final int MIN_SIZE = 1;
     private static final boolean IS_CROPPED_DEFAULT_VALUE = true;
-    private boolean isCropped = IS_CROPPED_DEFAULT_VALUE;
     private static final String SUPER_STATE_KEY = "ProfilePictureView_superState";
     private static final String PROFILE_ID_KEY = "ProfilePictureView_profileId";
     private static final String PRESET_SIZE_KEY = "ProfilePictureView_presetSize";
@@ -93,11 +100,14 @@ public class ProfilePictureView extends FrameLayout {
     private static final String BITMAP_WIDTH_KEY = "ProfilePictureView_width";
     private static final String BITMAP_HEIGHT_KEY = "ProfilePictureView_height";
     private static final String PENDING_REFRESH_KEY = "ProfilePictureView_refresh";
+
     private String profileId;
     private int queryHeight = ImageRequest.UNSPECIFIED_DIMENSION;
     private int queryWidth = ImageRequest.UNSPECIFIED_DIMENSION;
+    private boolean isCropped = IS_CROPPED_DEFAULT_VALUE;
     private Bitmap imageContents;
     private ImageView image;
+    private int presetSizeType = CUSTOM;
     private ImageRequest lastRequest;
     private OnErrorListener onErrorListener;
     private Bitmap customizedDefaultProfilePicture = null;
@@ -203,7 +213,7 @@ public class ProfilePictureView extends FrameLayout {
      * Sets the profile Id for this profile photo
      *
      * @param profileId The profileId
-     *                  NULL/Empty String will show the blank profile photo
+     *               NULL/Empty String will show the blank profile photo
      */
     public final void setProfileId(String profileId) {
         boolean force = false;
@@ -233,7 +243,7 @@ public class ProfilePictureView extends FrameLayout {
      * @param onErrorListener The Listener object to set
      */
     public final void setOnErrorListener(OnErrorListener onErrorListener) {
-        this.onErrorListener = onErrorListener;
+      this.onErrorListener = onErrorListener;
     }
 
     /**
@@ -300,7 +310,6 @@ public class ProfilePictureView extends FrameLayout {
     /**
      * Some of the current state is returned as a Bundle to allow quick restoration
      * of the ProfilePictureView object in scenarios like orientation changes.
-     *
      * @return a Parcelable containing the current state
      */
     @Override
@@ -321,7 +330,6 @@ public class ProfilePictureView extends FrameLayout {
 
     /**
      * If the passed in state is a Bundle, an attempt is made to restore from it.
-     *
      * @param state a Parcelable containing the current state
      */
     @Override
@@ -329,7 +337,7 @@ public class ProfilePictureView extends FrameLayout {
         if (state.getClass() != Bundle.class) {
             super.onRestoreInstanceState(state);
         } else {
-            Bundle instanceState = (Bundle) state;
+            Bundle instanceState = (Bundle)state;
             super.onRestoreInstanceState(instanceState.getParcelable(SUPER_STATE_KEY));
 
             profileId = instanceState.getString(PROFILE_ID_KEY);
@@ -338,7 +346,7 @@ public class ProfilePictureView extends FrameLayout {
             queryWidth = instanceState.getInt(BITMAP_WIDTH_KEY);
             queryHeight = instanceState.getInt(BITMAP_HEIGHT_KEY);
 
-            setImageBitmap((Bitmap) instanceState.getParcelable(BITMAP_KEY));
+            setImageBitmap((Bitmap)instanceState.getParcelable(BITMAP_KEY));
 
             if (instanceState.getBoolean(PENDING_REFRESH_KEY)) {
                 refreshImage(true);
@@ -395,17 +403,17 @@ public class ProfilePictureView extends FrameLayout {
 
     private void setBlankProfilePicture() {
         if (customizedDefaultProfilePicture == null) {
-            int blankImageResource = isCropped() ?
-                    R.drawable.com_facebook_profile_picture_blank_square :
-                    R.drawable.com_facebook_profile_picture_blank_portrait;
-            setImageBitmap(BitmapFactory.decodeResource(getResources(), blankImageResource));
-        } else {
-            // Update profile image dimensions.
-            updateImageQueryParameters();
-            // Resize inputBitmap to new dimensions of queryWidth and queryHeight.
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(customizedDefaultProfilePicture, queryWidth, queryHeight, false);
-            setImageBitmap(scaledBitmap);
-        }
+          int blankImageResource = isCropped() ?
+                  R.drawable.com_facebook_profile_picture_blank_square :
+                  R.drawable.com_facebook_profile_picture_blank_portrait;
+          setImageBitmap( BitmapFactory.decodeResource(getResources(), blankImageResource));
+	} else {
+          // Update profile image dimensions.
+          updateImageQueryParameters();
+          // Resize inputBitmap to new dimensions of queryWidth and queryHeight.
+          Bitmap scaledBitmap = Bitmap.createScaledBitmap(customizedDefaultProfilePicture, queryWidth, queryHeight, false);
+          setImageBitmap(scaledBitmap);
+	}
     }
 
     private void setImageBitmap(Bitmap imageBitmap) {
@@ -419,18 +427,17 @@ public class ProfilePictureView extends FrameLayout {
         try {
             ImageRequest.Builder requestBuilder = new ImageRequest.Builder(
                     getContext(),
-                    ImageRequest.getProfilePictureUrl(profileId, queryWidth, queryHeight));
+                    ImageRequest.getProfilePictureUrl(profileId, queryWidth,  queryHeight));
 
             ImageRequest request = requestBuilder.setAllowCachedRedirects(allowCachedResponse)
                     .setCallerTag(this)
                     .setCallback(
-                            new ImageRequest.Callback() {
-                                @Override
-                                public void onCompleted(ImageResponse response) {
-                                    processResponse(response);
-                                }
-                            }
-                    )
+                    new ImageRequest.Callback() {
+                        @Override
+                        public void onCompleted(ImageResponse response) {
+                            processResponse(response);
+                        }
+                    })
                     .build();
 
             // Make sure to cancel the old request before sending the new one to prevent
@@ -527,18 +534,5 @@ public class ProfilePictureView extends FrameLayout {
         }
 
         return getResources().getDimensionPixelSize(dimensionId);
-    }
-
-    /**
-     * Callback interface that will be called when a network or other error is encountered
-     * while retrieving profile pictures.
-     */
-    public interface OnErrorListener {
-        /**
-         * Called when a network or other error is encountered.
-         *
-         * @param error a FacebookException representing the error that was encountered.
-         */
-        void onError(FacebookException error);
     }
 }

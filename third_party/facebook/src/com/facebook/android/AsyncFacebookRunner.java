@@ -27,9 +27,9 @@ import java.net.MalformedURLException;
  * A sample implementation of asynchronous API requests. This class provides
  * the ability to execute API methods and have the call return immediately,
  * without blocking the calling thread. This is necessary when accessing the
- * API in the UI thread, for instance. The request response is returned to
+ * API in the UI thread, for instance. The request response is returned to 
  * the caller via a callback interface, which the developer must implement.
- * <p/>
+ *
  * This sample implementation simply spawns a new thread for each request,
  * and makes the API call immediately.  This may work in many applications,
  * but more sophisticated users may re-implement this behavior using a thread
@@ -37,12 +37,14 @@ import java.net.MalformedURLException;
  * functionality could be built, such as rate-limiting of requests, as per
  * a specific application's needs.
  *
- * @author Jim Brusstar (jimbru@fb.com),
- *         Yariv Sadan (yariv@fb.com),
- *         Luke Shepard (lshepard@fb.com)
- * @see com.facebook.android.AsyncFacebookRunner.RequestListener
- * The callback interface.
  * @deprecated
+ *
+ * @see com.facebook.android.AsyncFacebookRunner.RequestListener
+ *        The callback interface.
+ *
+ * @author  Jim Brusstar (jimbru@fb.com),
+ *          Yariv Sadan (yariv@fb.com),
+ *          Luke Shepard (lshepard@fb.com)
  */
 @Deprecated
 public class AsyncFacebookRunner {
@@ -65,25 +67,27 @@ public class AsyncFacebookRunner {
      * <p/>
      * This method is deprecated.  See {@link Facebook} and {@link com.facebook.Session} for more info.
      *
-     * @param context  The Android context in which the logout should be called: it
-     *                 should be the same context in which the login occurred in
-     *                 order to clear any stored cookies
-     * @param listener Callback interface to notify the application when the request
-     *                 has completed.
-     * @param state    An arbitrary object used to identify the request when it
-     *                 returns to the callback. This has no effect on the request
-     *                 itself.
+     * @param context
+     *            The Android context in which the logout should be called: it
+     *            should be the same context in which the login occurred in
+     *            order to clear any stored cookies
+     * @param listener
+     *            Callback interface to notify the application when the request
+     *            has completed.
+     * @param state
+     *            An arbitrary object used to identify the request when it
+     *            returns to the callback. This has no effect on the request
+     *            itself.
      */
     @Deprecated
     public void logout(final Context context,
                        final RequestListener listener,
                        final Object state) {
         new Thread() {
-            @Override
-            public void run() {
+            @Override public void run() {
                 try {
                     String response = fb.logoutImpl(context);
-                    if (response.length() == 0 || response.equals("false")) {
+                    if (response.length() == 0 || response.equals("false")){
                         listener.onFacebookError(new FacebookError(
                                 "auth.expireSession failed"), state);
                         return;
@@ -118,20 +122,23 @@ public class AsyncFacebookRunner {
      * <p/>
      * Example:
      * <code>
-     * Bundle parameters = new Bundle();
-     * parameters.putString("method", "auth.expireSession", new Listener());
-     * String response = request(parameters);
+     *  Bundle parameters = new Bundle();
+     *  parameters.putString("method", "auth.expireSession", new Listener());
+     *  String response = request(parameters);
      * </code>
      * <p/>
      * This method is deprecated.  See {@link Facebook} and {@link com.facebook.Request} for more info.
      *
-     * @param parameters Key-value pairs of parameters to the request. Refer to the
-     *                   documentation: one of the parameters must be "method".
-     * @param listener   Callback interface to notify the application when the request
-     *                   has completed.
-     * @param state      An arbitrary object used to identify the request when it
-     *                   returns to the callback. This has no effect on the request
-     *                   itself.
+     * @param parameters
+     *            Key-value pairs of parameters to the request. Refer to the
+     *            documentation: one of the parameters must be "method".
+     * @param listener
+     *            Callback interface to notify the application when the request
+     *            has completed.
+     * @param state
+     *            An arbitrary object used to identify the request when it
+     *            returns to the callback. This has no effect on the request
+     *            itself.
      */
     @Deprecated
     public void request(Bundle parameters,
@@ -156,14 +163,17 @@ public class AsyncFacebookRunner {
      * <p/>
      * This method is deprecated.  See {@link Facebook} and {@link com.facebook.Request} for more info.
      *
-     * @param graphPath Path to resource in the Facebook graph, e.g., to fetch data
-     *                  about the currently logged authenticated user, provide "me",
-     *                  which will fetch http://graph.facebook.com/me
-     * @param listener  Callback interface to notify the application when the request
-     *                  has completed.
-     * @param state     An arbitrary object used to identify the request when it
-     *                  returns to the callback. This has no effect on the request
-     *                  itself.
+     * @param graphPath
+     *            Path to resource in the Facebook graph, e.g., to fetch data
+     *            about the currently logged authenticated user, provide "me",
+     *            which will fetch http://graph.facebook.com/me
+     * @param listener
+     *            Callback interface to notify the application when the request
+     *            has completed.
+     * @param state
+     *            An arbitrary object used to identify the request when it
+     *            returns to the callback. This has no effect on the request
+     *            itself.
      */
     @Deprecated
     public void request(String graphPath,
@@ -189,18 +199,22 @@ public class AsyncFacebookRunner {
      * <p/>
      * This method is deprecated.  See {@link Facebook} and {@link com.facebook.Request} for more info.
      *
-     * @param graphPath  Path to resource in the Facebook graph, e.g., to fetch data
-     *                   about the currently logged authenticated user, provide "me",
-     *                   which will fetch http://graph.facebook.com/me
-     * @param parameters key-value string parameters, e.g. the path "search" with
-     *                   parameters "q" : "facebook" would produce a query for the
-     *                   following graph resource:
-     *                   https://graph.facebook.com/search?q=facebook
-     * @param listener   Callback interface to notify the application when the request
-     *                   has completed.
-     * @param state      An arbitrary object used to identify the request when it
-     *                   returns to the callback. This has no effect on the request
-     *                   itself.
+     * @param graphPath
+     *            Path to resource in the Facebook graph, e.g., to fetch data
+     *            about the currently logged authenticated user, provide "me",
+     *            which will fetch http://graph.facebook.com/me
+     * @param parameters
+     *            key-value string parameters, e.g. the path "search" with
+     *            parameters "q" : "facebook" would produce a query for the
+     *            following graph resource:
+     *            https://graph.facebook.com/search?q=facebook
+     * @param listener
+     *            Callback interface to notify the application when the request
+     *            has completed.
+     * @param state
+     *            An arbitrary object used to identify the request when it
+     *            returns to the callback. This has no effect on the request
+     *            itself.
      */
     @Deprecated
     public void request(String graphPath,
@@ -230,19 +244,24 @@ public class AsyncFacebookRunner {
      * <p/>
      * This method is deprecated.  See {@link Facebook} and {@link com.facebook.Request} for more info.
      *
-     * @param graphPath  Path to resource in the Facebook graph, e.g., to fetch data
-     *                   about the currently logged authenticated user, provide "me",
-     *                   which will fetch http://graph.facebook.com/me
-     * @param parameters key-value string parameters, e.g. the path "search" with
-     *                   parameters {"q" : "facebook"} would produce a query for the
-     *                   following graph resource:
-     *                   https://graph.facebook.com/search?q=facebook
-     * @param httpMethod http verb, e.g. "POST", "DELETE"
-     * @param listener   Callback interface to notify the application when the request
-     *                   has completed.
-     * @param state      An arbitrary object used to identify the request when it
-     *                   returns to the callback. This has no effect on the request
-     *                   itself.
+     * @param graphPath
+     *            Path to resource in the Facebook graph, e.g., to fetch data
+     *            about the currently logged authenticated user, provide "me",
+     *            which will fetch http://graph.facebook.com/me
+     * @param parameters
+     *            key-value string parameters, e.g. the path "search" with
+     *            parameters {"q" : "facebook"} would produce a query for the
+     *            following graph resource:
+     *            https://graph.facebook.com/search?q=facebook
+     * @param httpMethod
+     *            http verb, e.g. "POST", "DELETE"
+     * @param listener
+     *            Callback interface to notify the application when the request
+     *            has completed.
+     * @param state
+     *            An arbitrary object used to identify the request when it
+     *            returns to the callback. This has no effect on the request
+     *            itself.
      */
     @Deprecated
     public void request(final String graphPath,
@@ -251,8 +270,7 @@ public class AsyncFacebookRunner {
                         final RequestListener listener,
                         final Object state) {
         new Thread() {
-            @Override
-            public void run() {
+            @Override public void run() {
                 try {
                     String resp = fb.requestImpl(graphPath, parameters, httpMethod);
                     listener.onComplete(resp, state);
@@ -281,14 +299,14 @@ public class AsyncFacebookRunner {
 
         /**
          * Called when a request completes with the given response.
-         * <p/>
+         *
          * Executed by a background thread: do not update the UI in this method.
          */
         public void onComplete(String response, Object state);
 
         /**
          * Called when a request has a network or request error.
-         * <p/>
+         *
          * Executed by a background thread: do not update the UI in this method.
          */
         public void onIOException(IOException e, Object state);
@@ -296,7 +314,7 @@ public class AsyncFacebookRunner {
         /**
          * Called when a request fails because the requested resource is
          * invalid or does not exist.
-         * <p/>
+         *
          * Executed by a background thread: do not update the UI in this method.
          */
         public void onFileNotFoundException(FileNotFoundException e,
@@ -305,7 +323,7 @@ public class AsyncFacebookRunner {
         /**
          * Called if an invalid graph path is provided (which may result in a
          * malformed URL).
-         * <p/>
+         *
          * Executed by a background thread: do not update the UI in this method.
          */
         public void onMalformedURLException(MalformedURLException e,
@@ -313,7 +331,7 @@ public class AsyncFacebookRunner {
 
         /**
          * Called when the server-side Facebook method fails.
-         * <p/>
+         *
          * Executed by a background thread: do not update the UI in this method.
          */
         public void onFacebookError(FacebookError e, Object state);

@@ -17,7 +17,6 @@
 package com.facebook;
 
 import android.os.Bundle;
-
 import com.facebook.internal.Validate;
 
 import java.util.ArrayList;
@@ -81,12 +80,44 @@ public abstract class TokenCachingStrategy {
     private static final String IS_SSO_KEY = "com.facebook.TokenCachingStrategy.IsSSO";
 
     /**
+     * Called during Session construction to get the token state. Typically this
+     * is loaded from a persistent store that was previously initialized via
+     * save.  The caller may choose to keep a reference to the returned Bundle
+     * indefinitely.  Therefore the TokenCachingStrategy should not store the returned Bundle
+     * and should return a new Bundle on every call to this method.
+     *
+     * @return A Bundle that represents the token state that was loaded.
+     */
+    public abstract Bundle load();
+
+    /**
+     * Called when a Session updates its token. This is passed a Bundle of
+     * values that should be stored durably for the purpose of being returned
+     * from a later call to load.  Some implementations may choose to store
+     * bundle beyond the scope of this call, so the caller should keep no
+     * references to the bundle to ensure that it is not modified later.
+     * 
+     * @param bundle
+     *            A Bundle that represents the token state to be saved.
+     */
+    public abstract void save(Bundle bundle);
+
+    /**
+     * Called when a Session learns its token is no longer valid or during a
+     * call to {@link Session#closeAndClearTokenInformation
+     * closeAndClearTokenInformation} to clear the durable state associated with
+     * the token.
+     */
+    public abstract void clear();
+
+    /**
      * Returns a boolean indicating whether a Bundle contains properties that
      * could be a valid saved token.
-     *
-     * @param bundle A Bundle to check for token information.
+     * 
+     * @param bundle
+     *            A Bundle to check for token information.
      * @return a boolean indicating whether a Bundle contains properties that
-     * could be a valid saved token.
+     *         could be a valid saved token.
      */
     public static boolean hasTokenInformation(Bundle bundle) {
         if (bundle == null) {
@@ -108,9 +139,11 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Gets the cached token value from a Bundle.
-     *
-     * @param bundle A Bundle in which the token value was stored.
+     * 
+     * @param bundle
+     *            A Bundle in which the token value was stored.
      * @return the cached token value, or null.
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static String getToken(Bundle bundle) {
@@ -120,9 +153,12 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Puts the token value into a Bundle.
+     * 
+     * @param bundle
+     *            A Bundle in which the token value should be stored.
+     * @param value
+     *            The String representing the token value, or null.
      *
-     * @param bundle A Bundle in which the token value should be stored.
-     * @param value  The String representing the token value, or null.
      * @throws NullPointerException if the passed in Bundle or token value are null
      */
     public static void putToken(Bundle bundle, String value) {
@@ -133,9 +169,11 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Gets the cached expiration date from a Bundle.
-     *
-     * @param bundle A Bundle in which the expiration date was stored.
+     * 
+     * @param bundle
+     *            A Bundle in which the expiration date was stored.
      * @return the cached expiration date, or null.
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static Date getExpirationDate(Bundle bundle) {
@@ -145,9 +183,12 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Puts the expiration date into a Bundle.
+     * 
+     * @param bundle
+     *            A Bundle in which the expiration date should be stored.
+     * @param value
+     *            The Date representing the expiration date.
      *
-     * @param bundle A Bundle in which the expiration date should be stored.
-     * @param value  The Date representing the expiration date.
      * @throws NullPointerException if the passed in Bundle or date value are null
      */
     public static void putExpirationDate(Bundle bundle, Date value) {
@@ -158,10 +199,12 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Gets the cached expiration date from a Bundle.
-     *
-     * @param bundle A Bundle in which the expiration date was stored.
+     * 
+     * @param bundle
+     *            A Bundle in which the expiration date was stored.
      * @return the long representing the cached expiration date in milliseconds
-     * since the epoch, or 0.
+     *         since the epoch, or 0.
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static long getExpirationMilliseconds(Bundle bundle) {
@@ -171,10 +214,13 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Puts the expiration date into a Bundle.
+     * 
+     * @param bundle
+     *            A Bundle in which the expiration date should be stored.
+     * @param value
+     *            The long representing the expiration date in milliseconds
+     *            since the epoch.
      *
-     * @param bundle A Bundle in which the expiration date should be stored.
-     * @param value  The long representing the expiration date in milliseconds
-     *               since the epoch.
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static void putExpirationMilliseconds(Bundle bundle, long value) {
@@ -184,9 +230,11 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Gets the cached list of permissions from a Bundle.
-     *
-     * @param bundle A Bundle in which the list of permissions was stored.
+     * 
+     * @param bundle
+     *            A Bundle in which the list of permissions was stored.
      * @return the cached list of permissions.
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static List<String> getPermissions(Bundle bundle) {
@@ -196,10 +244,13 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Puts the list of permissions into a Bundle.
+     * 
+     * @param bundle
+     *            A Bundle in which the list of permissions should be stored.
+     * @param value
+     *            The List&lt;String&gt; representing the list of permissions,
+     *            or null.
      *
-     * @param bundle A Bundle in which the list of permissions should be stored.
-     * @param value  The List&lt;String&gt; representing the list of permissions,
-     *               or null.
      * @throws NullPointerException if the passed in Bundle or permissions list are null
      */
     public static void putPermissions(Bundle bundle, List<String> value) {
@@ -218,8 +269,10 @@ public abstract class TokenCachingStrategy {
     /**
      * Gets the cached enum indicating the source of the token from the Bundle.
      *
-     * @param bundle A Bundle in which the enum was stored.
+     * @param bundle
+     *            A Bundle in which the enum was stored.
      * @return enum indicating the source of the token
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static AccessTokenSource getSource(Bundle bundle) {
@@ -231,12 +284,14 @@ public abstract class TokenCachingStrategy {
             return isSSO ? AccessTokenSource.FACEBOOK_APPLICATION_WEB : AccessTokenSource.WEB_VIEW;
         }
     }
-
     /**
      * Puts the enum indicating the source of the token into a Bundle.
      *
-     * @param bundle A Bundle in which the enum should be stored.
-     * @param value  enum indicating the source of the token
+     * @param bundle
+     *            A Bundle in which the enum should be stored.
+     * @param value
+     *            enum indicating the source of the token
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static void putSource(Bundle bundle, AccessTokenSource value) {
@@ -246,9 +301,11 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Gets the cached last refresh date from a Bundle.
-     *
-     * @param bundle A Bundle in which the last refresh date was stored.
+     * 
+     * @param bundle
+     *            A Bundle in which the last refresh date was stored.
      * @return the cached last refresh Date, or null.
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static Date getLastRefreshDate(Bundle bundle) {
@@ -258,9 +315,12 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Puts the last refresh date into a Bundle.
+     * 
+     * @param bundle
+     *            A Bundle in which the last refresh date should be stored.
+     * @param value
+     *            The Date representing the last refresh date, or null.
      *
-     * @param bundle A Bundle in which the last refresh date should be stored.
-     * @param value  The Date representing the last refresh date, or null.
      * @throws NullPointerException if the passed in Bundle or date value are null
      */
     public static void putLastRefreshDate(Bundle bundle, Date value) {
@@ -271,9 +331,11 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Gets the cached last refresh date from a Bundle.
-     *
-     * @param bundle A Bundle in which the last refresh date was stored.
+     * 
+     * @param bundle
+     *            A Bundle in which the last refresh date was stored.
      * @return the cached last refresh date in milliseconds since the epoch.
+     *
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static long getLastRefreshMilliseconds(Bundle bundle) {
@@ -283,10 +345,13 @@ public abstract class TokenCachingStrategy {
 
     /**
      * Puts the last refresh date into a Bundle.
+     * 
+     * @param bundle
+     *            A Bundle in which the last refresh date should be stored.
+     * @param value
+     *            The long representing the last refresh date in milliseconds
+     *            since the epoch.
      *
-     * @param bundle A Bundle in which the last refresh date should be stored.
-     * @param value  The long representing the last refresh date in milliseconds
-     *               since the epoch.
      * @throws NullPointerException if the passed in Bundle is null
      */
     public static void putLastRefreshMilliseconds(Bundle bundle, long value) {
@@ -310,34 +375,4 @@ public abstract class TokenCachingStrategy {
     static void putDate(Bundle bundle, String key, Date date) {
         bundle.putLong(key, date.getTime());
     }
-
-    /**
-     * Called during Session construction to get the token state. Typically this
-     * is loaded from a persistent store that was previously initialized via
-     * save.  The caller may choose to keep a reference to the returned Bundle
-     * indefinitely.  Therefore the TokenCachingStrategy should not store the returned Bundle
-     * and should return a new Bundle on every call to this method.
-     *
-     * @return A Bundle that represents the token state that was loaded.
-     */
-    public abstract Bundle load();
-
-    /**
-     * Called when a Session updates its token. This is passed a Bundle of
-     * values that should be stored durably for the purpose of being returned
-     * from a later call to load.  Some implementations may choose to store
-     * bundle beyond the scope of this call, so the caller should keep no
-     * references to the bundle to ensure that it is not modified later.
-     *
-     * @param bundle A Bundle that represents the token state to be saved.
-     */
-    public abstract void save(Bundle bundle);
-
-    /**
-     * Called when a Session learns its token is no longer valid or during a
-     * call to {@link Session#closeAndClearTokenInformation
-     * closeAndClearTokenInformation} to clear the durable state associated with
-     * the token.
-     */
-    public abstract void clear();
 }

@@ -32,8 +32,9 @@ public class FacebookAuthorizationException extends FacebookException {
 
     /**
      * Constructs a FacebookAuthorizationException with a message.
-     *
-     * @param message A String to be returned from getMessage.
+     * 
+     * @param message
+     *            A String to be returned from getMessage.
      */
     public FacebookAuthorizationException(String message) {
         super(message);
@@ -42,9 +43,11 @@ public class FacebookAuthorizationException extends FacebookException {
     /**
      * Constructs a FacebookAuthorizationException with a message and inner
      * error.
-     *
-     * @param message   A String to be returned from getMessage.
-     * @param throwable A Throwable to be returned from getCause.
+     * 
+     * @param message
+     *            A String to be returned from getMessage.
+     * @param throwable
+     *            A Throwable to be returned from getCause.
      */
     public FacebookAuthorizationException(String message, Throwable throwable) {
         super(message, throwable);
@@ -52,8 +55,9 @@ public class FacebookAuthorizationException extends FacebookException {
 
     /**
      * Constructs a FacebookAuthorizationException with an inner error.
-     *
-     * @param throwable A Throwable to be returned from getCause.
+     * 
+     * @param throwable
+     *            A Throwable to be returned from getCause.
      */
     public FacebookAuthorizationException(Throwable throwable) {
         super(throwable);

@@ -18,8 +18,7 @@ package com.facebook;
 
 
 import android.content.Context;
-import android.os.Bundle;
-
+import android.os.*;
 import com.facebook.internal.NativeProtocol;
 import com.facebook.internal.PlatformServiceClient;
 

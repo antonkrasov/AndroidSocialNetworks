@@ -36,14 +36,14 @@ class ProgressNoopOutputStream extends OutputStream implements RequestOutputStre
 
     public void setCurrentRequest(Request currentRequest) {
         this.currentRequest = currentRequest;
-        this.currentRequestProgress = currentRequest != null ? progressMap.get(currentRequest) : null;
+        this.currentRequestProgress = currentRequest != null? progressMap.get(currentRequest) : null;
     }
 
     int getMaxProgress() {
         return batchMax;
     }
 
-    Map<Request, RequestProgress> getProgressMap() {
+    Map<Request,RequestProgress> getProgressMap() {
         return progressMap;
     }
 

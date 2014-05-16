@@ -16,66 +16,60 @@
 -->
 
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:focusable="false">
-
-    <LinearLayout
-        android:layout_width="match_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="wrap_content"
-        android:focusable="false"
-        android:orientation="horizontal"
-        >
-
-        <FrameLayout
-            android:layout_width="80dp"
+        android:layout_width="match_parent"
+        android:focusable="false">
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            >
-
-            <ViewStub
-                android:id="@+id/com_facebook_picker_profile_pic_stub"
-                android:layout_width="@dimen/com_facebook_picker_place_image_size"
-                android:layout_height="@dimen/com_facebook_picker_place_image_size"
-                android:layout_gravity="left|center_vertical"
-                android:inflatedId="@+id/com_facebook_picker_image"
-                android:layout="@layout/com_facebook_picker_image"/>
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="16dp"
-            android:layout_weight="1"
+            android:orientation="horizontal"
             android:focusable="false"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/com_facebook_picker_title"
-                android:layout_width="fill_parent"
+            >
+        <FrameLayout
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.0"
-                android:ellipsize="end"
-                android:gravity="left|center_vertical"
-                android:lines="1"
-                android:singleLine="true"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:typeface="sans"/>
-
-            <TextView
-                android:id="@+id/picker_subtitle"
-                android:layout_width="fill_parent"
+                >
+            <ViewStub
+                    android:id="@+id/com_facebook_picker_profile_pic_stub"
+                    android:inflatedId="@+id/com_facebook_picker_image"
+                    android:layout="@layout/com_facebook_picker_image"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_width="@dimen/com_facebook_picker_place_image_size"
+                    android:layout_height="@dimen/com_facebook_picker_place_image_size" />
+        </FrameLayout>
+        <LinearLayout
+                android:orientation="vertical"
+                android:focusable="false"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.0"
-                android:ellipsize="end"
-                android:gravity="left|center_vertical"
-                android:lines="1"
-                android:singleLine="true"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:typeface="sans"/>
+                android:layout_marginRight="16dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1">
+            <TextView
+                    android:id="@+id/com_facebook_picker_title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:typeface="sans"
+                    android:textColor="#000000"
+                    android:lines="1"
+                    android:textSize="16sp"
+                    android:gravity="left|center_vertical"/>
+            <TextView
+                    android:id="@+id/picker_subtitle"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="#666666"
+                    android:lines="1"
+                    android:typeface="sans"
+                    android:textSize="12sp"
+                    android:gravity="left|center_vertical"/>
         </LinearLayout>
         <!--ViewStub
                 android:id="@+id/checkbox_stub"
@@ -85,13 +79,12 @@
                 android:layout_height="23dip"
                 android:layout_marginRight="10dip"/-->
     </LinearLayout>
-
     <View
-        android:layout_width="0dp"
-        android:layout_height="@dimen/com_facebook_picker_divider_width"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/com_facebook_picker_default_separator_color"
-        />
+            android:layout_width="0dp"
+            android:layout_height="@dimen/com_facebook_picker_divider_width"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/com_facebook_picker_default_separator_color"
+            />
 </RelativeLayout>

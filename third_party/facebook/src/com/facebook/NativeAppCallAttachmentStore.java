@@ -19,52 +19,36 @@ package com.facebook;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
-
 import com.facebook.internal.Utility;
 import com.facebook.internal.Validate;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * <p>This class works in conjunction with {@link NativeAppCallContentProvider} to allow apps to attach binary
  * attachments (e.g., images) to native dialogs launched via the {@link com.facebook.widget.FacebookDialog}
  * class. It stores attachments in temporary files and allows the Facebook application to retrieve them via
  * the content provider.</p>
- * <p/>
+ *
  * <p>Callers are generally not expected to need to use this class directly;
  * see {@link com.facebook.widget.FacebookDialog.OpenGraphActionDialogBuilder#setImageAttachmentsForObject(String,
  * java.util.List) OpenGraphActionDialogBuilder.setImageAttachmentsForObject} for an example of a function
  * that will accept attachments, attach them to the native dialog call, and add them to the content provider
  * automatically.</p>
- */
+ **/
 public final class NativeAppCallAttachmentStore implements NativeAppCallContentProvider.AttachmentDataSource {
-    static final String ATTACHMENTS_DIR_NAME = "com.facebook.NativeAppCallAttachmentStore.files";
     private static final String TAG = NativeAppCallAttachmentStore.class.getName();
+    static final String ATTACHMENTS_DIR_NAME = "com.facebook.NativeAppCallAttachmentStore.files";
     private static File attachmentsDirectory;
-
-    synchronized static File getAttachmentsDirectory(Context context) {
-        if (attachmentsDirectory == null) {
-            attachmentsDirectory = new File(context.getCacheDir(), ATTACHMENTS_DIR_NAME);
-        }
-        return attachmentsDirectory;
-    }
 
     /**
      * Adds a number of bitmap attachments associated with a native app call. The attachments will be
      * served via {@link NativeAppCallContentProvider#openFile(android.net.Uri, String) openFile}.
      *
-     * @param context          the Context the call is being made from
-     * @param callId           the unique ID of the call
+     * @param context the Context the call is being made from
+     * @param callId the unique ID of the call
      * @param imageAttachments a Map of attachment names to Bitmaps; the attachment names will be part of
      *                         the URI processed by openFile
      * @throws java.io.IOException
@@ -92,8 +76,8 @@ public final class NativeAppCallAttachmentStore implements NativeAppCallContentP
      * Adds a number of bitmap attachment files associated with a native app call. The attachments will be
      * served via {@link NativeAppCallContentProvider#openFile(android.net.Uri, String) openFile}.
      *
-     * @param context          the Context the call is being made from
-     * @param callId           the unique ID of the call
+     * @param context the Context the call is being made from
+     * @param callId the unique ID of the call
      * @param imageAttachments a Map of attachment names to Files containing the bitmaps; the attachment names will be
      *                         part of the URI processed by openFile
      * @throws java.io.IOException
@@ -126,7 +110,7 @@ public final class NativeAppCallAttachmentStore implements NativeAppCallContentP
     }
 
     private <T> void addAttachments(Context context, UUID callId, Map<String, T> attachments,
-                                    ProcessAttachment<T> processor) {
+            ProcessAttachment<T> processor) {
         if (attachments.size() == 0) {
             return;
         }
@@ -164,11 +148,15 @@ public final class NativeAppCallAttachmentStore implements NativeAppCallContentP
 
     }
 
+    interface ProcessAttachment<T> {
+        void processAttachment(T attachment, File outputFile) throws IOException;
+    }
+
     /**
      * Removes any temporary files associated with a particular native app call.
      *
      * @param context the Context the call is being made from
-     * @param callId  the unique ID of the call
+     * @param callId the unique ID of the call
      */
     public void cleanupAttachmentsForCall(Context context, UUID callId) {
         File dir = getAttachmentsDirectoryForCall(callId, false);
@@ -189,6 +177,13 @@ public final class NativeAppCallAttachmentStore implements NativeAppCallContentP
             // act like the file wasn't found.
             throw new FileNotFoundException();
         }
+    }
+
+    synchronized static File getAttachmentsDirectory(Context context) {
+        if (attachmentsDirectory == null) {
+            attachmentsDirectory = new File(context.getCacheDir(), ATTACHMENTS_DIR_NAME);
+        }
+        return attachmentsDirectory;
     }
 
     File ensureAttachmentsDirectoryExists(Context context) {
@@ -226,9 +221,5 @@ public final class NativeAppCallAttachmentStore implements NativeAppCallContentP
         // Attachments directory may or may not exist; we won't create it if not, since we are just going to delete it.
         File dir = getAttachmentsDirectory(context);
         Utility.deleteDirectory(dir);
-    }
-
-    interface ProcessAttachment<T> {
-        void processAttachment(T attachment, File outputFile) throws IOException;
     }
 }

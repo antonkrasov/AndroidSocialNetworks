@@ -45,7 +45,8 @@ public enum LoggingBehavior {
     /**
      * Indicates that likely developer errors should be logged.  (This is set by default in LoggingBehavior.)
      */
-    DEVELOPER_ERRORS;
+    DEVELOPER_ERRORS
+    ;
 
     @Deprecated
     public static final LoggingBehavior INSIGHTS = APP_EVENTS;

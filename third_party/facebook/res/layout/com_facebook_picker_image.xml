@@ -16,9 +16,9 @@
 -->
 
 <ImageView
-    android:id="@+id/com_facebook_picker_image"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/com_facebook_picker_image"
     android:layout_width="50dip"
     android:layout_height="50dip"
     android:layout_gravity="center_vertical"
-    android:src="@drawable/com_facebook_profile_default_icon"/>
+    android:src="@drawable/com_facebook_profile_default_icon" />

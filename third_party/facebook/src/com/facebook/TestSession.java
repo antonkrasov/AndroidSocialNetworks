@@ -20,22 +20,15 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-
+import com.facebook.model.GraphObject;
+import com.facebook.model.GraphObjectList;
 import com.facebook.internal.Logger;
 import com.facebook.internal.Utility;
 import com.facebook.internal.Validate;
-import com.facebook.model.GraphObject;
-import com.facebook.model.GraphObjectList;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Implements an subclass of Session that knows about test users for a particular
@@ -69,18 +62,27 @@ import java.util.Map;
  */
 public class TestSession extends Session {
     private static final long serialVersionUID = 1L;
+
+    private enum Mode {
+        PRIVATE, SHARED
+    }
+
     private static final String LOG_TAG = Logger.LOG_TAG_BASE + "TestSession";
+
     private static Map<String, TestAccount> appTestAccounts;
     private static String testApplicationSecret;
     private static String testApplicationId;
+
     private final String sessionUniqueUserTag;
     private final List<String> requestedPermissions;
     private final Mode mode;
     private String testAccountId;
+    private String testAccountUserName;
+
     private boolean wasAskedToExtendAccessToken;
 
     TestSession(Activity activity, List<String> permissions, TokenCachingStrategy tokenCachingStrategy,
-                String sessionUniqueUserTag, Mode mode) {
+            String sessionUniqueUserTag, Mode mode) {
         super(activity, TestSession.testApplicationId, tokenCachingStrategy);
 
         Validate.notNull(permissions, "permissions");
@@ -142,7 +144,7 @@ public class TestSession extends Session {
      * @return a new TestSession that is in the CREATED state, ready to be opened
      */
     public static TestSession createSessionWithSharedUser(Activity activity, List<String> permissions,
-                                                          String sessionUniqueUserTag) {
+            String sessionUniqueUserTag) {
         return createTestSession(activity, permissions, Mode.SHARED, sessionUniqueUserTag);
     }
 
@@ -190,8 +192,27 @@ public class TestSession extends Session {
         testApplicationSecret = applicationSecret;
     }
 
+    /**
+     * Gets the ID of the test user that this TestSession is authenticated as.
+     *
+     * @return the Facebook user ID of the test user
+     */
+    public final String getTestUserId() {
+        return testAccountId;
+    }
+
+    /**
+     * Gets the name of the test user that this TestSession is authenticated as.
+     *
+     * @return the name of the test user
+     */
+    public final String getTestUserName() {
+        return testAccountUserName;
+    }
+
+
     private static synchronized TestSession createTestSession(Activity activity, List<String> permissions, Mode mode,
-                                                              String sessionUniqueUserTag) {
+            String sessionUniqueUserTag) {
         if (Utility.isNullOrEmpty(testApplicationId) || Utility.isNullOrEmpty(testApplicationSecret)) {
             throw new FacebookException("Must provide app ID and secret");
         }
@@ -261,7 +282,7 @@ public class TestSession extends Session {
     }
 
     private static synchronized void populateTestAccounts(Collection<TestAccount> testAccounts,
-                                                          Collection<UserAccount> userAccounts) {
+            Collection<UserAccount> userAccounts) {
         // We get different sets of data from each of these queries. We want to combine them into a single data
         // structure. We have added a Name property to the TestAccount interface, even though we don't really get
         // a name back from the service from that query. We stick the Name from the corresponding UserAccount in it.
@@ -290,19 +311,6 @@ public class TestSession extends Session {
             }
         }
         return null;
-    }
-
-    static final String getAppAccessToken() {
-        return testApplicationId + "|" + testApplicationSecret;
-    }
-
-    /**
-     * Gets the ID of the test user that this TestSession is authenticated as.
-     *
-     * @return the Facebook user ID of the test user
-     */
-    public final String getTestUserId() {
-        return testAccountId;
     }
 
     @Override
@@ -342,8 +350,7 @@ public class TestSession extends Session {
         AccessToken currentToken = getTokenInfo();
         setTokenInfo(
                 new AccessToken(currentToken.getToken(), new Date(), currentToken.getPermissions(),
-                        AccessTokenSource.TEST_USER, new Date(0))
-        );
+                        AccessTokenSource.TEST_USER, new Date(0)));
         setLastAttemptedTokenExtendDate(new Date(0));
     }
 
@@ -364,6 +371,10 @@ public class TestSession extends Session {
         setCurrentTokenRefreshRequest(new TokenRefreshRequest());
     }
 
+    static final String getAppAccessToken() {
+        return testApplicationId + "|" + testApplicationSecret;
+    }
+
     private void findOrCreateSharedTestAccount() {
         TestAccount testAccount = findTestAccountMatchingIdentifier(getSharedTestAccountIdentifier());
         if (testAccount != null) {
@@ -375,6 +386,7 @@ public class TestSession extends Session {
 
     private void finishAuthWithTestAccount(TestAccount testAccount) {
         testAccountId = testAccount.getId();
+        testAccountUserName = testAccount.getName();
 
         AccessToken accessToken = AccessToken.createFromString(testAccount.getAccessToken(), requestedPermissions,
                 AccessTokenSource.TEST_USER);
@@ -465,10 +477,6 @@ public class TestSession extends Session {
         }
 
         return result.toString();
-    }
-
-    private enum Mode {
-        PRIVATE, SHARED
     }
 
     private interface TestAccount extends GraphObject {
