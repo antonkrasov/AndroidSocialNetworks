@@ -147,7 +147,7 @@ public class FacebookSocialNetwork extends SocialNetwork {
                     socialPerson.id = me.getId();
                     socialPerson.name = me.getName();
                     socialPerson.avatarURL =
-                            String.format("http://graph.facebook.com/%s/picture?width=200&height=200", me.getUsername());
+                            String.format("http://graph.facebook.com/%s/picture?width=200&height=200", me.getId());
 
                     ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_CURRENT_PERSON))
                             .onRequestSocialPersonSuccess(getID(), socialPerson);
