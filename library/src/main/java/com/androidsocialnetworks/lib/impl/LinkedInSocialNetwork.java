@@ -34,6 +34,7 @@ import com.google.code.linkedinapi.schema.Person;
 import com.google.code.linkedinapi.schema.Position;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -281,6 +282,7 @@ public class LinkedInSocialNetwork extends OAuthSocialNetwork {
         private static final String RESULT_AVATAR_URL = "LoginAsyncTask.RESULT_AVATAR_URL";
         private static final String RESULT_COMPANY = "LoginAsyncTask.RESULT_COMPANY";
         private static final String RESULT_POSITION = "LoginAsyncTask.RESULT_POSITION";
+        private static final String RESULT_PROFILE_URL = "LoginAsyncTask.RESULT_PROFILE_URL";
 
         @Override
         protected Bundle doInBackground(Bundle... params) {
@@ -298,6 +300,7 @@ public class LinkedInSocialNetwork extends OAuthSocialNetwork {
                 result.putString(RESULT_ID, person.getId());
                 result.putString(RESULT_NAME, person.getFirstName() + " " + person.getLastName());
                 result.putString(RESULT_AVATAR_URL, person.getPictureUrl());
+                result.putString(RESULT_PROFILE_URL, person.getPublicProfileUrl());
 
                 List<Position> positions = person.getPositions().getPositionList();
                 if (positions.size() > 0) {
@@ -324,6 +327,7 @@ public class LinkedInSocialNetwork extends OAuthSocialNetwork {
             socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
             socialPerson.company = result.getString(RESULT_COMPANY);
             socialPerson.position = result.getString(RESULT_POSITION);
+            socialPerson.profileURL = result.getString(RESULT_PROFILE_URL);
 
             ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_CURRENT_PERSON)).
                     onRequestSocialPersonSuccess(getID(), socialPerson);
@@ -359,7 +363,8 @@ public class LinkedInSocialNetwork extends OAuthSocialNetwork {
                 result.putString(RESULT_NAME, person.getFirstName() + " " + person.getLastName());
                 result.putString(RESULT_AVATAR_URL, person.getPictureUrl());
 
-                List<Position> positions = person.getPositions().getPositionList();
+                List<Position> positions = person.getPositions() == null ?
+                        new ArrayList<Position>() : person.getPositions().getPositionList();
                 if (positions.size() > 0) {
                     Position position = positions.get(positions.size() - 1);
 
