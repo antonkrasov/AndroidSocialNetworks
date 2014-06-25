@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.androidsocialnetworks.lib.AccessToken;
 import com.androidsocialnetworks.lib.MomentUtil;
 import com.androidsocialnetworks.lib.SocialNetwork;
 import com.androidsocialnetworks.lib.SocialNetworkException;
@@ -48,6 +49,11 @@ public class GooglePlusSocialNetwork extends SocialNetwork
     @Override
     public boolean isConnected() {
         return mPlusClient.isConnected();
+    }
+
+    @Override
+    public AccessToken getAccessToken() {
+        throw new SocialNetworkException("Not supported for GooglePlusSocialNetwork");
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.androidsocialnetworks.lib.AccessToken;
 import com.androidsocialnetworks.lib.OAuthActivity;
 import com.androidsocialnetworks.lib.OAuthSocialNetwork;
 import com.androidsocialnetworks.lib.SocialNetworkAsyncTask;
@@ -83,6 +84,14 @@ public class LinkedInSocialNetwork extends OAuthSocialNetwork {
         String accessToken = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null);
         String accessTokenSecret = mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null);
         return accessToken != null && accessTokenSecret != null;
+    }
+
+    @Override
+    public AccessToken getAccessToken() {
+        return new AccessToken(
+                mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null),
+                mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null)
+        );
     }
 
     @Override

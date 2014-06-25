@@ -103,6 +103,14 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
     }
 
     @Override
+    public com.androidsocialnetworks.lib.AccessToken getAccessToken() {
+        return new com.androidsocialnetworks.lib.AccessToken(
+                mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_TOKEN, null),
+                mSharedPreferences.getString(SAVE_STATE_KEY_OAUTH_SECRET, null)
+        );
+    }
+
+    @Override
     public void requestLogin(OnLoginCompleteListener onLoginCompleteListener) {
         super.requestLogin(onLoginCompleteListener);
 
