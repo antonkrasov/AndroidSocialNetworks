@@ -34,12 +34,14 @@ public class GooglePlusSocialNetwork extends SocialNetwork
     private static final String TAG = GooglePlusSocialNetwork.class.getSimpleName();
     // max 16 bit to use in startActivityForResult
     private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
-
+    /**
+     * mPlusClient.isConntected() works really strange, it returs false right after init and then true,
+     * so let's handle state by ourselves
+     */
+    private static final String SAVE_STATE_KEY_IS_CONNECTED = "GooglePlusSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private PlusClient mPlusClient;
     private ConnectionResult mConnectionResult;
-
     private boolean mConnectRequested;
-
     private Handler mHandler = new Handler();
 
     public GooglePlusSocialNetwork(Fragment fragment) {
@@ -48,7 +50,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 
     @Override
     public boolean isConnected() {
-        return mPlusClient.isConnected();
+        return mSharedPreferences.getBoolean(SAVE_STATE_KEY_IS_CONNECTED, false);
     }
 
     @Override
@@ -77,6 +79,8 @@ public class GooglePlusSocialNetwork extends SocialNetwork
         mConnectRequested = false;
 
         if (mPlusClient.isConnected()) {
+            mSharedPreferences.edit().remove(SAVE_STATE_KEY_IS_CONNECTED).commit();
+
             mPlusClient.clearDefaultAccount();
             mPlusClient.disconnect();
             mPlusClient.connect();
@@ -207,6 +211,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
         if (mConnectRequested) {
             if (mPlusClient.getCurrentPerson() != null) {
                 if (mLocalListeners.get(REQUEST_LOGIN) != null) {
+                    mSharedPreferences.edit().putBoolean(SAVE_STATE_KEY_IS_CONNECTED, true).commit();
                     ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
                 }
 
