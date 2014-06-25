@@ -57,9 +57,6 @@ public class ShowProfileFragment extends Fragment {
         builder.append("Position: ");
         builder.append(socialPerson.position);
         builder.append('\n');
-        builder.append("Email: ");
-        builder.append(socialPerson.email);
-        builder.append('\n');
         builder.append("Nickname: ");
         builder.append(socialPerson.nickname);
         builder.append('\n');
