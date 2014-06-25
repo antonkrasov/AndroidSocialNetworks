@@ -35,9 +35,12 @@ public class ShowProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ImageView avatarImageView = (ImageView) view.findViewById(R.id.avatar_image_view);
+        TextView profileURLTextView = (TextView) view.findViewById(R.id.profile_url_text_view);
         TextView textView = (TextView) view.findViewById(R.id.text_view);
 
         SocialPerson socialPerson = getArguments().getParcelable(PARAM_SOCIAL_PERSON);
+
+        profileURLTextView.setText(socialPerson.profileURL);
 
         Picasso.with(getActivity()).load(socialPerson.avatarURL).into(avatarImageView);
 
@@ -53,6 +56,12 @@ public class ShowProfileFragment extends Fragment {
         builder.append('\n');
         builder.append("Position: ");
         builder.append(socialPerson.position);
+        builder.append('\n');
+        builder.append("Email: ");
+        builder.append(socialPerson.email);
+        builder.append('\n');
+        builder.append("Nickname: ");
+        builder.append(socialPerson.nickname);
         builder.append('\n');
         textView.setText(builder.toString());
     }

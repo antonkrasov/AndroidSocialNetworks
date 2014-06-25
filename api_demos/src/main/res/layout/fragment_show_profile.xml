@@ -14,6 +14,16 @@
         />
 
     <TextView
+        android:id="@+id/profile_url_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/normal_padding"
+        android:autoLink="web"
+        android:gravity="center"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        />
+
+    <TextView
         android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
