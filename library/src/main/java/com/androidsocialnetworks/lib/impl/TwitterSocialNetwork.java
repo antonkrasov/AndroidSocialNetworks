@@ -344,6 +344,8 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
         private static final String RESULT_ID = "RequestPersonAsyncTask.RESULT_ID";
         private static final String RESULT_NAME = "RequestPersonAsyncTask.RESULT_NAME";
         private static final String RESULT_AVATAR_URL = "RequestPersonAsyncTask.RESULT_AVATAR_URL";
+        private static final String RESULT_PROFILE_URL = "RequestPersonAsyncTask.RESULT_PROFILE_URL";
+        private static final String RESULT_NICKNAME = "RequestPersonAsyncTask.RESULT_NICKNAME";
 
         @Override
         protected Bundle doInBackground(Bundle... params) {
@@ -365,6 +367,8 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
                 result.putString(RESULT_ID, user.getId() + "");
                 result.putString(RESULT_NAME, user.getName());
                 result.putString(RESULT_AVATAR_URL, user.getBiggerProfileImageURL());
+                result.putString(RESULT_PROFILE_URL, "https://twitter.com/" + user.getScreenName());
+                result.putString(RESULT_NICKNAME, user.getScreenName());
             } catch (TwitterException e) {
                 Log.e(TAG, "ERROR", e);
                 result.putString(RESULT_ERROR, e.getMessage());
@@ -378,10 +382,7 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
             if (result.getBoolean(RESULT_IS_CURRENT_PERSON)) {
                 if (!handleRequestResult(result, REQUEST_GET_CURRENT_PERSON)) return;
 
-                SocialPerson socialPerson = new SocialPerson();
-                socialPerson.id = result.getString(RESULT_ID);
-                socialPerson.name = result.getString(RESULT_NAME);
-                socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+                SocialPerson socialPerson = initSocialPerson(result);
 
                 ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_CURRENT_PERSON))
                         .onRequestSocialPersonSuccess(getID(), socialPerson);
@@ -390,10 +391,7 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
             } else {
                 if (!handleRequestResult(result, REQUEST_GET_PERSON)) return;
 
-                SocialPerson socialPerson = new SocialPerson();
-                socialPerson.id = result.getString(RESULT_ID);
-                socialPerson.name = result.getString(RESULT_NAME);
-                socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+                SocialPerson socialPerson = initSocialPerson(result);
 
                 ((OnRequestSocialPersonCompleteListener) mLocalListeners.get(REQUEST_GET_PERSON))
                         .onRequestSocialPersonSuccess(getID(), socialPerson);
@@ -402,7 +400,18 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
             }
 
         }
+
+        private SocialPerson initSocialPerson(Bundle result) {
+            SocialPerson socialPerson = new SocialPerson();
+            socialPerson.id = result.getString(RESULT_ID);
+            socialPerson.name = result.getString(RESULT_NAME);
+            socialPerson.avatarURL = result.getString(RESULT_AVATAR_URL);
+            socialPerson.profileURL = result.getString(RESULT_PROFILE_URL);
+            socialPerson.nickname = result.getString(RESULT_NICKNAME);
+            return socialPerson;
+        }
     }
+
 
     private class RequestUpdateStatusAsyncTask extends SocialNetworkAsyncTask {
         public static final String PARAM_MESSAGE = "RequestUpdateStatusAsyncTask.PARAM_MESSAGE";
