@@ -115,6 +115,9 @@ public class GooglePlusSocialNetwork extends SocialNetwork
             }
         }
 
+        socialPerson.nickname = person.getNickname();
+        socialPerson.profileURL = person.getUrl();
+
         if (mLocalListeners.get(REQUEST_GET_CURRENT_PERSON) != null) {
             mHandler.post(new Runnable() {
                 @Override
