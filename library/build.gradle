@@ -2,7 +2,7 @@ apply plugin: 'android-library'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-version = "0.3.3"
+version = "0.3.4"
 group = "com.github.androidsocialnetworks"
 
 android {
@@ -32,7 +32,7 @@ dependencies {
     compile 'com.android.support:support-v4:19.1.0@jar'
     compile 'org.twitter4j:twitter4j-core:4.0.1'
     compile 'com.google.android.gms:play-services:4.3.23@aar'
-    compile 'com.github.androidsocialnetworks:facebook:3.14.1@aar'
+    compile 'com.github.androidsocialnetworks:facebook:3.14.2@aar'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
