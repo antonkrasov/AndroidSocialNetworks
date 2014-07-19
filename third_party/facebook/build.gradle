@@ -6,7 +6,7 @@ version = "3.14.1"
 group = "com.github.androidsocialnetworks"
 
 dependencies {
-    compile 'com.android.support:support-v4:+'
+    compile 'com.android.support:support-v4:20.+'
     compile files('libs/bolts.jar')
 }
 
