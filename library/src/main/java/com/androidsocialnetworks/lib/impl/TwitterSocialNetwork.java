@@ -325,7 +325,10 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
         @Override
         protected void onPostExecute(Bundle result) {
             mRequests.remove(REQUEST_LOGIN2);
-            if (!handleRequestResult(result, REQUEST_LOGIN)) return;
+            if (!handleRequestResult(result, REQUEST_LOGIN)) {
+                initTwitterClient();
+                return;
+            }
 
             // Shared Preferences
             mSharedPreferences.edit()
