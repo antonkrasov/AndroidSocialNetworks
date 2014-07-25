@@ -275,7 +275,7 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
                 result.putString(RESULT_OAUTH_LOGIN, oauthLoginURL.toString());
             } catch (TwitterException e) {
                 Log.e(TAG, "ERROR", e);
-                result.putString(RESULT_ERROR, e.getMessage());
+                result.putString(RESULT_ERROR, e.getMessage() == null ? "canceled" : e.getMessage());
             }
 
             return result;
@@ -298,7 +298,6 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
     private class RequestLogin2AsyncTask extends SocialNetworkAsyncTask {
         public static final String PARAM_VERIFIER = "Login2AsyncTask.PARAM_VERIFIER";
 
-        private static final String RESULT_ERROR = "Login2AsyncTask.RESULT_ERROR";
         private static final String RESULT_TOKEN = "Login2AsyncTask.RESULT_TOKEN";
         private static final String RESULT_SECRET = "Login2AsyncTask.RESULT_SECRET";
         private static final String RESULT_USER_ID = "Login2AsyncTask.RESULT_USER_ID";
@@ -317,7 +316,7 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
                 result.putLong(RESULT_USER_ID, accessToken.getUserId());
             } catch (Exception e) {
                 Log.e(TAG, "ERROR", e);
-                result.putString(RESULT_ERROR, e.getMessage());
+                result.putString(RESULT_ERROR, e.getMessage() == null ? "canceled" : e.getMessage());
             }
 
             return result;
