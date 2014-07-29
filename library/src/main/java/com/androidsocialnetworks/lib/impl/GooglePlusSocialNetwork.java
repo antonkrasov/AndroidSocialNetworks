@@ -20,6 +20,7 @@ import com.androidsocialnetworks.lib.listener.OnRequestRemoveFriendCompleteListe
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 
@@ -173,8 +174,8 @@ public class GooglePlusSocialNetwork extends SocialNetwork
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPlusClient = new PlusClient.Builder(mSocialNetworkManager.getActivity(), this, this)
-                .setActions(MomentUtil.ACTIONS).build();
+        mPlusClient = new PlusClient.Builder(mSocialNetworkManager.getActivity(), this, this).setScopes(
+				Scopes.PLUS_LOGIN, Scopes.PLUS_ME).setActions(MomentUtil.ACTIONS).build();
     }
 
     @Override
