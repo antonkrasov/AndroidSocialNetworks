@@ -19,15 +19,16 @@ import com.androidsocialnetworks.lib.listener.OnRequestAddFriendCompleteListener
 import com.androidsocialnetworks.lib.listener.OnRequestRemoveFriendCompleteListener;
 import com.androidsocialnetworks.lib.listener.OnRequestSocialPersonCompleteListener;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.plus.PlusClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
 import java.io.File;
 import java.util.UUID;
 
 public class GooglePlusSocialNetwork extends SocialNetwork
-        implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+        implements GoogleApiClient.ConnectionCallbacks,
+		GoogleApiClient.OnConnectionFailedListener {
 
     public static final int ID = 3;
 
@@ -39,7 +40,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
      * so let's handle state by ourselves
      */
     private static final String SAVE_STATE_KEY_IS_CONNECTED = "GooglePlusSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
-    private PlusClient mPlusClient;
+    private GoogleApiClient mGoogleApiClient;
     private ConnectionResult mConnectionResult;
     private boolean mConnectRequested;
     private Handler mHandler = new Handler();
@@ -68,9 +69,9 @@ public class GooglePlusSocialNetwork extends SocialNetwork
             mConnectionResult.startResolutionForResult(mSocialNetworkManager.getActivity(), REQUEST_AUTH);
         } catch (Exception e) {
             Log.e(TAG, "ERROR", e);
-            if (!mPlusClient.isConnecting()) {
-                mPlusClient.connect();
-            }
+            if (!mGoogleApiClient.isConnecting()) {
+				mGoogleApiClient.connect();
+			}
         }
     }
 
@@ -78,13 +79,15 @@ public class GooglePlusSocialNetwork extends SocialNetwork
     public void logout() {
         mConnectRequested = false;
 
-        if (mPlusClient.isConnected()) {
-            mSharedPreferences.edit().remove(SAVE_STATE_KEY_IS_CONNECTED).commit();
+        if (mGoogleApiClient.isConnected()) {
+			mSharedPreferences.edit().remove(SAVE_STATE_KEY_IS_CONNECTED)
+					.commit();
+			Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+			mGoogleApiClient.disconnect();
+			mGoogleApiClient.connect();
 
-            mPlusClient.clearDefaultAccount();
-            mPlusClient.disconnect();
-            mPlusClient.connect();
-        }
+			
+		}
     }
 
     @Override
@@ -96,7 +99,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
     public void requestCurrentPerson(OnRequestSocialPersonCompleteListener onRequestSocialPersonCompleteListener) {
         super.requestCurrentPerson(onRequestSocialPersonCompleteListener);
 
-        Person person = mPlusClient.getCurrentPerson();
+        Person person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
 
         if (person == null) {
             if (mLocalListeners.get(REQUEST_GET_CURRENT_PERSON) != null) {
@@ -173,20 +176,24 @@ public class GooglePlusSocialNetwork extends SocialNetwork
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPlusClient = new PlusClient.Builder(mSocialNetworkManager.getActivity(), this, this)
-                .setActions(MomentUtil.ACTIONS).build();
+        mGoogleApiClient = new GoogleApiClient.Builder(
+		mSocialNetworkManager.getActivity()).addApi(Plus.API)
+				.addScope(Plus.SCOPE_PLUS_LOGIN)
+				.addScope(Plus.SCOPE_PLUS_PROFILE)
+				.addConnectionCallbacks(this)
+				.addOnConnectionFailedListener(this).build();
     }
 
     @Override
     public void onStart() {
-        mPlusClient.connect();
+        mGoogleApiClient.connect();
     }
 
     @Override
     public void onStop() {
-        if (mPlusClient.isConnected()) {
-            mPlusClient.disconnect();
-        }
+        if (mGoogleApiClient.isConnected()) {
+			mGoogleApiClient.disconnect();
+		}
     }
 
     @Override
@@ -194,22 +201,24 @@ public class GooglePlusSocialNetwork extends SocialNetwork
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_AUTH) {
-            if (resultCode == Activity.RESULT_OK && !mPlusClient.isConnected() && !mPlusClient.isConnecting()) {
-                // This time, connect should succeed.
-                mPlusClient.connect();
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                if (mLocalListeners.get(REQUEST_LOGIN) != null) {
-                    mLocalListeners.get(REQUEST_LOGIN).onError(getID(), REQUEST_LOGIN,
-                            "canceled", null);
-                }
-            }
-        }
+			if (resultCode == Activity.RESULT_OK
+					&& !mGoogleApiClient.isConnected()
+					&& !mGoogleApiClient.isConnecting()) {
+				// This time, connect should succeed.
+				mGoogleApiClient.connect();
+			} else if (resultCode == Activity.RESULT_CANCELED) {
+				if (mLocalListeners.get(REQUEST_LOGIN) != null) {
+					mLocalListeners.get(REQUEST_LOGIN).onError(getID(),
+							REQUEST_LOGIN, "canceled", null);
+				}
+			}
+		}
     }
 
     @Override
     public void onConnected(Bundle bundle) {
         if (mConnectRequested) {
-            if (mPlusClient.getCurrentPerson() != null) {
+            if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
                 if (mLocalListeners.get(REQUEST_LOGIN) != null) {
                     mSharedPreferences.edit().putBoolean(SAVE_STATE_KEY_IS_CONNECTED, true).commit();
                     ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
@@ -228,9 +237,9 @@ public class GooglePlusSocialNetwork extends SocialNetwork
     }
 
     @Override
-    public void onDisconnected() {
-        mConnectRequested = false;
-    }
+	public void onConnectionSuspended(int arg0) {
+		mConnectRequested = false;
+	}
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
