@@ -2,7 +2,7 @@ apply plugin: 'android-library'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-version = "0.3.6"
+version = "0.3.7"
 group = "com.github.androidsocialnetworks"
 
 android {
