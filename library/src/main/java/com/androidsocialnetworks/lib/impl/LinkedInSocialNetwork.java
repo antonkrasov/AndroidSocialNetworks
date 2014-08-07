@@ -56,7 +56,18 @@ public class LinkedInSocialNetwork extends OAuthSocialNetwork {
     private static final String SAVE_STATE_KEY_OAUTH_TOKEN = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
     private static final String SAVE_STATE_KEY_OAUTH_SECRET = "LinkedInSocialNetwork.SAVE_STATE_KEY_OAUTH_SECRET";
 
-    private static final EnumSet<ProfileField> PROFILE_PARAMETERS = EnumSet.allOf(ProfileField.class);
+    //    internal server error
+//    private static final EnumSet<ProfileField> PROFILE_PARAMETERS = EnumSet.allOf(ProfileField.class);
+    private static final EnumSet<ProfileField> PROFILE_PARAMETERS = EnumSet.of(
+            ProfileField.ID,
+            ProfileField.FIRST_NAME,
+            ProfileField.LAST_NAME,
+            ProfileField.POSITIONS,
+            ProfileField.CONNECTIONS,
+            ProfileField.API_STANDARD_PROFILE_REQUEST_HEADERS,
+            ProfileField.PICTURE_URL,
+            ProfileField.PUBLIC_PROFILE_URL
+    );
 
     // max 16 bit to use in startActivityForResult
     private static final int REQUEST_AUTH = UUID.randomUUID().hashCode() & 0xFFFF;
