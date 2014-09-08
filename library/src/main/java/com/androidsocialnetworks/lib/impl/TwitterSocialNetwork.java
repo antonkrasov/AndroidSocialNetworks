@@ -122,6 +122,7 @@ public class TwitterSocialNetwork extends OAuthSocialNetwork {
         mSharedPreferences.edit()
                 .remove(SAVE_STATE_KEY_OAUTH_TOKEN)
                 .remove(SAVE_STATE_KEY_OAUTH_SECRET)
+                .remove(SAVE_STATE_KEY_USER_ID)
                 .apply();
 
         mTwitter = null;
