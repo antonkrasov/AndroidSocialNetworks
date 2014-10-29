@@ -84,7 +84,7 @@ Twitter, LinkedIn, Facebook and Google Plus, just build SocialNetworkManager and
 Library is still in development, so for now it's only available in staging repo.
 
 ```groovy
-  compile('com.github.androidsocialnetworks:library:0.3.2@aar') {
+  compile('com.github.androidsocialnetworks:library:0.3.7@aar') {
       transitive = true
   }
 ```
