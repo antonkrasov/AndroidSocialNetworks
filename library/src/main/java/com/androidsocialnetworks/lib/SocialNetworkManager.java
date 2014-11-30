@@ -176,7 +176,7 @@ public class SocialNetworkManager extends Fragment {
 
     public GooglePlusSocialNetwork getGooglePlusSocialNetwork() {
         if (!mSocialNetworksMap.containsKey(GooglePlusSocialNetwork.ID)) {
-            throw new IllegalStateException("Facebook wasn't initialized...");
+            throw new IllegalStateException("Google+ wasn't initialized...");
         }
 
         return (GooglePlusSocialNetwork) mSocialNetworksMap.get(GooglePlusSocialNetwork.ID);
