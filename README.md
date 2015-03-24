@@ -1,3 +1,5 @@
+### THIS PROJECT IS NO LONGER MAINTAINED, FEEL FREE TO FORK AND FIX IT FOR YOUR NEEDS
+
 Android Social Networks
 =====================
 
