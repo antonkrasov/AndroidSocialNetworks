@@ -1,5 +1,7 @@
 ### THIS PROJECT IS NO LONGER MAINTAINED, FEEL FREE TO FORK AND FIX IT FOR YOUR NEEDS
 
+There is also an Android Library that is being maintained, [CloudRail Android SDK](https://github.com/CloudRail/cloudrail-si-android-sdk) that offers support for all the networks below as well as GitHub, Slack, Windows Live, and Slack.
+
 Android Social Networks
 =====================
 
